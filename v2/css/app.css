@@ -225,11 +225,25 @@
   margin-top: 14px;
   border-bottom: 0;
 }
+
 .social-network.twitter {
   background-image: url("../img/twitter.png");
   margin-top: 14px;
   border-bottom: 0;
 }
+
+.social-network.QQ {
+  background-image: url("../img/QQ.png");
+  margin-top: 14px;
+  border-bottom: 0;
+}
+
+.social-network.zhihu {
+  background-image: url("../img/zhihu.png");
+  margin-top: 14px;
+  border-bottom: 0;
+}
+
 .social-network.github {
   background-image: url("../img/github.png");
   margin-top: 14px;

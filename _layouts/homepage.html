@@ -6,7 +6,16 @@
 </head>
 
 <body>
-  {{ content }}
+
+   {% include mainmenu.html %}
+
+   <br /><br />
+
+  <div class="container">
+    {{ content }}
+  </div>
+
+  {% include footer.html %}
   {% include scripts.html %}
 </body>
 
