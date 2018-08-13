@@ -3,8 +3,6 @@ layout: homepage
 title:  Julia Micro-Benchmarks
 ---
 
-{% include mainmenu.html %}
-
 <br>
 <br>
 
