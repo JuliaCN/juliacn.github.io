@@ -45,18 +45,18 @@
           <img src="images/minesweeper.png" class="pb-2 ecosystem-image" style="width: 400px; height: 280px" />
           <div class="container-fluid">
             <h4>
-              Build, Deploy or Embed Your Code
+              组建, 部署或者嵌入代码
             </h4>
             <p>
-              Julia lets you write UIs, statically compile your code, or even deploy it on a webserver. It also has powerful shell-like capabilities for managing other processes. It provides Lisp-like macros and other metaprogramming facilities.
+              Julia可以让你开发用户界面，静态编译代码，甚至部署到网页服务器上。它还有强大的类似壳层(shell)的管理进程功能。它还提供类似Lisp的宏和其它元编程的能力。
             </p>
             <p>
-              It is also friendly with other languages, providing stable interfaces with:
+              它还和其它语言友好相处，提供与
                 <a href = "https://docs.julialang.org/en/stable/manual/calling-c-and-fortran-code/">C</a>,
                 <a href = "https://github.com/JuliaPy/PyCall.jl">Python</a>,
                 <a href = "https://github.com/JuliaInterop/RCall.jl">R</a>,
                 <a href = "https://github.com/JuliaInterop/JavaCall.jl">Java</a>,
-              and many more.
+              还有更多的语言之间的稳定的界面。
             </p>
           </div>
         </div>
@@ -67,17 +67,16 @@
               <img src="images/parallel-prefix.png" class="pb-2 ecosystem-image" style="width: 400px; height: 280px" />
               <div class="container-fluid">
                 <h4>
-                  Parallel and Heterogeneous Computing
+                  并行和异构计算
                 </h4>
                 <p>
-                Julia is designed for parallelism, and provides built-in primitives for parallel computing at every level:
-                <b><a href = "https://docs.julialang.org/en/stable/stdlib/simd-types/"> vectorization (SIMD)</a></b>,
-                <b><a href = "https://docs.julialang.org/en/stable/manual/parallel-computing/#Multi-Threading-(Experimental)-1">multithreading</a></b> and
-                <b><a href = "https://docs.julialang.org/en/stable/manual/parallel-computing/">distributed computing</a></b>,
-                which <a href = "https://arxiv.org/pdf/1801.10277.pdf">lets it run on supercomputers</a>.
+                Julia设计上就具有并行性, 提供各个层次的内置并行计算能力:
+                <b><a href = "https://docs.julialang.org/en/stable/stdlib/simd-types/"> 矢量化(SIMD)</a></b>,
+                <b><a href = "https://docs.julialang.org/en/stable/manual/parallel-computing/#Multi-Threading-(Experimental)-1">多线程</a></b> 和
+                <a href = "https://arxiv.org/pdf/1801.10277.pdf">超级计算机</a>上运行的<b><a href = "https://docs.julialang.org/en/stable/manual/parallel-computing/">分布式计算</a></b>,
                 </p>
                 <p>
-                Julia's sophisticated compiler can also generate machine code for various hardware accelerators, such as <a href = "https://github.com/JuliaGPU/CUDAnative.jl">GPUs</a> and Xeon Phis. Write generic code that runs all platforms, without worrying about lower level details.
+                Julia复杂的编译器可以生成各种硬件加速器的机器码，比如<a href = "https://github.com/JuliaGPU/CUDAnative.jl">GPUs</a> 和<a href="https://zh.wikipedia.org/wiki/%E8%87%B3%E5%BC%BA%E8%9E%8D%E6%A0%B8">至强融核</a>。 编写在所有平台上都可以运行的通用代码, 不需要考虑底层的细节。
                 </p>
               </div>
             </div>
@@ -93,20 +92,20 @@
                   规模化机器学习
                 </h4>
                 <p>
-                  Julia provides powerful tools for deep learning
-                  (<a href = "https://github.com/FluxML/Flux.jl">Flux</a> and
-                  <a href = "https://github.com/denizyuret/Knet.jl">Knet</a>),
-                  <a href = "http://juliaml.github.io"> machine learning </a> and AI. Julia’s mathematical syntax makes it an ideal way to express algorithms just as they are written in papers, build trainable models with
-                  <a href = "http://www.juliadiff.org">automatic differentiation</a>,
-                  <a href = "https://github.com/JuliaGPU/CuArrays.jl">GPU acceleration</a> and support for terabytes of data.
+                  Julia为<a href = "http://juliaml.github.io">机器学习</a>和人工智能提供强大的深度学习工具
+                  (<a href = "https://github.com/FluxML/Flux.jl">Flux</a> and <a href = "https://github.com/denizyuret/Knet.jl">Knet</a>)。
+                  和论文中发表的数学公式一样, Julia的数学语法是表达算法的理想方式，通过
+                  <a href = "http://www.juliadiff.org">自动微分</a>,
+                  <a href = "https://github.com/JuliaGPU/CuArrays.jl">GPU加速</a>和terabytes数据支持来
+                  建立可训练的模型。
                 </p>
                 <p>
-                  Julia's rich machine learning ecosystem also provides supervised learning algorithms such as
-                  <a href = "https://github.com/JuliaStats/GLM.jl">regression</a>,
-                  <a href = "https://github.com/bensadeghi/DecisionTree.jl">decision trees</a>, and unsupervised learning algorithms such as
-                  <a href = "https://github.com/JuliaStats/Clustering.jl">clustering</a>. You can also find packages for
-                  <a href = "https://github.com/sisl/BayesNets.jl">Bayesian Networks</a> and
-                  <a href = "https://github.com/JuliaStats/Klara.jl">Markov Chain Monte Carlo</a>.
+                  Julia丰富的机器学习生态系统还提供监督式学习算法, 比如
+                  <a href = "https://github.com/JuliaStats/GLM.jl">回归</a>,
+                  <a href = "https://github.com/bensadeghi/DecisionTree.jl">决策树</a>, 以及非监督式学习算法，比如
+                  <a href = "https://github.com/JuliaStats/Clustering.jl">聚类</a> 。您还可以找到
+                  <a href = "https://github.com/sisl/BayesNets.jl">贝叶斯网络</a>和
+                  <a href = "https://github.com/JuliaStats/Klara.jl">马尔科夫蒙特卡洛</a>的外部库。
                 </p>
               </div>
             </div>
