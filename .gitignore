@@ -1,0 +1,7 @@
+/_site
+/.ipynb_checkpoints
+.*~
+.*.sw?
+.DS_Store
+
+Gemfile.lock
