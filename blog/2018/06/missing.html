@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>First-Class Statistical Missing Values Support in Julia 0.7</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>First-Class Statistical Missing Values Support in Julia 0.7</h1>
+
+  <p class="metadata">
+    <span class="timestamp">19 Jun 2018</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author"><a href="http://bouchet-valat.site.ined.fr">Milan Bouchet-Valat</a></span>
+    
+  </p>
+
+  <p>The 0.7 release of Julia will soon introduce first-class support for statistical
+missing values. Being essential for statistical analyses and data management,
+this feature is common among specialized languages, such as
+<a href="https://en.wikipedia.org/wiki/Null_(SQL)">SQL</a> (with the <code class="highlighter-rouge">NULL</code> value),
+<a href="https://cran.r-project.org/doc/manuals/r-release/R-lang.html#NA-handling">R</a> (<code class="highlighter-rouge">NA</code>),
+<a href="https://support.sas.com/documentation/cdl/en/lrcon/62955/HTML/default/viewer.htm#a001292604.htm">SAS</a>
+(<code class="highlighter-rouge">.</code>, <code class="highlighter-rouge">' '</code>, etc.) or
+<a href="https://www.stata.com/support/faqs/data-management/logical-expressions-and-missing-values/">Stata</a>
+(<code class="highlighter-rouge">.</code>, etc.). It is however quite rare among general-purpose languages, where
+<a href="https://en.wikipedia.org/wiki/Nullable_type"><code class="highlighter-rouge">Nullable</code></a> or
+<a href="https://en.wikipedia.org/wiki/Option_type"><code class="highlighter-rouge">Option</code></a> types generally do not allow
+implicit propagation of null values (they require
+<a href="https://blogs.msdn.microsoft.com/ericlippert/2007/06/27/what-exactly-does-lifted-mean/">lifting</a>)
+and do not provide an efficient representation of arrays with missing values<sup id="fnref:nullable"><a href="#fn:nullable" class="footnote">1</a></sup>.</p>
+
+<p>Starting from Julia 0.7, missing values are represented using the new <code class="highlighter-rouge">missing</code> object.
+Resulting from intense design discussions, experimentations and language
+improvements developed over several years, it is the heir of the <code class="highlighter-rouge">NA</code> value
+implemented in the <a href="https://github.com/JuliaStats/DataArrays.jl">DataArrays</a>
+package, which used to be the standard way of representing missing data in Julia.
+<code class="highlighter-rouge">missing</code> is actually very similar to its predecessor <code class="highlighter-rouge">NA</code>, but it benefits from many
+improvements in the Julia compiler and language which make it fast, making it possible
+to drop the <code class="highlighter-rouge">DataArray</code> type and using the standard <code class="highlighter-rouge">Array</code> type instead<sup id="fnref:PDA"><a href="#fn:PDA" class="footnote">2</a></sup>.
+Drawing from the experience of existing languages, the design of <code class="highlighter-rouge">missing</code> closely
+follows that of SQL’s <code class="highlighter-rouge">NULL</code> and R’s <code class="highlighter-rouge">NA</code>, which can be considered
+as the most consistent implementations with regard to the support of missing values.
+Incidentally, this makes it easy to generate SQL requests from Julia code or to have
+R and Julia interoperate.</p>
+
+<p>This framework is used by
+<a href="https://discourse.julialang.org/t/dataframes-0-11-released/7296/">version 0.11</a>
+of the <a href="https://github.com/JuliaStats/DataFrames.jl/">DataFrames</a> package,
+which already works on Julia 0.6 via the <a href="https://github.com/JuliaData/Missings.jl">Missings</a>
+package, even if performance improvements are only available on Julia 0.7.</p>
+
+<p>The new implementation of statistical missing values follows three principles we deem
+as essential for a modern scientific computing environment:</p>
+
+<ol>
+  <li>
+    <p>Missing values are safe by default: when passed to most functions, they either
+propagate or throw an error.</p>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">missing</code> object can be used in combination with any type, be it defined in
+Base, in a package or in user code.</p>
+  </li>
+  <li>
+    <p>Standard Julia code working with missing values is efficient, without special tricks.</p>
+  </li>
+</ol>
+
+<p>The post first presents the behavior of the new <code class="highlighter-rouge">missing</code> object, and then details its
+implementation, in particular showing how it provides blazing performance while still
+being fully generic. Finally, current limitations and future improvements are discussed.</p>
+
+<h2 id="the-missing-object-safe-and-generic-missing-values">The ‘missing’ object: safe and generic missing values</h2>
+
+<p>One of Julia’s strengths is that user-defined types are as powerful and fast as built-in
+types. To fully take advantage of this, missing values had to support not only standard
+types like <code class="highlighter-rouge">Int</code>, <code class="highlighter-rouge">Float64</code> and <code class="highlighter-rouge">String</code>, but also any custom type. For this reason,
+Julia cannot use the so-called <em>sentinel</em> approach like R and Pandas to represent
+missingness, that is reserving special values within a type’s domain. For example,
+R represents missing values in integer and boolean vectors using the smallest
+representable 32-bit integer (<code class="highlighter-rouge">-2,147,483,648</code>), and missing values in floating point
+vectors using a specific <code class="highlighter-rouge">NaN</code> payload (<code class="highlighter-rouge">1954</code>, which rumour says refers to Ross Ihaka’s
+year of birth). Pandas only supports missing values in floating point vectors,
+and conflates them with <code class="highlighter-rouge">NaN</code> values.</p>
+
+<p>In order to provide a consistent representation of missing values which can be combined
+with any type, Julia 0.7 will use <code class="highlighter-rouge">missing</code>, an object with no fields which is the only
+instance of the <code class="highlighter-rouge">Missing</code> singleton type. This is a normal Julia type for which a series
+of useful methods are implemented. Values which can be either of type <code class="highlighter-rouge">T</code> or missing
+can simply be declared as <code class="highlighter-rouge">Union{Missing,T}</code>. For example, a vector holding either integers
+or missing values is of type <code class="highlighter-rouge">Array{Union{Missing,Int},1}</code>:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">]</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}:</span>
+ <span class="mi">1</span>
+  <span class="n">missing</span>
+</code></pre></div></div>
+
+<p>An interesting property of this approach is that <code class="highlighter-rouge">Array{Union{Missing,T}}</code> behaves just
+like a normal <code class="highlighter-rouge">Array{T}</code> as soon as missing values have been replaced or skipped
+(see below).</p>
+
+<p>As can be seen in the example above, promotion rules are defined so that concatenating
+values of type <code class="highlighter-rouge">T</code> and missing values gives an array with element type <code class="highlighter-rouge">Union{Missing,T}</code>
+rather than <code class="highlighter-rouge">Any</code><sup id="fnref:typejoin"><a href="#fn:typejoin" class="footnote">3</a></sup>:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">promote_type</span><span class="x">(</span><span class="kt">Int</span><span class="x">,</span> <span class="n">Missing</span><span class="x">)</span>
+<span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">}</span>
+</code></pre></div></div>
+
+<p>These promotion rules are essential for performance, as we will see below.</p>
+
+<p>In addition to being generic and efficient, the main design goal of the new <code class="highlighter-rouge">missing</code>
+framework is to ensure safety, in the sense that missing values should never
+be silently ignored nor replaced with non-missing values. Missing values are a
+delicate issue in statistical work, and a frequent source of bugs or invalid results.
+Ignoring missing values amounts to performing data imputation, which should never
+happen silently without an explicit request. This is unfortunately the case in some
+major statistical languages: for example, in SAS and Stata, <code class="highlighter-rouge">x &lt; 100</code> will silently
+return <code class="highlighter-rouge">true</code> or <code class="highlighter-rouge">false</code> even if <code class="highlighter-rouge">x</code> is missing<sup id="fnref:lt"><a href="#fn:lt" class="footnote">4</a></sup>. This behavior is known to
+have caused incorrect results in published scientific work<sup id="fnref:35h"><a href="#fn:35h" class="footnote">5</a></sup>.
+Sentinel approaches also suffer from bugs in corner cases: for example, in R,
+<code class="highlighter-rouge">NA + NaN</code> returns <code class="highlighter-rouge">NA</code> but <code class="highlighter-rouge">NaN + NA</code> returns <code class="highlighter-rouge">NaN</code> due to floating point
+computation rules.</p>
+
+<p>Therefore, passing <code class="highlighter-rouge">missing</code> to a function will always return <code class="highlighter-rouge">missing</code> or throw
+an error (except for a few special functions presented below). For convenience,
+standard operators and mathematical functions systematically propagate missing
+values:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">missing</span>
+<span class="n">missing</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">missing</span><span class="o">^</span><span class="mi">2</span>
+<span class="n">missing</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">cos</span><span class="x">(</span><span class="n">missing</span><span class="x">)</span>
+<span class="n">missing</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">round</span><span class="x">(</span><span class="n">missing</span><span class="x">)</span>
+<span class="n">missing</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="s">"a"</span> <span class="o">*</span> <span class="n">missing</span>
+<span class="n">missing</span>
+</code></pre></div></div>
+
+<p>Reduction operations inherit the propagating behavior of basic operators:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">])</span>
+<span class="n">missing</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">])</span>
+<span class="n">missing</span>
+</code></pre></div></div>
+
+<p>On the other hand, indexing into a <code class="highlighter-rouge">Vector</code> with missing values is an error.
+Missing values are <em>not</em> silently skipped, which would be equivalent to assuming
+that they are <code class="highlighter-rouge">false</code>.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">3</span>
+<span class="mi">1</span><span class="x">:</span><span class="mi">3</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[[</span><span class="n">true</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="n">false</span><span class="x">]]</span>
+<span class="n">ERROR</span><span class="x">:</span> <span class="n">ArgumentError</span><span class="x">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">check</span> <span class="n">bounds</span> <span class="k">for</span> <span class="n">indices</span> <span class="n">of</span> <span class="k">type</span><span class="nc"> Missing</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[[</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">]]</span>
+<span class="n">ERROR</span><span class="x">:</span> <span class="n">ArgumentError</span><span class="x">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">check</span> <span class="n">bounds</span> <span class="k">for</span> <span class="n">indices</span> <span class="n">of</span> <span class="k">type</span><span class="nc"> Missing</span>
+</code></pre></div></div>
+
+<p>Convenience functions are provided to get rid of missing values explicitly.
+First, the <code class="highlighter-rouge">skipmissing</code> function returns an iterator over the non-missing values
+in the passed collection. It is particularly useful to ignore missing values when
+computing reductions. Call <code class="highlighter-rouge">collect</code> to obtain a vector with all non-missing values.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
+<span class="mi">3</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
+<span class="mf">1.5</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">collect</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[</span><span class="n">collect</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))]</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+</code></pre></div></div>
+
+<p>Second, the <code class="highlighter-rouge">coalesce</code> function returns the first non-missing argument (as in SQL),
+which as a special case allows replacing missing values with a particular value.
+Combined with the “dot” broadcasting syntax, it allows replacing all missing
+values in an array:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="x">(</span><span class="n">missing</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
+<span class="mi">0</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="x">(</span><span class="n">missing</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
+<span class="mi">0</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="o">.</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">],</span> <span class="mi">0</span><span class="x">)</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">1</span>
+<span class="mi">0</span>
+<span class="mi">2</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="o">.</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">],</span> <span class="x">[</span><span class="mi">2</span><span class="x">,</span> <span class="mi">3</span><span class="x">,</span> <span class="n">missing</span><span class="x">])</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">1</span>
+<span class="mi">3</span>
+<span class="mi">2</span>
+</code></pre></div></div>
+
+<p>A restricted set of functions and operators follow different semantics than
+those described above. They can be grouped into four classes:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">ismissing</code> returns <code class="highlighter-rouge">true</code> if the input is <code class="highlighter-rouge">missing</code>, and <code class="highlighter-rouge">false</code> otherwise.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">===</code>, <code class="highlighter-rouge">isequal</code> and <code class="highlighter-rouge">isless</code> always return a Boolean. <code class="highlighter-rouge">===</code> and <code class="highlighter-rouge">isequal</code> return
+<code class="highlighter-rouge">true</code> when comparing <code class="highlighter-rouge">missing</code> to <code class="highlighter-rouge">missing</code>, and <code class="highlighter-rouge">false</code> otherwise.
+<code class="highlighter-rouge">isless</code> also belongs to this class, and returns <code class="highlighter-rouge">true</code> when
+comparing any non-missing value to <code class="highlighter-rouge">missing</code>, and <code class="highlighter-rouge">false</code> otherwise: missing values
+are sorted last.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">&amp;</code>, <code class="highlighter-rouge">|</code> and <code class="highlighter-rouge">⊻</code>/<code class="highlighter-rouge">xor</code> implement <a href="https://en.wikipedia.org/wiki/Three-valued_logic">three-valued logic</a>,
+returning either a Boolean value or <code class="highlighter-rouge">missing</code> depending on whether the result is
+fully determined even without knowing what could be the value behind <code class="highlighter-rouge">missing</code>.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">==</code>, <code class="highlighter-rouge">&lt;</code>, <code class="highlighter-rouge">&gt;</code>, <code class="highlighter-rouge">&lt;=</code> and <code class="highlighter-rouge">&gt;=</code> return <code class="highlighter-rouge">missing</code> if one of the operands is <code class="highlighter-rouge">missing</code>
+just like any other operators. When called on collections containing missing values,
+these operators are applied recursively and also follow three-valued logic: they
+return <code class="highlighter-rouge">missing</code> if the result would depend on what value a <code class="highlighter-rouge">missing</code> element would take.
+This also applies to <code class="highlighter-rouge">all</code>, <code class="highlighter-rouge">any</code> and <code class="highlighter-rouge">in</code>.</p>
+  </li>
+</ul>
+
+<p>Short-circuiting operators <code class="highlighter-rouge">&amp;&amp;</code> and <code class="highlighter-rouge">||</code>, just like <code class="highlighter-rouge">if</code> conditions, throw an error
+if they need to evaluate a missing value: whether or not code should be run cannot
+be determined in that case.</p>
+
+<p>Naturally, functions defined based on those listed above inherit their behavior. For example,
+<code class="highlighter-rouge">findall(isequal(1), [1, missing, 2])</code> returns <code class="highlighter-rouge">[1]</code>, but <code class="highlighter-rouge">findall(==(1), [1, missing, 2])</code>
+throws an error when encountering a missing value.</p>
+
+<p>See the <a href="https://docs.julialang.org/en/latest/manual/missing/">manual</a> for more details
+and illustrations about these rules. As noted above, they are generally consistent with
+those implemented by SQL’s <code class="highlighter-rouge">NULL</code> and R’s <code class="highlighter-rouge">NA</code>.</p>
+
+<h2 id="from-nullable-to-missing-and-nothing">From ‘Nullable’ to ‘missing’ and ‘nothing’</h2>
+
+<p>While it is similar to the previous <code class="highlighter-rouge">NA</code> value, the new <code class="highlighter-rouge">missing</code> object also replaces
+the <code class="highlighter-rouge">Nullable</code> type introduced in Julia 0.4, which turned out not to be the best choice
+to represent missing values<sup id="fnref:jmw"><a href="#fn:jmw" class="footnote">6</a></sup>. <code class="highlighter-rouge">Nullable</code> suffered from several issues:</p>
+
+<ul>
+  <li>
+    <p>It was used to represent two very different kinds of missingness, that we
+sometimes call respectively the “software engineer’s null” and the “data
+scientist’s null”. The former refers to what <code class="highlighter-rouge">Nullable</code> is generally used for
+in most languages, i.e. <code class="highlighter-rouge">null</code> denotes the absence of a value, and one of the
+advantages of the <code class="highlighter-rouge">Nullable</code> type is to force developers to handle explicitly
+the case when there is no value. The latter refers to statistical missing values,
+which generally <em>propagate</em> silently in specialized languages, which is essential
+for convenience. It has become increasingly clear that these two uses conflict
+(even if specialized syntax could have helped mitigating this).</p>
+  </li>
+  <li>
+    <p>To ensure type-stability, the <code class="highlighter-rouge">T</code> type parameter of <code class="highlighter-rouge">Nullable{T}</code> had to be
+specified whether a value was present or not. Finding out the appropriate type
+in the absence of any value (dubbed the “counterfactual return type”) has
+turned out to be problematic in many cases, where code had to rely heavily
+on explicit calls to type inference, which would better be handled directly
+by the compiler.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Array{Nullable{T}}</code> objects used a sub-optimal memory layout where <code class="highlighter-rouge">T</code> values
+and the associated <code class="highlighter-rouge">Bool</code> indicator were stored side-by-side, which wastes
+space due to aligment constraints and is not the most efficient for processing.
+Therefore, specialized array types like
+<a href="https://github.com/JuliaStats/NullableArrays.jl"><code class="highlighter-rouge">NullableArray</code></a> had to be used
+(similar to <code class="highlighter-rouge">DataArray</code>).</p>
+  </li>
+</ul>
+
+<p>For all these reasons, <code class="highlighter-rouge">Nullable</code>
+<a href="https://github.com/JuliaLang/julia/pull/23642">no longer exists</a>
+in Julia 0.7. Several replacements are provided, depending on the use case:</p>
+
+<ul>
+  <li>
+    <p>As presented above, data which can contain statistical missing values should be
+represented as <code class="highlighter-rouge">Union{Missing,T}</code>, i.e. either a value of type <code class="highlighter-rouge">T</code> or the
+<code class="highlighter-rouge">missing</code> object.</p>
+  </li>
+  <li>
+    <p>Situations where there may be a value of type <code class="highlighter-rouge">T</code> or no value should use
+<code class="highlighter-rouge">Union{Nothing,T}</code> (equivalent to <code class="highlighter-rouge">Union{Void,T}</code> on Julia 0.6). As a special case,
+if <code class="highlighter-rouge">nothing</code> is a possible value (i.e. <code class="highlighter-rouge">Nothing &lt;: T</code>), <code class="highlighter-rouge">Union{Nothing,Some{T}}</code>
+should be used instead. This pattern is used by e.g. <code class="highlighter-rouge">findfirst</code> and <code class="highlighter-rouge">tryparse</code>.</p>
+  </li>
+</ul>
+
+<p>This blog post is centered on the first case, and hopefully the description of the behavior
+of <code class="highlighter-rouge">missing</code> above makes it clear why it is useful to distinguish it from <code class="highlighter-rouge">nothing</code>.
+Indeed, while <code class="highlighter-rouge">missing</code> generally propagates when passed to standard mathematical operators
+and functions, <code class="highlighter-rouge">nothing</code> does not implement any specific method and therefore generally
+gives a <code class="highlighter-rouge">MethodError</code>, forcing the caller to handle it explicitly. However, considerations
+regarding performance developed below apply equally to <code class="highlighter-rouge">missing</code> and <code class="highlighter-rouge">nothing</code> (as well as
+to other custom types in equivalent situations).</p>
+
+<h2 id="an-efficient-representation">An efficient representation</h2>
+
+<p>Another of Julia’s strengths is that one does not need to use tricks such as vectorized
+calls to make code fast. In this spirit, working with missing values had to be
+efficient without requiring special treatment. While the <code class="highlighter-rouge">Union{Missing,T}</code> approach
+would have been very inefficient in previous Julia versions, the situation has
+dramatically changed thanks to two improvements implemented in the compiler in
+Julia 0.7.</p>
+
+<p>The first improvement involves optimizations for small <code class="highlighter-rouge">Union</code> types.
+When type inference detects that a variable can hold values of multiple types but
+that these types are in limited number (as is the case for <code class="highlighter-rouge">Union{Missing,T}</code>),
+the compiler will generate optimized code for each possible type in separate branches,
+and run the appropriate one after checking the actual type of the value<sup id="fnref:splitting"><a href="#fn:splitting" class="footnote">7</a></sup>.
+This produces code which is very close to that typically used with the sentinel
+approach, in which one needs to check manually whether the processed value is equal
+to the sentinel. This optimization is of course only available when the type is
+inferred as a small <code class="highlighter-rouge">Union</code>: it is therefore essential to work with
+<code class="highlighter-rouge">Array{Union{Missing,T}}</code> rather than <code class="highlighter-rouge">Array{Any}</code> objects, to provide the compiler
+with the necessary type information.</p>
+
+<p>The second improvement consists in using a compact memory layout for <code class="highlighter-rouge">Array</code> object
+whose element type is a <code class="highlighter-rouge">Union</code> of bits types, i.e. immutable types which contain
+no references (see the <a href="https://docs.julialang.org/en/latest/base/base/#Base.isbits"><code class="highlighter-rouge">isbits</code></a>
+function). This includes <code class="highlighter-rouge">Missing</code> and basic types such as <code class="highlighter-rouge">Int</code>, <code class="highlighter-rouge">Float64</code>,
+<code class="highlighter-rouge">Complex{Float64}</code> and <code class="highlighter-rouge">Date</code>. When <code class="highlighter-rouge">T</code> is a bits type, <code class="highlighter-rouge">Array{Union{Missing,T}}</code>
+objects are internally represented as a pair of arrays of the same size:
+an <code class="highlighter-rouge">Array{T}</code> holding non-missing values and uninitialized memory for missing values;
+and an <code class="highlighter-rouge">Array{UInt8}</code> storing a <em>type tag</em> indicating whether each entry
+is of type <code class="highlighter-rouge">Missing</code> or <code class="highlighter-rouge">T</code>.</p>
+
+<p>This layout consumes slightly more memory than the sentinel approach, as the
+type tag part occupies one byte for each entry. But this overhead is reasonable:
+for example, the memory usage of an <code class="highlighter-rouge">Array{Union{Missing,Float64}}</code> is only
+12.5% higher than that of an <code class="highlighter-rouge">Array{Float64}</code>. Compared with the sentinel approach,
+it has the advantage of being fully generic (as we have seen above).
+Actually, this mechanism can be used in other situations, for example with <code class="highlighter-rouge">Union{Nothing,Int}</code>
+(which is the element type of the array returned by <code class="highlighter-rouge">indexin</code> in Julia 0.7).</p>
+
+<p>Arrays of non-bits types with missing values were already and continue to be represented
+as efficiently as their counterparts without missing values. Indeed, such arrays consist of
+pointers to the actual objects which live in a different memory area. Missing values
+can be represented as a special pointer just like non-missing values. This is notably
+the case for <code class="highlighter-rouge">Array{Union{Missing,String}}</code>.</p>
+
+<p>The efficient memory layout of <code class="highlighter-rouge">Array</code> in the presence of missing values makes it
+unnecessary to use dedicated array types like
+<a href="https://github.com/JuliaStats/DataArrays.jl"><code class="highlighter-rouge">DataArray</code></a>. In fact, the layout
+of the <code class="highlighter-rouge">DataArray</code> type is very similar to that of <code class="highlighter-rouge">Array{Union{Missing,T}}</code>
+described above. The only difference is that it uses a <code class="highlighter-rouge">BitArray</code> rather than an
+<code class="highlighter-rouge">Array{UInt8}</code> to indicate whether a value is missing, therefore taking 1 bit per
+entry rather than 8 bits. Even if it consumes more memory, the <code class="highlighter-rouge">Array{UInt8}</code> mask
+approach is faster (at least in the current state of <code class="highlighter-rouge">BitArray</code>), and it generalizes
+to <code class="highlighter-rouge">Union</code>s of more than two types. However, we are aware that other implementations
+such as <a href="https://www.postgresql.org/docs/9.5/static/storage-page-layout.html">PostgreSQL</a>
+or <a href="https://arrow.apache.org/docs/memory_layout.html#null-bitmaps">Apache Arrow</a>
+use bitmaps equivalent to <code class="highlighter-rouge">BitArray</code>.</p>
+
+<p>This efficient representation allows the compiler to generate very efficient code when
+processing arrays with missing values. For example, the following function is one of
+the most straightforward ways of computing the sum of non-missing values in an array:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> sum_nonmissing</span><span class="x">(</span><span class="n">X</span><span class="o">::</span><span class="n">AbstractArray</span><span class="x">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">X</span><span class="x">))</span>
+    <span class="nd">@inbounds</span> <span class="nd">@simd</span> <span class="k">for</span> <span class="n">x</span> <span class="k">in</span> <span class="n">X</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!==</span> <span class="n">missing</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">x</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="n">s</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>On Julia 0.7, this relatively naive implementation generates very efficient native
+code when the input is an <code class="highlighter-rouge">Array{Int}</code> object. In fact, thanks to masked
+<a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a> instructions, the presence of missing values
+<em>does not make any significant difference</em> to performance.
+In the following benchmark, <code class="highlighter-rouge">X1</code> is a vector of random <code class="highlighter-rouge">Int32</code> entries, <code class="highlighter-rouge">X2</code> holds the same
+data but also potentially allows for the presence of <code class="highlighter-rouge">missing</code> values, and <code class="highlighter-rouge">X3</code> actually
+contains 10% of <code class="highlighter-rouge">missing</code> values at random positions. <code class="highlighter-rouge">sum_nonmissing</code> takes about the
+same time for all three arrays (on an Intel Skylake CPU with AVX2 instructions enabled).</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">X1</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="kt">Int32</span><span class="x">,</span> <span class="mi">10_000_000</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">X2</span> <span class="o">=</span> <span class="n">Vector</span><span class="x">{</span><span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Int32</span><span class="x">}}(</span><span class="n">X1</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">X3</span> <span class="o">=</span> <span class="n">ifelse</span><span class="o">.</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="n">length</span><span class="x">(</span><span class="n">X2</span><span class="x">))</span> <span class="o">.&lt;</span> <span class="mf">0.9</span><span class="x">,</span> <span class="n">X2</span><span class="x">,</span> <span class="n">missing</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">X1</span><span class="x">);</span>
+  <span class="mf">2.738</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">X2</span><span class="x">);</span>
+  <span class="mf">3.216</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">X3</span><span class="x">);</span>
+  <span class="mf">3.214</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p>As a reference point, R’s <code class="highlighter-rouge">sum(x, na.rm=TRUE)</code> function, which is implemented in C,
+takes about 7 ms without missing values and 19 ms with missing values (in R, <code class="highlighter-rouge">integer</code>
+arrays always allow for missing values).</p>
+
+<h2 id="current-limitations-and-future-developments">Current limitations and future developments</h2>
+
+<p>Everything is not perfect though, and some improvements are still needed. The good news is
+that the most difficult parts have already been implemented in Julia 0.7.</p>
+
+<p>A first series of limitations concerns performance. Even though the sum example above is
+arguably impressive, at the time of writing the compiler is not yet able to generate
+fast code like this in all situations. For example, missing values still have a
+significant performance impact for arrays of <code class="highlighter-rouge">Float64</code> elements, which are essential
+for numeric computing:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y1</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">10_000_000</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y2</span> <span class="o">=</span> <span class="n">Vector</span><span class="x">{</span><span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Float64</span><span class="x">}}(</span><span class="n">Y1</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y3</span> <span class="o">=</span> <span class="n">ifelse</span><span class="o">.</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="n">length</span><span class="x">(</span><span class="n">Y2</span><span class="x">))</span> <span class="o">.&lt;</span> <span class="mf">0.9</span><span class="x">,</span> <span class="n">Y2</span><span class="x">,</span> <span class="n">missing</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">Y1</span><span class="x">);</span>
+  <span class="mf">5.733</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">Y2</span><span class="x">);</span>
+  <span class="mf">13.854</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">Y3</span><span class="x">);</span>
+  <span class="mf">17.780</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p>However, this is nothing to be ashamed of, as Julia is still faster than R:
+<code class="highlighter-rouge">sum(x, na.rm=TRUE)</code> takes about 11 ms for a <code class="highlighter-rouge">numeric</code> array with no missing values,
+and 21 ms for an array with 10% of missing values. This proves the validity of the
+<code class="highlighter-rouge">Union{Missing,T}</code> approach , even though there is still some room for improvement.</p>
+
+<p>Compiler improvements are also needed to ensure fast native code is generated like
+in the examples above even for more complex patterns. In particular, replacing
+<code class="highlighter-rouge">x !== missing</code> by <code class="highlighter-rouge">ismissing(x)</code> in <code class="highlighter-rouge">sum_nonmissing</code>
+<a href="https://github.com/JuliaLang/julia/issues/27681">currently</a> leads to a large
+performance drop. One can also note that conversion between <code class="highlighter-rouge">Array{T}</code> and
+<code class="highlighter-rouge">Array{Union{Missing,T}}</code> <a href="https://github.com/JuliaLang/julia/issues/26681">currently</a>
+involves a copy, which could in theory be avoided for bits types. Finally,
+<code class="highlighter-rouge">sum(skipmissing(x))</code> is <a href="https://github.com/JuliaLang/julia/issues/27679">currently</a>
+ somewhat slower than the custom <code class="highlighter-rouge">sum_nonmissing</code> function due to the way the generic
+<code class="highlighter-rouge">mapreduce</code> implementation works.
+Hopefully these issues will be fixed in a not-too-distant future, as they do not
+require any fundamental changes.</p>
+
+<p>Another area which could be improved concerns convenience syntax and functions
+to deal with missing values. We are fully aware that <code class="highlighter-rouge">Union{Missing,T}</code> is quite verbose
+for those using missing values in daily work. The <code class="highlighter-rouge">T?</code> syntax has been discussed
+as a compact alternative, inspired by languages with <code class="highlighter-rouge">Nullable</code> types. However it is
+not clear yet whether it would be more appropriate to attribute this syntax to
+<code class="highlighter-rouge">Union{Missing,T}</code> or to <code class="highlighter-rouge">Union{Nothing,T}</code>. It is therefore currently reserved waiting
+for a decision. A possible solution would be to introduce one dedicated syntax for each
+of these types.</p>
+
+<p>Convenience functions would also be useful to propagate missing values with functions
+which have not been written to do it automatically. Constructs like <code class="highlighter-rouge">lift(f, x)</code>,
+<code class="highlighter-rouge">lift(f)(x)</code> and <code class="highlighter-rouge">f?(x)</code> have been <a href="https://github.com/JuliaLang/julia/pull/26661">discussed</a>
+to provide a shorter equivalent of <code class="highlighter-rouge">ismissing(x) ? missing : f(x)</code>.</p>
+
+<p>A more fundamental limitation is inherent to the choice of the <code class="highlighter-rouge">Union{Missing,T}</code>
+representation. In this representation, a non-missing value does not carry any information
+about whether it could have been missing, i.e. about whether it has been extracted from an
+array or from a column of a data set which allows for missing values. In practice, this means
+that, if <code class="highlighter-rouge">x</code> is an <code class="highlighter-rouge">Array{Union{Missing,T}}</code> but does not actually contain missing values,
+<code class="highlighter-rouge">map(identity, x)</code> will return an <code class="highlighter-rouge">Array{T}</code>. This is because <code class="highlighter-rouge">map</code> chooses its return type
+based only on the actual contents of the output, to avoid depending on type inference
+(which can vary depending on compiler improvements). This also means that when applying
+a function to each element in an <code class="highlighter-rouge">Array{Union{T,Missing}}</code>, one cannot choose the result
+type based on the type of the first element, which can be problematic e.g. to decide
+whether a table column should allow for <code class="highlighter-rouge">NULL</code> entries in a SQL database. This issue has
+been discussed <a href="https://discourse.julialang.org/t/missing-data-and-namedtuple-compatibility/8136/">at length</a>
+in several occasions, but it is not clear yet which mitigating approach is the best one.</p>
+
+<p>Despite these limitations, we believe that missing values support in Julia 0.7 will be one
+of the most complete even among specialized statistical languages, both in terms of features
+and in terms of performance.</p>
+
+<p><strong>Author</strong>: <a href="http://bouchet-valat.site.ined.fr">Milan Bouchet-Valat</a>, Sociologist,
+Research scientist at the French Institute for Demographic Studies (Ined), Paris.</p>
+
+<p><strong>Acknowledgements</strong>: This framework is the result of collective efforts over several
+years. John Myles White led the reflection around missing values support in Julia
+until 2016. Jameson Nash and Keno Fischer implemented compiler optimizations, and Jacob Quinn
+implemented the efficient memory layout for arrays. Alex Arslan,
+Jeff Bezanson, Stefan Karpinski, Jameson Nash and Jacob Quinn have been the most central
+participants to this long and complex design work. Discussions have involved many other
+developers with sometimes dissenting views, among which David Anthoff deserves
+a special mention.</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:nullable">
+
+      <p><a href="https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/nullable-types/using-nullable-types">C#</a>
+(with <code class="highlighter-rouge">null</code>) and <a href="https://docs.microsoft.com/en-us/dotnet/visual-basic/programming-guide/language-features/data-types/nullable-value-types">VB.NET</a>
+(with <code class="highlighter-rouge">Nothing</code>) are two partial exceptions to this rule, since they provide
+<em>lifted</em> operators which operate on <code class="highlighter-rouge">Nullable</code> arguments and return <code class="highlighter-rouge">Nullable</code>s. <a href="#fnref:nullable" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:PDA">
+
+      <p>The <code class="highlighter-rouge">PooledDataArray</code> type shipped in the same package can be replaced with
+either <a href="https://github.com/JuliaData/CategoricalArrays.jl"><code class="highlighter-rouge">CategoricalArray</code></a> or
+<a href="https://github.com/JuliaComputing/PooledArrays.jl"><code class="highlighter-rouge">PooledArray</code></a> depending on whether
+the data is really categorical or simply contains a small number of distinct values. <a href="#fnref:PDA" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:typejoin">
+
+      <p>In addition to these <code class="highlighter-rouge">promote_rule</code> methods, the <code class="highlighter-rouge">Missing</code> and <code class="highlighter-rouge">Nothing</code> types
+implement the internal <code class="highlighter-rouge">promote_typejoin</code> function, which ensures that functions such
+as <code class="highlighter-rouge">map</code> and <code class="highlighter-rouge">collect</code> return arrays with element types <code class="highlighter-rouge">Union{Missing,T}</code> or
+<code class="highlighter-rouge">Union{Nothing,T}</code> instead of <code class="highlighter-rouge">Any</code>. <a href="#fnref:typejoin" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:lt">
+
+      <p>More precisely, SAS considers missing values as smaller than any non-missing
+value, and Stata considers them as greater than any non-missing value. This behavior
+can be explained by the particular choice of sentinel values of each of these languages
+and by an imperfect abstraction revealing implementation details. <a href="#fnref:lt" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:35h">
+
+      <p>See for example Olivier Godechot’s
+<a href="http://olivier.godechot.free.fr/hopfichiers/fichierspub/Comment_on_Chemin_Wasmer_2009_Jole.pdf">“Can We Use Alsace-Moselle for Estimating the Employment Effects of the 35-Hour Workweek Regulation in France?”</a>. <a href="#fnref:35h" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:jmw">
+
+      <p>In <a href="http://www.johnmyleswhite.com/notebook/2014/11/29/whats-wrong-with-statistics-in-julia/">a 2014 blog post</a>,
+John Myles White advocated the use of <code class="highlighter-rouge">Nullable</code> due to its much higher performance
+compared with<code class="highlighter-rouge">Union{T,NA}</code>. This performance gap no longer exists thanks to compiler
+improvements which have been a game-changer for missing values support. <a href="#fnref:jmw" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:splitting">
+
+      <p>This optimization applies to all <code class="highlighter-rouge">Union</code>s of a small number of types,
+whether they are bits types or not. “Small” is defined by the <code class="highlighter-rouge">MAX_UNION_SPLITTING</code>
+constant, which is currently set to 4. <a href="#fnref:splitting" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Creating domain-specific languages in Julia using macros</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>Creating domain-specific languages in Julia using macros</h1>
+
+  <p class="metadata">
+    <span class="timestamp">09 Aug 2017</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author"><a href="https://github.com/dpsanders">David P. Sanders</a></span>
+    
+  </p>
+
+  <p>Since the beginning of Julia, it has been tempting to use macros to write <strong>domain-specific languages</strong> (DSLs), i.e. to <em>extend</em> Julia syntax to provide a simpler interface to create Julia objects with complicated behaviour. The first, and still most extensive, example is <a href="https://github.com/JuliaOpt/JuMP.jl">JuMP</a>.</p>
+
+<p>Since the fix for the infamous early <a href="https://github.com/JuliaLang/julia/issues/265">Julia issue #265</a>, which was incorporated in Julia 0.6, some previous methods for creating DSLs in Julia, mainly involving <code class="highlighter-rouge">eval</code>, ceased to work.</p>
+
+<p>In this post, we will describe a recommended pattern (i.e., a reusable structure) for creating DSLs <em>without</em> the use of <code class="highlighter-rouge">eval</code>, using syntax suitable for Julia 0.6 and later versions; it is strongly recommended to upgrade to Julia 0.6.</p>
+
+<h2 id="creating-a-model-object-containing-a-function">Creating a <code class="highlighter-rouge">Model</code> object containing a function</h2>
+
+<p>This blog post arose from a question in the JuliaCon 2017 hackathon about the <a href="https://github.com/ModiaSim/Modia.jl">Modia modelling language</a>, where there is a <code class="highlighter-rouge">@model</code> macro. Here we will describe the simplest possible version of such a macro, which will create a <code class="highlighter-rouge">Model</code> object that contains a function, and is itself callable.</p>
+
+<p>First we define the <code class="highlighter-rouge">Model</code> object. It is tempting to write it like this:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">struct</span> <span class="n">NaiveModel</span>
+    <span class="n">f</span><span class="o">::</span><span class="n">Function</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>We can then create an instance of the <code class="highlighter-rouge">NaiveModel</code> type (i.e., an object of that type) using the default constructor, e.g. by passing it an anonymous function:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m1</span> <span class="o">=</span> <span class="n">NaiveModel</span><span class="x">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="mi">2</span><span class="n">x</span><span class="x">)</span>
+<span class="n">NaiveModel</span><span class="x">(</span><span class="c">#1)</span>
+</code></pre></div></div>
+
+<p>and we can call the function using</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m1</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">20</span>
+</code></pre></div></div>
+
+<p>If we wish instances like <code class="highlighter-rouge">m</code> to themselves behave like functions, we can overload the call syntax on the <code class="highlighter-rouge">NaiveModel</code> object:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="x">(</span><span class="n">m</span><span class="o">::</span><span class="n">NaiveModel</span><span class="x">)(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p>so that we can now just write</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m1</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">20</span>
+</code></pre></div></div>
+
+<h2 id="parametrising-the-type">Parametrising the type</h2>
+
+<p>Since <code class="highlighter-rouge">Function</code> is an abstract type, for performance we should <em>not</em> have a field of this type inside our object.
+Rather, we parametrise the type using the type of the function:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">struct</span> <span class="n">Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
+    <span class="n">f</span><span class="o">::</span><span class="n">F</span>
+<span class="k">end</span>
+
+<span class="x">(</span><span class="n">m</span><span class="o">::</span><span class="n">Model</span><span class="x">)(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">Model</span><span class="x">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="mi">2</span><span class="n">x</span><span class="x">)</span>
+<span class="n">Model</span><span class="x">{</span><span class="c">##3#4}(#3)</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m2</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">20</span>
+</code></pre></div></div>
+
+<p>Let’s compare the performance:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">m1</span><span class="x">(</span><span class="mi">10</span><span class="x">);</span>
+<span class="mf">41.482</span> <span class="n">ns</span> <span class="x">(</span><span class="mi">0</span> <span class="n">allocations</span><span class="x">:</span> <span class="mi">0</span> <span class="n">bytes</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">m2</span><span class="x">(</span><span class="mi">10</span><span class="x">);</span>
+<span class="mf">20.212</span> <span class="n">ns</span> <span class="x">(</span><span class="mi">0</span> <span class="n">allocations</span><span class="x">:</span> <span class="mi">0</span> <span class="n">bytes</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p>Indeed we have removed some overhead in the second case.</p>
+
+<h2 id="manipulating-expressions">Manipulating expressions</h2>
+
+<p>We wish to define a <em>macro</em> that will allow us to use a simple syntax, of our choosing, to create objects. Suppose we would like to use the syntax</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
+</code></pre></div></div>
+
+<p>to define a <code class="highlighter-rouge">Model</code> object containing the function <code class="highlighter-rouge">x -&gt; 2x</code>. Note that <code class="highlighter-rouge">2x</code> on its own is not valid Julia syntax for creating a function; the macro will allow us to use this simplified syntax for our own purposes.</p>
+
+<p>Before getting to macros, let’s first build some tools to manipulate the expression <code class="highlighter-rouge">2x</code> in the correct way to build a <code class="highlighter-rouge">Model</code> object from it, using standard Julia functions.</p>
+
+<p>First, let’s create a function to manipulate our expression:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">:(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">ex</span> <span class="o">=</span> <span class="x">:(</span><span class="mi">2</span><span class="n">x</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">make_function</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+<span class="x">:(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">begin</span>  <span class="c"># In[12], line 2:</span>
+    <span class="mi">2</span><span class="n">x</span>
+<span class="k">end</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p>Here, we have created a Julia expression called <code class="highlighter-rouge">ex</code>, which just contains the expression <code class="highlighter-rouge">2x</code> that we would like for the body of our new function, and we have passed this expression into <code class="highlighter-rouge">make_function</code>, which wraps it into a complete anonymous function.
+This assumes that <code class="highlighter-rouge">ex</code> is an expression containing the variable <code class="highlighter-rouge">x</code> and makes a new expression representing an
+anonymous function with the single argument <code class="highlighter-rouge">x</code>. (See e.g. <a href="https://github.com/dpsanders/julia_towards_1.0/blob/master/4.%20Metaprogramming.ipynb">my JuliaCon 2017 tutorial</a> for an example of how to walk through the expression tree in order to extract <em>automatically</em> the variables that it contains.)</p>
+
+<p>Now let’s define a function <code class="highlighter-rouge">make_model</code> that takes a function, wraps it, and passes it into a <code class="highlighter-rouge">Model</code> object:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">:(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(:(</span><span class="mi">2</span><span class="n">x</span><span class="x">)))</span>
+<span class="x">:(</span><span class="n">Model</span><span class="x">((</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">begin</span>  <span class="c"># In[12], line 2:</span>
+            <span class="mi">2</span><span class="n">x</span>
+        <span class="k">end</span><span class="x">)))</span>
+</code></pre></div></div>
+
+<p>If we evaluate this “by hand”, we see that it correctly creates a <code class="highlighter-rouge">Model</code> object:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m3</span> <span class="o">=</span> <span class="n">eval</span><span class="x">(</span><span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(:(</span><span class="mi">2</span><span class="n">x</span><span class="x">))))</span>
+<span class="n">Model</span><span class="x">{</span><span class="c">##7#8}(#7)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m3</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">20</span>
+</code></pre></div></div>
+
+<h2 id="macros">Macros</h2>
+
+<p>However, this is ugly and clumsy. Instead, we now wrap everything inside a <strong>macro</strong>. A macro is a code manipulator: it eats code, massages it in some way (possibly including completely rewriting it), and spits out the new code that was produced. This makes macros an incredibly powerful (and, therefore, dangerous) tool when correctly used.</p>
+
+<p>In the simplest case, a macro takes as argument a single Julia <code class="highlighter-rouge">Expr</code> object, i.e. an unevaluated Julia expression (i.e., a piece of Julia code).
+It manipulates this expression object to create a new expression object, which it then returns.</p>
+
+<p>The key point is that this returned expression is “spliced into” the newly-generated code <strong>in place of the old code</strong>. The compiler will never actually see the old code, only the new code.</p>
+
+<p>Let’s start with the simplest possible macro:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+    <span class="nd">@show</span> <span class="n">ex</span>
+    <span class="nd">@show</span> <span class="nb">typeof</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+    <span class="k">return</span> <span class="n">nothing</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>This just shows the argument that it was passed and exits, returning an empty expression.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m4</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
+<span class="n">ex</span> <span class="o">=</span> <span class="x">:(</span><span class="mi">2</span><span class="n">x</span><span class="x">)</span>
+<span class="nb">typeof</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span> <span class="o">=</span> <span class="n">Expr</span>
+</code></pre></div></div>
+
+<p>We see that the Julia <code class="highlighter-rouge">Expr</code> object has been automatically created from the explicit code that we typed.</p>
+
+<p>Now we can plug in our previous functions to complete the macro’s functionality:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+           <span class="k">return</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="n">ex</span><span class="x">))</span>
+       <span class="k">end</span>
+
+<span class="nd">@model</span> <span class="x">(</span><span class="n">macro</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">method</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m5</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
+<span class="n">Model</span><span class="x">{</span><span class="c">##7#8}(#7)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m5</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">20</span>
+</code></pre></div></div>
+
+<p>To check that the macro is doing what we think it is, we can use the <code class="highlighter-rouge">@macroexpand</code> command, which itself is a macro (as denoted by the initial <code class="highlighter-rouge">@</code>):</p>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@macroexpand</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
+<span class="x">:((</span><span class="n">Main</span><span class="o">.</span><span class="n">Model</span><span class="x">)((</span><span class="c">#71#x-&gt;begin  # In[12], line 2:</span>
+                    <span class="mi">2</span><span class="c">#71#x</span>
+                <span class="k">end</span><span class="x">)))</span>
+</code></pre></div></div>
+
+<h2 id="macro-hygiene">Macro “hygiene”</h2>
+
+<p>However, our macro has an issue, called macro “hygiene”. This has to do with where variables are defined. Let’s put everything we have so far inside a module:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="n">Models</span>
+
+<span class="k">export</span> <span class="n">Model</span><span class="x">,</span> <span class="nd">@model</span>
+
+<span class="n">struct</span> <span class="n">Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
+    <span class="n">f</span><span class="o">::</span><span class="n">F</span>
+<span class="k">end</span>
+
+<span class="x">(</span><span class="n">m</span><span class="o">::</span><span class="n">Model</span><span class="x">)(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+
+<span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">:(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">:(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
+<span class="k">end</span>
+
+<span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+    <span class="k">return</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="n">ex</span><span class="x">))</span>
+<span class="k">end</span>
+
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Now we import the module and use the macro:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Models</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m6</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span><span class="x">;</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m6</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">20</span>
+</code></pre></div></div>
+
+<p>So far so good. But now let’s try to include a global variable in the expression:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="x">;</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m7</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">x</span>
+<span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">{</span><span class="c">##7#8}(#7)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m7</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="n">UndefVarError</span><span class="x">:</span> <span class="n">a</span> <span class="n">not</span> <span class="n">defined</span>
+<span class="n">Stacktrace</span><span class="x">:</span>
+ <span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="c">#7 at ./In[1]:12 [inlined]</span>
+ <span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="x">(</span><span class="o">::</span><span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">{</span><span class="c">##7#8})(::Int64) at ./In[1]:9</span>
+</code></pre></div></div>
+
+<p>We see that it cannot find <code class="highlighter-rouge">a</code>. Let’s see what the macro is doing:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@macroexpand</span> <span class="nd">@model</span> <span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">x</span>
+<span class="x">:((</span><span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">)((</span><span class="c">#4#x-&gt;begin  # In[1], line 12:</span>
+                    <span class="mi">2</span> <span class="o">*</span> <span class="n">Models</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="c">#4#x</span>
+                <span class="k">end</span><span class="x">)))</span>
+</code></pre></div></div>
+
+<p>We see that Julia is looking for <code class="highlighter-rouge">Models.a</code>, i.e. a variable <code class="highlighter-rouge">a</code> defined inside the <code class="highlighter-rouge">Models</code> module.</p>
+
+<p>To fix this problem, we must write an “unhygienic” macro, by
+“escaping” the code, using the <code class="highlighter-rouge">esc</code> function. This is a mechanism telling the compiler to look for variable definitions in the scope from which the macro is called (here, the current module <code class="highlighter-rouge">Main</code>), rather than the scope where the macro is defined (here, the <code class="highlighter-rouge">Models</code> module):</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="n">Models2</span>
+
+<span class="k">export</span> <span class="n">Model</span><span class="x">,</span> <span class="nd">@model</span>
+
+<span class="n">struct</span> <span class="n">Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
+    <span class="n">f</span><span class="o">::</span><span class="n">F</span>
+<span class="k">end</span>
+
+<span class="x">(</span><span class="n">m</span><span class="o">::</span><span class="n">Model</span><span class="x">)(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+
+<span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">:(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">:(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
+<span class="k">end</span>
+
+<span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+    <span class="k">return</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="n">esc</span><span class="x">(</span><span class="n">ex</span><span class="x">)))</span>
+<span class="k">end</span>
+
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Models2</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="x">;</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m8</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">x</span>
+<span class="n">Models2</span><span class="o">.</span><span class="n">Model</span><span class="x">{</span><span class="c">##3#4}(#3)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m8</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
+<span class="mi">40</span>
+</code></pre></div></div>
+
+<p>This is the final, working version of the macro.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>We have successfully completed our task: we have seen how to create a macro that enables a simple syntax for creating a Julia object that we can use later.</p>
+
+<p>For some more in-depth discussion of metaprogramming techniques and macros, see my video tutorial <em>Invitation to intermediate Julia</em>, given at JuliaCon 2016:</p>
+
+<ul>
+  <li>Video: https://www.youtube.com/watch?v=rAxzR7lMGDM</li>
+  <li>Jupyter notebooks: https://github.com/dpsanders/intermediate_julia</li>
+</ul>
+
+<p><strong>Author</strong>: <a href="http://sistemas.fciencias.unam.mx/~dsanders/">David P. Sanders</a>, Associate Professor, Department of Physics, Faculty of Sciences, National University of Mexico (UNAM).</p>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

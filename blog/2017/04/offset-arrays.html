@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Knowing where you are: custom array indices in Julia</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>Knowing where you are: custom array indices in Julia</h1>
+
+  <p class="metadata">
+    <span class="timestamp">18 Apr 2017</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author"><a href="http://holylab.wustl.edu">Tim Holy</a></span>
+    
+  </p>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<p>Arrays are a crucial component of any programming language,
+particularly for a data-oriented language like Julia.  Arrays store
+values according to their location: in Julia, given a two-dimensional
+array <code class="highlighter-rouge">A</code>, the expression <code class="highlighter-rouge">A[1,3]</code> returns the value stored at a
+location known as <code class="highlighter-rouge">(1,3)</code>.  If, for example, <code class="highlighter-rouge">A</code> stores <code class="highlighter-rouge">Float64</code>
+numbers, the value returned by this expression will be a single
+<code class="highlighter-rouge">Float64</code> number.</p>
+
+<p>Julia’s arrays conventionally start numbering their axes with 1,
+meaning that the first element of a one-dimensional array <code class="highlighter-rouge">a</code> is
+<code class="highlighter-rouge">a[1]</code>. The choice of 1 vs. 0 seems to generate a certain amount of
+discussion. A fairly recent addition to the Julia landscape is the
+ability to define arrays that start with an <em>arbitrary</em> index.  The
+purpose of this blog post is to describe why this might be
+interesting.  This is really a “user-oriented” blog post, hinting at
+some of the ways this new feature can make your life simpler.  For
+developers who want to write code that supports arrays with arbitrary
+indices, see
+<a href="http://docs.julialang.org/en/latest/devdocs/offset-arrays.html#Arrays-with-custom-indices-1">this documentation page</a>.</p>
+
+<h2 id="why-should-we-care-which-indices-an-array-has-a-first-example">Why should we care which indices an array has? A first example</h2>
+
+<p>Sometimes arrays are used as simple lists, in which case the indices
+may not matter to you. But in other cases, arrays are used as a
+discrete representation of a continuous quantity (e.g., values defined
+over space or time), and in such cases the array indices correspond to
+“location” in a way that may be meaningful.</p>
+
+<p>As a simple example, consider the process of rotating an image:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">img</th>
+      <th style="text-align: center">img_rotated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="/images/blog/2017-04-18-offset-arrays/cameraman.png" alt="cameraman" /></td>
+      <td style="text-align: center"><img src="/images/blog/2017-04-18-offset-arrays/cameraman_rotated.png" alt="cameraman_rot" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Many languages provide functions for rotating an image; in Julia, you
+can do this with the <code class="highlighter-rouge">warp</code> function defined in
+<a href="https://github.com/JuliaImages/ImageTransformations.jl">ImageTransformations</a>.</p>
+
+<p>Things get a little more “interesting” when you want to compare pixels
+in the rotated image to those of the original image. How, exactly, do
+these pixels match up? In other words, for a location <code class="highlighter-rouge">img[i,j]</code>, what
+is the corresponding <code class="highlighter-rouge">i′,j′</code> location in <code class="highlighter-rouge">img_rotated</code>? In many languages,
+figuring out these types of geometric alignments may not be a simple
+task; it’s no exaggeration to say that in complex situations (e.g., a
+three-dimensional image with a complex spatial deformation) that one
+can spend a day or more figuring out exactly how pixels/voxels in two
+images are supposed to be compared.</p>
+
+<p>Why is this such a hard problem? The core problem is that, in most
+cases, the language is essentially “lying” to you about the location of
+pixels: if arrays always start indexing at 1 along any given axis, the
+array indices don’t really correspond to an absolute spatial location.
+An index of 1 means “first index” rather than “spatial location 1.”</p>
+
+<p>So to fix this in Julia, starting with version 0.5 we support arrays
+with indices that don’t start with 1. Let’s illustrate this by
+specifying that we want the above rotation to be around a point in the
+head of the cameraman. Let’s load the image:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Images</span><span class="x">,</span> <span class="n">TestImages</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">img</span> <span class="o">=</span> <span class="n">testimage</span><span class="x">(</span><span class="s">"cameraman"</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">summary</span><span class="x">(</span><span class="n">img</span><span class="x">)</span>
+<span class="s">"512×512 Array{Gray{N0f8},2}"</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">summary</code> shows that <code class="highlighter-rouge">img</code> is a grayscale image indexed over the
+ranges <code class="highlighter-rouge">1:512×1:512</code>. Using any of several approaches (e.g.,
+<a href="https://github.com/timholy/ImageView.jl">ImageView</a> and paying
+attention to the status bar to get the mouse pointer location), we can
+learn that the point <code class="highlighter-rouge">(y=126, x=251)</code> is in the head of the
+cameraman. Consequently, let’s define a rotation around this point:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Rotations</span><span class="x">,</span> <span class="n">CoordinateTransformations</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">tfm</span> <span class="o">=</span> <span class="n">Translation</span><span class="x">(</span><span class="mi">125</span><span class="x">,</span><span class="mi">250</span><span class="x">)</span> <span class="n">∘</span> <span class="n">LinearMap</span><span class="x">(</span><span class="n">RotMatrix</span><span class="x">(</span><span class="nb">pi</span><span class="o">/</span><span class="mi">6</span><span class="x">))</span> <span class="n">∘</span> <span class="n">Translation</span><span class="x">(</span><span class="o">-</span><span class="mi">125</span><span class="x">,</span><span class="o">-</span><span class="mi">250</span><span class="x">)</span>
+<span class="n">AffineMap</span><span class="x">([</span><span class="mf">0.866025</span> <span class="o">-</span><span class="mf">0.5</span><span class="x">;</span> <span class="mf">0.5</span> <span class="mf">0.866025</span><span class="x">],</span> <span class="x">[</span><span class="mf">141.747</span><span class="x">,</span> <span class="o">-</span><span class="mf">29.0064</span><span class="x">])</span>
+</code></pre></div></div>
+
+<p>This defines <code class="highlighter-rouge">tfm</code> as the composition of a translation (shifting the
+head to the origin) followed by a rotation, and then translating back.
+(You can get the
+composition operator by typing <code class="highlighter-rouge">\circ</code> and then hitting TAB.) If we
+apply this transformation to the image, we get an interesting result:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">img_rotated</span> <span class="o">=</span> <span class="n">warp</span><span class="x">(</span><span class="n">img</span><span class="x">,</span> <span class="n">tfm</span><span class="x">);</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">summary</span><span class="x">(</span><span class="n">img_rotated</span><span class="x">)</span>
+<span class="s">"-107:592×-160:539 OffsetArray{Gray{N0f8},2}"</span>
+</code></pre></div></div>
+
+<p>Perhaps surprisingly, <code class="highlighter-rouge">img_rotated</code> is indexed over the range
+<code class="highlighter-rouge">-107:592×-160:539</code>, meaning that we access the upper left corner by
+<code class="highlighter-rouge">img_rotated[-107,-160]</code> and the lower right corner by
+<code class="highlighter-rouge">img_rotated[592,539]</code>. It’s not hard to see why these numbers arise,
+if we see how the corners of <code class="highlighter-rouge">img</code> are transformed by <code class="highlighter-rouge">tfm</code>:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">StaticArrays</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">itfm</span> <span class="o">=</span> <span class="n">inv</span><span class="x">(</span><span class="n">tfm</span><span class="x">)</span>
+<span class="n">AffineMap</span><span class="x">([</span><span class="mf">0.866025</span> <span class="mf">0.5</span><span class="x">;</span> <span class="o">-</span><span class="mf">0.5</span> <span class="mf">0.866025</span><span class="x">],</span> <span class="x">[</span><span class="o">-</span><span class="mf">108.253</span><span class="x">,</span> <span class="mf">95.9936</span><span class="x">])</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">itfm</span><span class="x">(</span><span class="n">SVector</span><span class="x">(</span><span class="mi">1</span><span class="x">,</span><span class="mi">1</span><span class="x">))</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">SVector</span><span class="x">{</span><span class="mi">2</span><span class="x">,</span><span class="kt">Float64</span><span class="x">}:</span>
+ <span class="o">-</span><span class="mf">106.887</span>
+   <span class="mf">96.3597</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">itfm</span><span class="x">(</span><span class="n">SVector</span><span class="x">(</span><span class="mi">512</span><span class="x">,</span><span class="mi">1</span><span class="x">))</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">SVector</span><span class="x">{</span><span class="mi">2</span><span class="x">,</span><span class="kt">Float64</span><span class="x">}:</span>
+  <span class="mf">335.652</span>
+ <span class="o">-</span><span class="mf">159.14</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">itfm</span><span class="x">(</span><span class="n">SVector</span><span class="x">(</span><span class="mi">1</span><span class="x">,</span><span class="mi">512</span><span class="x">))</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">SVector</span><span class="x">{</span><span class="mi">2</span><span class="x">,</span><span class="kt">Float64</span><span class="x">}:</span>
+ <span class="mf">148.613</span>
+ <span class="mf">538.899</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">itfm</span><span class="x">(</span><span class="n">SVector</span><span class="x">(</span><span class="mi">512</span><span class="x">,</span><span class="mi">512</span><span class="x">))</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">SVector</span><span class="x">{</span><span class="mi">2</span><span class="x">,</span><span class="kt">Float64</span><span class="x">}:</span>
+ <span class="mf">591.152</span>
+ <span class="mf">283.399</span>
+</code></pre></div></div>
+
+<p>This makes it apparent that the output’s indices span the region of
+the transformed coordinates.</p>
+
+<p>The fact that the output preserves the coordinates makes it trivial to
+compare the images:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">cv</span> <span class="o">=</span> <span class="n">colorview</span><span class="x">(</span><span class="n">RGB</span><span class="x">,</span> <span class="n">paddedviews</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">img</span><span class="x">,</span> <span class="n">img_rotated</span><span class="x">,</span> <span class="n">img</span><span class="x">)</span><span class="o">...</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">paddedviews(0, arrays...)</code> pads input arrays with 0, as needed, to
+give them all the same indices, and <code class="highlighter-rouge">colorview(RGB, r, g, b)</code> inserts
+the grayscale images <code class="highlighter-rouge">r</code>, <code class="highlighter-rouge">g</code>, and <code class="highlighter-rouge">b</code> into the red, green, and blue
+channels respectively.  If we visualize <code class="highlighter-rouge">cv</code>, we see the following:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">around image center</th>
+      <th style="text-align: center">around head (cv)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="/images/blog/2017-04-18-offset-arrays/cameraman_overlay_center.png" alt="cameraman" /></td>
+      <td style="text-align: center"><img src="/images/blog/2017-04-18-offset-arrays/cameraman_overlay.png" alt="cameraman_rot" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The image on the left is for reference, showing what a rotation around
+the image center would look like when properly aligned. The image on
+the right corresponds to the steps taken above, and indeed confirms
+that the rotation is around the head. Alternatively, we can focus on
+the overlapping portions of these images like this:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">inds</span> <span class="o">=</span> <span class="n">map</span><span class="x">(</span><span class="n">intersect</span><span class="x">,</span> <span class="n">indices</span><span class="x">(</span><span class="n">img</span><span class="x">),</span> <span class="n">indices</span><span class="x">(</span><span class="n">img_rotated</span><span class="x">))</span>
+<span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">512</span><span class="x">,</span> <span class="mi">1</span><span class="x">:</span><span class="mi">512</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imgi</span> <span class="o">=</span> <span class="n">img</span><span class="x">[</span><span class="n">inds</span><span class="o">...</span><span class="x">];</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imgri</span> <span class="o">=</span> <span class="n">img_rotated</span><span class="x">[</span><span class="n">inds</span><span class="o">...</span><span class="x">];</span>
+</code></pre></div></div>
+
+<p>so that <code class="highlighter-rouge">colorview(RGB, imgi, imgri, imgi)</code> displays as</p>
+
+<p><img src="/images/blog/2017-04-18-offset-arrays/cameraman_overlay_interior.png" alt="cameraman_interior" /></p>
+
+<p>Since the indices of the pixels encode absolute spatial location, it’s
+trivial to keep track of how different pixels align: pixel <code class="highlighter-rouge">i,j</code> in
+one image corresponds to pixel <code class="highlighter-rouge">i,j</code> in the other.  This is true even
+if our coordinate transformation were far more complicated than a
+simple rotation.</p>
+
+<p>Having motivated why this might be useful, let’s take a step back and
+walk through array indices a bit more systematically.</p>
+
+<h2 id="a-systematic-introduction-to-arrays-with-arbitrary-indices">A systematic introduction to arrays with arbitrary indices</h2>
+
+<p>In Julia, if we define an array</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="n">collect</span><span class="x">(</span><span class="n">reshape</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">30</span><span class="x">,</span> <span class="mi">5</span><span class="x">,</span> <span class="mi">6</span><span class="x">))</span>
+<span class="mi">5</span><span class="n">×6</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+ <span class="mi">1</span>   <span class="mi">6</span>  <span class="mi">11</span>  <span class="mi">16</span>  <span class="mi">21</span>  <span class="mi">26</span>
+ <span class="mi">2</span>   <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">17</span>  <span class="mi">22</span>  <span class="mi">27</span>
+ <span class="mi">3</span>   <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">18</span>  <span class="mi">23</span>  <span class="mi">28</span>
+ <span class="mi">4</span>   <span class="mi">9</span>  <span class="mi">14</span>  <span class="mi">19</span>  <span class="mi">24</span>  <span class="mi">29</span>
+ <span class="mi">5</span>  <span class="mi">10</span>  <span class="mi">15</span>  <span class="mi">20</span>  <span class="mi">25</span>  <span class="mi">30</span>
+</code></pre></div></div>
+
+<p>then we can refer to a rectangular region like this:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="x">[</span><span class="mi">1</span><span class="x">:</span><span class="mi">3</span><span class="x">,</span> <span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+ <span class="mi">1</span>  <span class="mi">6</span>  <span class="mi">11</span>  <span class="mi">16</span>
+ <span class="mi">2</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">17</span>
+ <span class="mi">3</span>  <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">18</span>
+</code></pre></div></div>
+
+<p>For certain applications, one negative to extracting blocks is that
+there is no record indicating where the new block originated from:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">B2</span> <span class="o">=</span> <span class="n">A</span><span class="x">[</span><span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="x">,</span> <span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+ <span class="mi">2</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">17</span>
+ <span class="mi">3</span>  <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">18</span>
+ <span class="mi">4</span>  <span class="mi">9</span>  <span class="mi">14</span>  <span class="mi">19</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">B2</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span><span class="mi">1</span><span class="x">]</span>
+<span class="mi">2</span>
+</code></pre></div></div>
+
+<p>So <code class="highlighter-rouge">B2[1,1]</code> corresponds to <code class="highlighter-rouge">A[2,1]</code>, despite the fact that, as
+measured by their indices, these are not the same location.</p>
+
+<p>To maintain consistent “naming” of our indices, let’s use the
+<a href="https://github.com/alsam/OffsetArrays.jl">OffsetArrays</a> package:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">OffsetArrays</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">B3</span> <span class="o">=</span> <span class="n">OffsetArray</span><span class="x">(</span><span class="n">A</span><span class="x">[</span><span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="x">,</span> <span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">],</span> <span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="x">,</span> <span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">)</span>  <span class="c"># wrap the snipped-out piece in an OffsetArray</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="n">×1</span><span class="x">:</span><span class="mi">4</span><span class="x">:</span>
+ <span class="mi">2</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">17</span>
+ <span class="mi">3</span>  <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">18</span>
+ <span class="mi">4</span>  <span class="mi">9</span>  <span class="mi">14</span>  <span class="mi">19</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">B3</span><span class="x">[</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">18</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">A</span><span class="x">[</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">18</span>
+</code></pre></div></div>
+
+<p>So the indices in <code class="highlighter-rouge">B3</code> match those of <code class="highlighter-rouge">A</code>. Indeed, <code class="highlighter-rouge">B3</code> doesn’t even
+have an element “named” <code class="highlighter-rouge">(1,1)</code>:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">B3</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span><span class="mi">1</span><span class="x">]</span>
+<span class="n">ERROR</span><span class="x">:</span> <span class="n">BoundsError</span><span class="x">:</span> <span class="n">attempt</span> <span class="n">to</span> <span class="n">access</span> <span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="n">×1</span><span class="x">:</span><span class="mi">4</span> <span class="n">at</span> <span class="n">index</span> <span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span>
+<span class="n">Stacktrace</span><span class="x">:</span>
+ <span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="n">throw_boundserror</span><span class="x">(</span><span class="o">::</span><span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}},</span> <span class="o">::</span><span class="n">Tuple</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="kt">Int64</span><span class="x">})</span> <span class="n">at</span> <span class="o">./</span><span class="n">abstractarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">426</span>
+ <span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="n">checkbounds</span> <span class="n">at</span> <span class="o">./</span><span class="n">abstractarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">355</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">3</span><span class="x">]</span> <span class="n">getindex</span><span class="x">(</span><span class="o">::</span><span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}},</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">OffsetArrays</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">OffsetArrays</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">89</span>
+</code></pre></div></div>
+
+<p>In this case we created <code class="highlighter-rouge">B3</code> by explicitly “wrapping” the extracted
+array inside a type that allows you to supply custom indices.  (You
+can retrieve just the extracted portion with <code class="highlighter-rouge">parent(B3)</code>.)  We could
+do the same thing by adjusting the <em>indices</em> instead:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">IdentityRanges</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">ind1</span><span class="x">,</span> <span class="n">ind2</span> <span class="o">=</span> <span class="n">IdentityRange</span><span class="x">(</span><span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="x">),</span> <span class="n">IdentityRange</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">)</span>
+<span class="x">(</span><span class="n">IdentityRange</span><span class="x">(</span><span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="x">),</span> <span class="n">IdentityRange</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">))</span>
+</code></pre></div></div>
+
+<p>An <a href="https://github.com/JuliaArrays/IdentityRanges.jl"><code class="highlighter-rouge">IdentityRange</code></a> is a range with indices that match its values, <code class="highlighter-rouge">r[i] == i</code>. (<code class="highlighter-rouge">ind1, ind2 = OffsetArray(2:4, 2:4), OffsetArray(1:4, 1:4)</code> would be functionally equivalent.) Let’s use <code class="highlighter-rouge">ind1</code> and <code class="highlighter-rouge">ind2</code> to snip out the region of the array:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">B4</span> <span class="o">=</span> <span class="n">A</span><span class="x">[</span><span class="n">ind1</span><span class="x">,</span> <span class="n">ind2</span><span class="x">]</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="n">×1</span><span class="x">:</span><span class="mi">4</span><span class="x">:</span>
+ <span class="mi">2</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">17</span>
+ <span class="mi">3</span>  <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">18</span>
+ <span class="mi">4</span>  <span class="mi">9</span>  <span class="mi">14</span>  <span class="mi">19</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">B4</span><span class="x">[</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">18</span>
+</code></pre></div></div>
+
+<p>This implements a simple rule of composition:</p>
+
+<p><strong>If <code class="highlighter-rouge">C = A[ind1, ind2]</code>, then <code class="highlighter-rouge">C[i, j] == A[ind1[i], ind2[j]]</code></strong></p>
+
+<p>Consequently, if your indices have their own unconventional indices,
+they will be propagated forward to the next stage.</p>
+
+<p>This technique can also be used to create a “view”:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">V</span> <span class="o">=</span> <span class="n">view</span><span class="x">(</span><span class="n">A</span><span class="x">,</span> <span class="n">ind1</span><span class="x">,</span> <span class="n">ind2</span><span class="x">)</span>
+<span class="n">SubArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">Tuple</span><span class="x">{</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">},</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">}},</span><span class="n">false</span><span class="x">}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="n">×1</span><span class="x">:</span><span class="mi">4</span><span class="x">:</span>
+ <span class="mi">2</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">17</span>
+ <span class="mi">3</span>  <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">18</span>
+ <span class="mi">4</span>  <span class="mi">9</span>  <span class="mi">14</span>  <span class="mi">19</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">V</span><span class="x">[</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">18</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">V</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span><span class="mi">1</span><span class="x">]</span>
+<span class="n">ERROR</span><span class="x">:</span> <span class="n">BoundsError</span><span class="x">:</span> <span class="n">attempt</span> <span class="n">to</span> <span class="n">access</span> <span class="n">SubArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">Tuple</span><span class="x">{</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">},</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">}},</span><span class="n">false</span><span class="x">}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">4</span><span class="n">×1</span><span class="x">:</span><span class="mi">4</span> <span class="n">at</span> <span class="n">index</span> <span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span>
+<span class="n">Stacktrace</span><span class="x">:</span>
+ <span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="n">throw_boundserror</span><span class="x">(</span><span class="o">::</span><span class="n">SubArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">Tuple</span><span class="x">{</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">},</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">}},</span><span class="n">false</span><span class="x">},</span> <span class="o">::</span><span class="n">Tuple</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="kt">Int64</span><span class="x">})</span> <span class="n">at</span> <span class="o">./</span><span class="n">abstractarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">426</span>
+ <span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="n">checkbounds</span> <span class="n">at</span> <span class="o">./</span><span class="n">abstractarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">355</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">3</span><span class="x">]</span> <span class="n">getindex</span><span class="x">(</span><span class="o">::</span><span class="n">SubArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">Tuple</span><span class="x">{</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">},</span><span class="n">IdentityRanges</span><span class="o">.</span><span class="n">IdentityRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">}},</span><span class="n">false</span><span class="x">},</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="o">./</span><span class="n">subarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">184</span>
+</code></pre></div></div>
+
+<p>Note that this object is a <em>conventional</em> <code class="highlighter-rouge">SubArray</code> (it’s not an
+<code class="highlighter-rouge">OffsetArray</code>), but because it was passed <code class="highlighter-rouge">IdentityRange</code> indices it
+preserves the indices of the indices.</p>
+
+<h2 id="a-second-application-arrayimage-filtering-convolution">A second application: array/image filtering (convolution)</h2>
+
+<p>As illustrated above for the image rotation example, a recent release
+(v0.6.0) of the Images package put both the power and responsibility
+for dealing with arrays with custom indices into the hands of users.
+One of the key functions in this package is <code class="highlighter-rouge">imfilter</code> which can be
+used to smooth or otherwise “filter” arrays. The idea is that starting
+from an array <code class="highlighter-rouge">A</code>, each local neighborhood is weighted by a “kernel”
+<code class="highlighter-rouge">kern</code>, producing an output value according to the following formula:</p>
+
+<script type="math/tex; mode=display">F[I] = \sum_J A[I+J] kern[J]</script>
+
+<p>This is the formula for
+<a href="https://en.wikipedia.org/wiki/Cross-correlation">correlation</a>; the
+formula for another operation,
+<a href="https://en.wikipedia.org/wiki/Convolution">convolution</a>, is very
+similar.</p>
+
+<p>Let’s start with a trivial example: let’s filter with a “delta
+function” kernel, meaning it has value <code class="highlighter-rouge">1</code> at location 0 and is zero
+everywhere else. According to the correlation formula, because <code class="highlighter-rouge">kern[J]</code>
+is 1 at <code class="highlighter-rouge">J==0</code>, this should simply give us a copy of our original array:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Images</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">,</span> <span class="x">[</span><span class="mi">1</span><span class="x">])</span>
+<span class="n">WARNING</span><span class="x">:</span> <span class="n">assuming</span> <span class="n">that</span> <span class="n">the</span> <span class="n">origin</span> <span class="nb">is</span> <span class="n">at</span> <span class="n">the</span> <span class="n">center</span> <span class="n">of</span> <span class="n">the</span> <span class="n">kernel</span><span class="x">;</span> <span class="n">to</span> <span class="n">avoid</span> <span class="n">this</span> <span class="n">warning</span><span class="x">,</span> <span class="n">call</span> <span class="sb">`centered(kernel)`</span> <span class="n">or</span> <span class="n">use</span> <span class="n">an</span> <span class="n">OffsetArray</span>
+<span class="n">Stacktrace</span><span class="x">:</span>
+ <span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="n">depwarn</span><span class="x">(</span><span class="o">::</span><span class="kt">String</span><span class="x">,</span> <span class="o">::</span><span class="n">Symbol</span><span class="x">)</span> <span class="n">at</span> <span class="o">./</span><span class="n">deprecated</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">64</span>
+ <span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="n">_kernelshift</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">ImageFiltering</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">imfilter</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">1049</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">3</span><span class="x">]</span> <span class="n">kernelshift</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">ImageFiltering</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">imfilter</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">1046</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">4</span><span class="x">]</span> <span class="n">factorkernel</span><span class="x">(</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">})</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">ImageFiltering</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">imfilter</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">1016</span>
+ <span class="x">[</span><span class="mi">5</span><span class="x">]</span> <span class="n">imfilter</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">ImageFiltering</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">imfilter</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">10</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">6</span><span class="x">]</span> <span class="n">imfilter</span><span class="x">(</span><span class="o">::</span><span class="n">UnitRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">},</span> <span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">})</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">ImageFiltering</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">imfilter</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">5</span>
+ <span class="x">[</span><span class="mi">7</span><span class="x">]</span> <span class="n">eval</span><span class="x">(</span><span class="o">::</span><span class="n">Module</span><span class="x">,</span> <span class="o">::</span><span class="kt">Any</span><span class="x">)</span> <span class="n">at</span> <span class="o">./</span><span class="n">boot</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">235</span>
+ <span class="x">[</span><span class="mi">8</span><span class="x">]</span> <span class="n">eval_user_input</span><span class="x">(</span><span class="o">::</span><span class="kt">Any</span><span class="x">,</span> <span class="o">::</span><span class="n">Base</span><span class="o">.</span><span class="n">REPL</span><span class="o">.</span><span class="n">REPLBackend</span><span class="x">)</span> <span class="n">at</span> <span class="o">./</span><span class="n">REPL</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">66</span>
+ <span class="x">[</span><span class="mi">9</span><span class="x">]</span> <span class="n">macro</span> <span class="n">expansion</span> <span class="n">at</span> <span class="o">./</span><span class="n">REPL</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">97</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">10</span><span class="x">]</span> <span class="x">(</span><span class="o">::</span><span class="n">Base</span><span class="o">.</span><span class="n">REPL</span><span class="o">.</span><span class="c">##1#2{Base.REPL.REPLBackend})() at ./event.jl:73</span>
+<span class="k">while</span> <span class="n">loading</span> <span class="n">no</span> <span class="n">file</span><span class="x">,</span> <span class="k">in</span> <span class="n">expression</span> <span class="n">starting</span> <span class="n">on</span> <span class="n">line</span> <span class="mi">0</span>
+<span class="mi">8</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+ <span class="mi">1</span>
+ <span class="mi">2</span>
+ <span class="mi">3</span>
+ <span class="mi">4</span>
+ <span class="mi">5</span>
+ <span class="mi">6</span>
+ <span class="mi">7</span>
+ <span class="mi">8</span>
+</code></pre></div></div>
+
+<p>The warning is telling you that Images decided to make a guess about
+your intention, that the kernel <code class="highlighter-rouge">[1]</code> was intended to be centered around zero. You can
+suppress the warning by explicitly passing the following kernel
+instead:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern</span> <span class="o">=</span> <span class="n">centered</span><span class="x">([</span><span class="mi">1</span><span class="x">])</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">0</span><span class="x">:</span><span class="mi">0</span><span class="x">:</span>
+ <span class="mi">1</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern</span><span class="x">[</span><span class="mi">0</span><span class="x">]</span>
+<span class="mi">1</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+<span class="n">ERROR</span><span class="x">:</span> <span class="n">BoundsError</span><span class="x">:</span> <span class="n">attempt</span> <span class="n">to</span> <span class="n">access</span> <span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">0</span><span class="x">:</span><span class="mi">0</span> <span class="n">at</span> <span class="n">index</span> <span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+<span class="n">Stacktrace</span><span class="x">:</span>
+ <span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="n">throw_boundserror</span><span class="x">(</span><span class="o">::</span><span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}},</span> <span class="o">::</span><span class="n">Tuple</span><span class="x">{</span><span class="kt">Int64</span><span class="x">})</span> <span class="n">at</span> <span class="o">./</span><span class="n">abstractarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">426</span>
+ <span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="n">checkbounds</span> <span class="n">at</span> <span class="o">./</span><span class="n">abstractarray</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">355</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+ <span class="x">[</span><span class="mi">3</span><span class="x">]</span> <span class="n">getindex</span><span class="x">(</span><span class="o">::</span><span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}},</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">tim</span><span class="o">/.</span><span class="n">julia</span><span class="o">/</span><span class="n">v0</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="n">OffsetArrays</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">OffsetArrays</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">94</span>
+</code></pre></div></div>
+
+<p>By using an <code class="highlighter-rouge">OffsetArray</code> you have clearly specified your intended indices for <code class="highlighter-rouge">kern</code>.</p>
+
+<p>This can be used to shift an image in the following way (by default, <code class="highlighter-rouge">imfilter</code> returns its results over the same domain as the input):</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern2</span> <span class="o">=</span> <span class="n">OffsetArray</span><span class="x">([</span><span class="mi">1</span><span class="x">],</span> <span class="mi">2</span><span class="x">:</span><span class="mi">2</span><span class="x">)</span>  <span class="c"># a delta function centered at 2</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">2</span><span class="x">:</span>
+ <span class="mi">1</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">,</span> <span class="n">kern2</span><span class="x">,</span> <span class="n">Fill</span><span class="x">(</span><span class="mi">0</span><span class="x">))</span>  <span class="c"># pad the edges of the input with 0</span>
+<span class="mi">8</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+ <span class="mi">3</span>
+ <span class="mi">4</span>
+ <span class="mi">5</span>
+ <span class="mi">6</span>
+ <span class="mi">7</span>
+ <span class="mi">8</span>
+ <span class="mi">0</span>
+ <span class="mi">0</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern3</span> <span class="o">=</span> <span class="n">OffsetArray</span><span class="x">([</span><span class="mi">1</span><span class="x">],</span> <span class="o">-</span><span class="mi">5</span><span class="x">:</span><span class="o">-</span><span class="mi">5</span><span class="x">)</span>   <span class="c"># a delta function centered at -5</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="o">-</span><span class="mi">5</span><span class="x">:</span><span class="o">-</span><span class="mi">5</span><span class="x">:</span>
+ <span class="mi">1</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">,</span> <span class="n">kern3</span><span class="x">,</span> <span class="n">Fill</span><span class="x">(</span><span class="mi">0</span><span class="x">))</span>
+<span class="mi">8</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+ <span class="mi">0</span>
+ <span class="mi">0</span>
+ <span class="mi">0</span>
+ <span class="mi">0</span>
+ <span class="mi">0</span>
+ <span class="mi">1</span>
+ <span class="mi">2</span>
+ <span class="mi">3</span>
+</code></pre></div></div>
+
+<p>These are all illustrated in the following figure:</p>
+
+<p><img src="/images/blog/2017-04-18-offset-arrays/filtering.png" alt="deltafunctions" /></p>
+
+<p>In this figure, we plotted the kernel as if it were at the location
+corresponding to convolution rather than correlation.</p>
+
+<p>In other programming languages, when filtering with a kernel that has
+an even number of elements, it can be difficult to remember which of
+the two middle elements corresponds to the origin.  In Julia, that’s
+not an issue, because you can make that choice for yourself:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern</span> <span class="o">=</span> <span class="n">OffsetArray</span><span class="x">([</span><span class="mf">0.5</span><span class="x">,</span><span class="mf">0.5</span><span class="x">],</span> <span class="mi">0</span><span class="x">:</span><span class="mi">1</span><span class="x">)</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">0</span><span class="x">:</span><span class="mi">1</span><span class="x">:</span>
+ <span class="mf">0.5</span>
+ <span class="mf">0.5</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">,</span> <span class="n">kern</span><span class="x">,</span> <span class="n">Fill</span><span class="x">(</span><span class="mi">0</span><span class="x">))</span>
+<span class="mi">8</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+ <span class="mf">1.5</span>
+ <span class="mf">2.5</span>
+ <span class="mf">3.5</span>
+ <span class="mf">4.5</span>
+ <span class="mf">5.5</span>
+ <span class="mf">6.5</span>
+ <span class="mf">7.5</span>
+ <span class="mf">4.0</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">kern</span> <span class="o">=</span> <span class="n">OffsetArray</span><span class="x">([</span><span class="mf">0.5</span><span class="x">,</span><span class="mf">0.5</span><span class="x">],</span> <span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="mi">0</span><span class="x">)</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="mi">0</span><span class="x">:</span>
+ <span class="mf">0.5</span>
+ <span class="mf">0.5</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">,</span> <span class="n">kern</span><span class="x">,</span> <span class="n">Fill</span><span class="x">(</span><span class="mi">0</span><span class="x">))</span>
+<span class="mi">8</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+ <span class="mf">0.5</span>
+ <span class="mf">1.5</span>
+ <span class="mf">2.5</span>
+ <span class="mf">3.5</span>
+ <span class="mf">4.5</span>
+ <span class="mf">5.5</span>
+ <span class="mf">6.5</span>
+ <span class="mf">7.5</span>
+</code></pre></div></div>
+
+<p>Likewise, sometimes we might have an application where we simply can’t
+handle the edges properly, and we wish to discard them.  For example,
+consider the following quadratic function:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="x">[(</span><span class="n">i</span><span class="o">-</span><span class="mi">3</span><span class="x">)</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">9</span><span class="x">]</span>  <span class="c"># a quadratic function</span>
+<span class="mi">9</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+  <span class="mi">4</span>
+  <span class="mi">1</span>
+  <span class="mi">0</span>
+  <span class="mi">1</span>
+  <span class="mi">4</span>
+  <span class="mi">9</span>
+ <span class="mi">16</span>
+ <span class="mi">25</span>
+ <span class="mi">36</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="n">a</span><span class="x">,</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Laplacian</span><span class="x">((</span><span class="n">true</span><span class="x">,)))</span>
+<span class="mi">9</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+  <span class="o">-</span><span class="mi">3</span>
+   <span class="mi">2</span>
+   <span class="mi">2</span>
+   <span class="mi">2</span>
+   <span class="mi">2</span>
+   <span class="mi">2</span>
+   <span class="mi">2</span>
+   <span class="mi">2</span>
+ <span class="o">-</span><span class="mi">11</span>
+</code></pre></div></div>
+
+<p>Those weird values on the edges (for which there is no padding that
+will “extrapolate” the quadratic) might cause problems. Consequently,
+let’s only extract the values that are well-defined, meaning that all
+inputs to the correlation formula have explicitly-assigned values:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">imfilter</span><span class="x">(</span><span class="n">a</span><span class="x">,</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Laplacian</span><span class="x">((</span><span class="n">true</span><span class="x">,)),</span> <span class="n">Inner</span><span class="x">())</span>
+<span class="n">OffsetArrays</span><span class="o">.</span><span class="n">OffsetArray</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="mi">2</span><span class="x">:</span><span class="mi">8</span><span class="x">:</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+</code></pre></div></div>
+
+<p>Notice that in this case, it returned an <code class="highlighter-rouge">OffsetArray</code> so that the
+values in the result align properly with the original array.</p>
+
+<h2 id="a-final-application-fourier-transforms">A final application: Fourier transforms</h2>
+
+<p>There are many more things you can do with custom indices.  As one
+last illustration, consider the
+<a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier Transform</a>,
+which is defined on a periodic domain.  Typically, it’s rather
+difficult to emulate a periodic domain with arrays, because arrays
+have finite size.  However, it’s possible to define indexing objects
+which possess periodic behavior.  Here we use the
+<a href="https://github.com/JuliaArrays/FFTViews.jl">FFTViews</a> package,
+demonstrating the technique on a simple sinusoid:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">FFTViews</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="x">[</span><span class="n">sin</span><span class="x">(</span><span class="mi">2</span><span class="n">π</span><span class="o">*</span><span class="n">x</span><span class="x">)</span><span class="o">+</span><span class="mf">0.1</span> <span class="k">for</span> <span class="n">x</span> <span class="k">in</span> <span class="n">linspace</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span><span class="mi">1</span><span class="x">,</span><span class="mi">16</span><span class="x">)];</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">afft</span> <span class="o">=</span> <span class="n">FFTView</span><span class="x">(</span><span class="n">fft</span><span class="x">(</span><span class="n">a</span><span class="x">))</span>
+<span class="n">FFTViews</span><span class="o">.</span><span class="n">FFTView</span><span class="x">{</span><span class="n">Complex</span><span class="x">{</span><span class="kt">Float64</span><span class="x">},</span><span class="mi">1</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="n">Complex</span><span class="x">{</span><span class="kt">Float64</span><span class="x">},</span><span class="mi">1</span><span class="x">}}</span> <span class="n">with</span> <span class="n">indices</span> <span class="n">FFTViews</span><span class="o">.</span><span class="n">URange</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span><span class="mi">15</span><span class="x">):</span>
+       <span class="mf">1.6</span><span class="o">+</span><span class="mf">0.0</span><span class="nb">im</span>
+     <span class="mf">1.498</span><span class="o">-</span><span class="mf">7.53098</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.288537</span><span class="o">+</span><span class="mf">0.69659</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.236488</span><span class="o">+</span><span class="mf">0.35393</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.222614</span><span class="o">+</span><span class="mf">0.222614</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.216932</span><span class="o">+</span><span class="mf">0.14495</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.214217</span><span class="o">+</span><span class="mf">0.0887316</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.212937</span><span class="o">+</span><span class="mf">0.0423558</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.212557</span><span class="o">+</span><span class="mf">0.0</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.212937</span><span class="o">-</span><span class="mf">0.0423558</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.214217</span><span class="o">-</span><span class="mf">0.0887316</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.216932</span><span class="o">-</span><span class="mf">0.14495</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.222614</span><span class="o">-</span><span class="mf">0.222614</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.236488</span><span class="o">-</span><span class="mf">0.35393</span><span class="nb">im</span>
+ <span class="o">-</span><span class="mf">0.288537</span><span class="o">-</span><span class="mf">0.69659</span><span class="nb">im</span>
+     <span class="mf">1.498</span><span class="o">+</span><span class="mf">7.53098</span><span class="nb">im</span>
+</code></pre></div></div>
+
+<p>Now, as every student of Fourier transforms learns, the 0-frequency bin holds the sum of the values in <code class="highlighter-rouge">a</code>:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">afft</span><span class="x">[</span><span class="mi">0</span><span class="x">]</span>
+<span class="mf">1.6000000000000003</span> <span class="o">+</span> <span class="mf">0.0</span><span class="nb">im</span>
+</code></pre></div></div>
+
+<p>Since the mean of a sinusoid is zero, this is (within roundoff error) 16*0.1 = 1.6.</p>
+
+<p>We can also check the amplitude at the Fourier-peak, and explore the
+periodicity of the result:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">afft</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+<span class="mf">1.4980046017247872</span> <span class="o">-</span> <span class="mf">7.53097769363728</span><span class="nb">im</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">afft</span><span class="x">[</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span>      <span class="c"># negative frequencies are OK</span>
+<span class="mf">1.4980046017247872</span> <span class="o">+</span> <span class="mf">7.53097769363728</span><span class="nb">im</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">afft</span><span class="x">[</span><span class="mi">64</span><span class="o">+</span><span class="mi">1</span><span class="x">]</span>    <span class="c"># look Ma, it's periodic!</span>
+<span class="mf">1.4980046017247872</span> <span class="o">-</span> <span class="mf">7.53097769363728</span><span class="nb">im</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">length</span><span class="x">(</span><span class="n">indices</span><span class="x">(</span><span class="n">afft</span><span class="x">,</span><span class="mi">1</span><span class="x">))</span>   <span class="c"># but we still know how big it is</span>
+<span class="mi">16</span>
+</code></pre></div></div>
+
+<p>Given the periodicity of <code class="highlighter-rouge">afft</code>, the commonly-used <code class="highlighter-rouge">fftshift</code> function
+(e.g., <code class="highlighter-rouge">fftshift(fft(a))</code>) can be replaced by <code class="highlighter-rouge">afft[-8:7]</code>. While very simple,
+these techniques make it surprisingly more pleasant to deal with what
+can sometimes become complex and error-prone index gymnastics.</p>
+
+<h2 id="summary-a-users-perspective">Summary: a user’s perspective</h2>
+
+<p>This has only scratched the surface of what’s possible with custom
+indices.  In the opinion of the author, their main advantage is that
+they can increase the clarity of code by ensuring that “names”
+(indices) can be endowed with <em>absolute meaning</em>, rather than always
+being “referenced to whatever the first element of this particular
+array happens to encode.”</p>
+
+<p>There is quite a lot of code that hasn’t yet properly accounted for
+the possibility of custom indices—surely, some of it written by the
+author of this post! So users should be prepared for the possibility
+that exploiting custom indices will trigger errors in base Julia or in
+packages.  Rather than giving up, users are encouraged to report such
+errors as issues, as this is the only way that custom indices will,
+over the course of time, have solid support.</p>
+
+<h2 id="summary-a-developers-perspective">Summary: a developer’s perspective</h2>
+
+<p>For some algorithms, there appears to be little reason to ever use
+arrays with anything but 1-based indices; in such cases, there may be
+no reason to modify existing code.  But if your code has a “spatial”
+interpretation–where location has meaning–then you just might want
+to give the new facilities a try.</p>
+
+<p>In transitioning existing code, the author of this post has observed
+the following tendencies:</p>
+
+<ul>
+  <li>
+    <p>algorithms that exploit custom indices are sometimes simpler to
+understand than their “1-locked” counterparts;</p>
+  </li>
+  <li>
+    <p>if you’re porting old code to support custom indices, there’s some
+bad news: if you had to think carefully about the indexing the first
+time you wrote it, it usually requires significant investment to
+re-think the indexing, even if the end result is somewhat simpler.</p>
+  </li>
+  <li>
+    <p>even when a specific algorithm might gain little advantage from
+supporting arbitrary indices, writing code that is “indices aware”
+from the beginning is often no harder than writing algorithms that
+implicitly assume indexing starts at 1.</p>
+  </li>
+</ul>
+
+<p>Developers are referred to
+<a href="http://docs.julialang.org/en/latest/devdocs/offset-arrays.html#Arrays-with-custom-indices-1">Julia’s documentation</a>
+for further guidance.</p>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

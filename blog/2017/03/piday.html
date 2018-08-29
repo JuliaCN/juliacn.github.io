@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Some fun with &pi; in Julia</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>Some fun with &pi; in Julia</h1>
+
+  <p class="metadata">
+    <span class="timestamp">14 Mar 2017</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author">Simon Byrne, Luis Benet and David Sanders</span>
+    
+  </p>
+
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<!-- MathJax configuration -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+processEscapes: true,
+processEnvironments: true
+},
+// Center justify equations in code and markdown cells. Elsewhere
+// we use CSS to left justify single line equations in code cells.
+displayAlign: 'center',
+"HTML-CSS": {
+styles: {'.MathJax_Display': {"margin": 0}},
+linebreaks: { automatic: true }
+}
+});
+</script>
+
+<!-- End of mathjax configuration -->
+
+<p><img src="/images/blog/2017-03-14-piday/pi.png" alt="pi" />
+<em>Image courtesy of <a href="https://github.com/cormullion">Cormullion</a>, code <a href="https://gist.github.com/cormullion/e979d819e478da73280faaeb67490888">here</a>.</em></p>
+
+<p><em>This post is available as a Jupyter notebook <a href="https://github.com/simonbyrne/Pi.jl/blob/master/pi.ipynb">here</a></em></p>
+
+<h2 id="π-in-julia">π in Julia</h2>
+<p><em>(<a href="https://github.com/simonbyrne">Simon Byrne</a>)</em></p>
+
+<p>Like most technical languages, Julia provides a variable constant for π. However Julia’s handling is a bit special.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">pi</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>π = 3.1415926535897...
+</code></pre></div></div>
+
+<p>It can also be accessed via the unicode symbol (you can get it at the REPL or in a notebook via the TeX completion <code class="highlighter-rouge">\pi</code> followed by a tab)</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">π</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>π = 3.1415926535897...
+</code></pre></div></div>
+
+<p>You’ll notice that it doesn’t print like an ordinary floating point number: that’s because it isn’t one.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">typeof</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Irrational{:π}
+</code></pre></div></div>
+
+<p>π and a few other irrational constants are instead stored as special <code class="highlighter-rouge">Irrational</code> values, rather than being rounded to <code class="highlighter-rouge">Float64</code>. These act like ordinary numeric values, except that they can are converted automatically to any floating point type without any intermediate rounding:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span> <span class="o">+</span> <span class="nb">pi</span> <span class="c"># integers are promoted to Float64 by default</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>4.141592653589793
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Float32</span><span class="x">(</span><span class="mi">1</span><span class="x">)</span> <span class="o">+</span> <span class="nb">pi</span> <span class="c"># Float32</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>4.141593f0
+</code></pre></div></div>
+
+<p>This is particularly useful for use with arbitrary-precision <code class="highlighter-rouge">BigFloat</code>s, as π can be evaluated to full precision (rather than be truncated to <code class="highlighter-rouge">Float64</code> and converted back).</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">BigFloat</span><span class="x">(</span><span class="mi">1</span><span class="x">)</span> <span class="o">+</span> <span class="nb">pi</span> <span class="c"># 256 bits by default</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>4.141592653589793238462643383279502884197169399375105820974944592307816406286198
+</code></pre></div></div>
+
+<p>If π were stored as a <code class="highlighter-rouge">Float64</code>, we would instead get</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">BigFloat</span><span class="x">(</span><span class="mi">1</span><span class="x">)</span> <span class="o">+</span> <span class="kt">Float64</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>4.141592653589793115997963468544185161590576171875000000000000000000000000000000
+</code></pre></div></div>
+
+<p>In fact <code class="highlighter-rouge">BigFloat</code> (which uses the <a href="http://www.mpfr.org">MPFR</a> library) will compute π on demand to the current precision, which is set via <code class="highlighter-rouge">setprecision</code>. This provides an easy way to get its digits:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># to 1024 bits</span>
+<span class="n">setprecision</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span> <span class="mi">1024</span><span class="x">)</span> <span class="n">do</span> 
+    <span class="kt">BigFloat</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724586997
+</code></pre></div></div>
+
+<p>The last few printed digits may be incorrect due to the conversion from the internal binary format of <code class="highlighter-rouge">BigFloat</code> to the decimal representation used for printing.
+This is just a presentation issue, however – the internal binary representation is correctly rounded to the last bit.</p>
+
+<p>Another neat property of <code class="highlighter-rouge">Irrational</code>s is that inequalities are correct:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Float64</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span> <span class="o">&lt;</span> <span class="nb">pi</span> <span class="o">&lt;</span> <span class="n">nextfloat</span><span class="x">(</span><span class="kt">Float64</span><span class="x">(</span><span class="nb">pi</span><span class="x">))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>true
+</code></pre></div></div>
+
+<h2 id="π-via-inline-assembly-instructions">π via inline assembly instructions</h2>
+<p><em>(<a href="https://github.com/simonbyrne">Simon Byrne</a>)</em></p>
+
+<p>Julia provides a very low-level <code class="highlighter-rouge">llvmcall</code> interface, which allows the user to directly write <a href="http://llvm.org/docs/LangRef.html">LLVM intermediate representation</a>, including the use of inline assembly. The following snippet calls the <code class="highlighter-rouge">fldpi</code> instruction (“<strong>f</strong>loating point <strong>l</strong>oa<strong>d</strong> <strong>pi</strong>”) which loads the constant π onto the floating point register stack (this works only on x86 and x86_64 architectures)</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> asm_pi</span><span class="x">()</span>
+    <span class="n">Base</span><span class="o">.</span><span class="n">llvmcall</span><span class="x">(</span>
+    <span class="s">""" %pi = call double asm "</span><span class="n">fldpi</span><span class="s">", "</span><span class="o">=</span><span class="x">{</span><span class="n">st</span><span class="x">}</span><span class="s">"()
+        ret double %pi"""</span><span class="x">,</span> 
+    <span class="kt">Float64</span><span class="x">,</span> <span class="n">Tuple</span><span class="x">{})</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>asm_pi (generic function with 1 method)
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">asm_pi</span><span class="x">()</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.141592653589793
+</code></pre></div></div>
+
+<p>We can look at the actual resulting code that is generated:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@code_native</span> <span class="n">asm_pi</span><span class="x">()</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	.section	__TEXT,__text,regular,pure_instructions
+Filename: In[10]
+	pushq	%rbp
+	movq	%rsp, %rbp
+Source line: 2
+	fldpi
+	fstpl	-8(%rbp)
+	movsd	-8(%rbp), %xmm0         ## xmm0 = mem[0],zero
+	popq	%rbp
+	retq
+</code></pre></div></div>
+
+<p>If you’re wondering what the rest of these instructions are doing:</p>
+
+<ol>
+  <li>the <code class="highlighter-rouge">pushq</code> and <code class="highlighter-rouge">movq</code> adds to the <a href="https://en.wikipedia.org/wiki/Call_stack">call stack frame</a>.</li>
+  <li><code class="highlighter-rouge">fldpi</code> pushes π to the x87 floating point register stack
+    <ul>
+      <li>x87 is the older legacy floating point instruction set dating back to the original <a href="https://en.wikipedia.org/wiki/Intel_8087">Intel 8087 coprocessor</a>.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">fstpl</code> and <code class="highlighter-rouge">movsd</code> moves the value to the SSE floating point register <code class="highlighter-rouge">xmm0</code>
+    <ul>
+      <li>Julia, like most modern software, uses the newer SSE instruction set for its floating point operations. This also allows us to take advantage of things like <a href="https://en.wikipedia.org/wiki/SIMD">SIMD operations</a>.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">popq</code> and <code class="highlighter-rouge">retq</code> pops the call stack frame.</li>
+</ol>
+
+<h2 id="π-using-a-taylor-series-expansions">π using a Taylor series expansions</h2>
+<p><em>(<a href="https://github.com/lbenet">Luis Benet</a>, Instituto de Ciencias Físicas, Universidad Nacional Autónoma de México (UNAM))</em></p>
+
+<p>This will demonstrate how to evaluate π using various Taylor series expansions via the <a href="https://github.com/JuliaDiff/TaylorSeries.jl">TaylorSeries.jl</a> package.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">TaylorSeries</span>
+</code></pre></div></div>
+
+<h3 id="madhavas-formula">Madhava’s formula</h3>
+
+<p>One of the standard trigonmetric identities is
+<script type="math/tex">\tan\left( \frac{\pi}{6} \right) = \frac{1}{\sqrt{3}}.</script></p>
+
+<p>Therefore, by taking the Taylor expansion of $ 6 \arctan(x) $ around 0 we may obtain the value of $\pi$, by evaluating it at $1/\sqrt{3}$, a value which is within the radius of convergence.</p>
+
+<p>We obtain the Taylor series of order 37th, using <code class="highlighter-rouge">BigFloat</code>s:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">series1</span> <span class="o">=</span> <span class="mi">6</span><span class="n">atan</span><span class="x">(</span> <span class="n">Taylor1</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span> <span class="mi">37</span><span class="x">)</span> <span class="x">)</span>
+<span class="nb">convert</span><span class="x">(</span><span class="n">Taylor1</span><span class="x">{</span><span class="n">Rational</span><span class="x">{</span><span class="kt">BigInt</span><span class="x">}},</span><span class="n">series1</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 6//1 t - 2//1 t³ + 6//5 t⁵ - 6//7 t⁷ + 2//3 t⁹ - 6//11 t¹¹ + 6//13 t¹³ - 2//5 t¹⁵ + 6//17 t¹⁷ - 6//19 t¹⁹ + 2//7 t²¹ - 6//23 t²³ + 6//25 t²⁵ - 2//9 t²⁷ + 6//29 t²⁹ - 6//31 t³¹ + 2//11 t³³ - 6//35 t³⁵ + 6//37 t³⁷ + 𝒪(t³⁸)
+</code></pre></div></div>
+
+<p>Note that the series above has only odd powers, so we will be using in this case 18 coefficients.</p>
+
+<p>Evaluating that expression in $1/\sqrt{3}$ we get</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pi_approx1</span> <span class="o">=</span> <span class="n">evaluate</span><span class="x">(</span><span class="n">series1</span><span class="x">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">sqrt</span><span class="x">(</span><span class="n">big</span><span class="x">(</span><span class="mi">3</span><span class="x">)))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.141592653647826046431202390582141253830948237428790668441592864548346569098516
+</code></pre></div></div>
+
+<p>Then, the 37th order Taylor expansion yields a value which differs from $\pi$ in:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">abs</span><span class="x">(</span><span class="nb">pi</span> <span class="o">-</span> <span class="n">pi_approx1</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>5.803280796855900730263836963377883805368484746664827224053016281231814650118929e-11
+</code></pre></div></div>
+
+<p>To obtain more accurate results, we may simply increase the order of the expansion:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">series2</span> <span class="o">=</span> <span class="mi">6</span><span class="n">atan</span><span class="x">(</span> <span class="n">Taylor1</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span><span class="mi">99</span><span class="x">)</span> <span class="x">)</span> <span class="c"># 49 coefficients of the series</span>
+<span class="n">pi_approx2</span> <span class="o">=</span> <span class="n">evaluate</span><span class="x">(</span><span class="n">series2</span><span class="x">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">sqrt</span><span class="x">(</span><span class="kt">BigInt</span><span class="x">(</span><span class="mi">3</span><span class="x">)))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.141592653589793238462643347272152237127662423839333289949470742535834074912581
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">abs</span><span class="x">(</span><span class="nb">pi</span> <span class="o">-</span> <span class="n">pi_approx2</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.600735064706950697553577253102547384977198233137361734413175534929622111373249e-26
+</code></pre></div></div>
+
+<p>This formulation is one of the <a href="https://en.wikipedia.org/wiki/Madhava_series#Another_formula_for_the_circumference_of_a_circle"><em>Madhava</em> or <em>Gregory–Leibniz series</em></a>:</p>
+
+<p>\begin{equation}
+\pi = 6 \sum_{n=0}^{\infty} (-1)^n \frac{(1/\sqrt{3})^{2n+1}}{2n+1}.
+\end{equation}</p>
+
+<h3 id="machins-approach">Machin’s approach</h3>
+
+<p>Following the same idea, <a href="https://en.wikipedia.org/wiki/John_Machin#Formula">John Machin</a> derived an algorithm which converges much faster, using the identity</p>
+
+<p>\begin{equation}
+\frac{\pi}{4} = 4 \arctan\left(\frac{1}{5}\right) - \arctan\left(\frac{1}{239}\right).
+\end{equation}</p>
+
+<p>Following what we did above, using again a 37th Taylor expansion:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ser</span> <span class="o">=</span> <span class="n">atan</span><span class="x">(</span> <span class="n">Taylor1</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span> <span class="mi">37</span><span class="x">)</span> <span class="x">)</span>
+<span class="n">pi_approx3</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="x">(</span> <span class="mi">4</span><span class="o">*</span><span class="n">evaluate</span><span class="x">(</span><span class="n">ser</span><span class="x">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">big</span><span class="x">(</span><span class="mi">5</span><span class="x">))</span> <span class="o">-</span> <span class="n">evaluate</span><span class="x">(</span><span class="n">ser</span><span class="x">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">big</span><span class="x">(</span><span class="mi">239</span><span class="x">))</span> <span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.141592653589793238462643383496777424642594661632063407072684671069773618535135
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">abs</span><span class="x">(</span><span class="nb">pi</span> <span class="o">-</span> <span class="n">pi_approx3</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.17274540445425262256957586097740078761957212248936631045983596428448951876822e-28
+</code></pre></div></div>
+
+<h2 id="finding-guaranteed-bounds-on-π">Finding guaranteed bounds on π</h2>
+<p><em>(<a href="http://sistemas.fciencias.unam.mx/~dsanders/">David P. Sanders</a>,  Department of Physics, Faculty of Sciences, National University of Mexico (UNAM)</em>)</p>
+
+<h3 id="using-standard-floating-point-arithmetic">Using standard floating-point arithmetic</h3>
+
+<p>We will calculate <em>guaranteed</em> (i.e., <em>validated</em>, or mathematically rigorous) bounds on $\pi$ using just floating-point arithmetic. This requires “directed rounding”, i.e. the ability to control in which direction floating-point operations are rounded.</p>
+
+<p>This is based on the book <a href="http://press.princeton.edu/titles/9488.html"><em>Validated Numerics</em></a> (Princeton, 2011) by <a href="http://www2.math.uu.se/~warwick/CAPA/warwick/warwick.html">Warwick Tucker</a>.</p>
+
+<p>Consider the infinite series</p>
+
+<script type="math/tex; mode=display">S := \sum_{n=1}^\infty \frac{1}{n^2},</script>
+
+<p>whose exact value is <a href="http://en.wikipedia.org/wiki/Basel_problem">known</a> to be $S = \frac{\pi^2}{6}$.
+Thus, if finding guaranteed bounds on $S$ will give guaranteed bounds on $\pi$.</p>
+
+<p>The idea is to split $S$ up into two parts, $S = S_N + T_N$, where
+$ S_N := \sum_{n=1}^N \frac{1}{n^2}$ contains the first $N$ terms, 
+and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an infinite number of terms).</p>
+
+<p>We will evalute $S_N$ numerically, and use the following analytical bound for $T_N$:</p>
+
+<p><script type="math/tex">\frac{1}{N+1} \le T_N \le \frac{1}{N}</script>.</p>
+
+<p>This is obtained by approximating the sum in $T_N$ using integrals from below and above:</p>
+
+<script type="math/tex; mode=display">\int_{x=N+1}^\infty \frac{1}{x^2} dx \le T_N \le \int_{x=N}^\infty \frac{1}{x^2} dx.</script>
+
+<p>$S_N$ may be calculated easily by summing either forwards or backwards:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">,</span> <span class="n">T</span><span class="o">=</span><span class="kt">Float64</span><span class="x">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">T</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">N</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">one</span><span class="x">(</span><span class="n">T</span><span class="x">)</span> <span class="o">/</span> <span class="x">(</span><span class="n">i</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
+    <span class="k">end</span>
+    <span class="n">total</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> reverse_sum</span><span class="x">(</span><span class="n">N</span><span class="x">,</span> <span class="n">T</span><span class="o">=</span><span class="kt">Float64</span><span class="x">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">T</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">N</span><span class="x">:</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="mi">1</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">one</span><span class="x">(</span><span class="n">T</span><span class="x">)</span> <span class="o">/</span> <span class="x">(</span><span class="n">i</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
+    <span class="k">end</span>
+    <span class="n">total</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reverse_sum (generic function with 2 methods)
+</code></pre></div></div>
+
+<p>To find <em>rigorous</em> bounds for $S_N$, we use “directed rounding”, that is, we round downwards for the lower bound and  upwards for the upper bound:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">^</span><span class="mi">6</span>
+
+<span class="n">lowerbound_S_N</span> <span class="o">=</span> 
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="n">do</span>
+        <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
+    <span class="k">end</span>
+
+<span class="n">upperbound_S_N</span> <span class="o">=</span> 
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="n">do</span>
+        <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
+    <span class="k">end</span>
+
+<span class="x">(</span><span class="n">lowerbound_S_N</span><span class="x">,</span> <span class="n">upperbound_S_N</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(1.6449330667377557,1.644933066959796)
+</code></pre></div></div>
+
+<p>We incorporate the respective bound on $T_N$ to obtain the bounds on $S$, and hence on $\pi$:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">^</span><span class="mi">6</span>
+
+<span class="n">lower_π</span> <span class="o">=</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="n">do</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="x">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span>
+        <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">lower_bound</span><span class="x">)</span>
+    <span class="k">end</span>
+
+<span class="n">upper_π</span> <span class="o">=</span> 
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="n">do</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="n">N</span>
+        <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">upper_bound</span><span class="x">)</span>
+    <span class="k">end</span>
+
+<span class="x">(</span><span class="n">lower_π</span><span class="x">,</span> <span class="n">upper_π</span><span class="x">,</span> <span class="n">lowerbound_S_N</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(3.1415926534833463,3.1415926536963346,1.6449330667377557)
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">upper_π</span> <span class="o">-</span> <span class="n">lower_π</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1298829366855898e-10
+</code></pre></div></div>
+
+<p>We may check that the true value of $\pi$ is indeed contained in the interval:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lower_π</span> <span class="o">&lt;</span> <span class="nb">pi</span> <span class="o">&lt;</span> <span class="n">upper_π</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>true
+</code></pre></div></div>
+
+<p>Summing in the opposite direction turns out to give a more accurate answer:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">^</span><span class="mi">6</span>
+
+<span class="n">lower_π</span> <span class="o">=</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="n">do</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">reverse_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="x">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span>
+        <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">lower_bound</span><span class="x">)</span>
+    <span class="k">end</span>
+
+<span class="n">upper_π</span> <span class="o">=</span> 
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="n">do</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">reverse_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="n">N</span>
+        <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">upper_bound</span><span class="x">)</span>
+    <span class="k">end</span>
+
+<span class="x">(</span><span class="n">lower_π</span><span class="x">,</span> <span class="n">upper_π</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(3.1415926535893144,3.141592653590272)
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">upper_π</span> <span class="o">-</span> <span class="n">lower_π</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>9.57456336436735e-13
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lower_π</span> <span class="o">&lt;</span> <span class="nb">pi</span> <span class="o">&lt;</span> <span class="n">upper_π</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>true
+</code></pre></div></div>
+
+<p>In principle, we could attain arbitrarily good precision with higher-precision <code class="highlighter-rouge">BigFloat</code>s, but the result is hampered by the slow convergence of the series.</p>
+
+<h2 id="summing-a-series-using-interval-arithmetic">Summing a series using interval arithmetic</h2>
+
+<p>We repeat the calculation using <em>interval arithmetic</em>, provided by the <a href="https://github.com/dpsanders/ValidatedNumerics.jl">ValidatedNumerics.jl</a> package.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">ValidatedNumerics</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">standard</span><span class="x">)</span>  <span class="c"># abbreviated display of intervals</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>6
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">S</span> <span class="o">=</span> <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">,</span> <span class="n">Interval</span><span class="x">)</span>
+<span class="n">S</span> <span class="o">+=</span> <span class="mi">1</span><span class="o">/</span><span class="x">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span> <span class="o">..</span> <span class="mi">1</span><span class="o">/</span><span class="n">N</span>  <span class="c"># interval bound on the remainder of the series</span>
+<span class="n">π_interval</span> <span class="o">=</span> <span class="n">√</span><span class="x">(</span><span class="mi">6</span><span class="n">S</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[3.14159, 3.1416]
+</code></pre></div></div>
+
+<p>Here we used an abbreviated display for the interval. Let’s see the whole thing:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">full</span><span class="x">)</span>
+<span class="n">π_interval</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Interval(3.1415926488148807, 3.141592658365341)
+</code></pre></div></div>
+
+<p>It’s diameter (width) is</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">diam</span><span class="x">(</span><span class="n">π_interval</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>9.550460422502738e-9
+</code></pre></div></div>
+
+<p>Thus, the result is correct to approximately 8 decimals.</p>
+
+<p>In this calculation, we used the fact that arithmetic operations of intervals with numbers automatically promote the numbers to an interval:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">full</span><span class="x">)</span>  <span class="c"># full interval display</span>
+<span class="n">Interval</span><span class="x">(</span><span class="mi">0</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">^</span><span class="mi">2</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Interval(0.1111111111111111, 0.11111111111111112)
+</code></pre></div></div>
+
+<p>This is an interval containing the true real number $1/9$ (written <code class="highlighter-rouge">1//9</code> in Julia):</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span><span class="o">//</span><span class="mi">9</span> <span class="n">∈</span> <span class="nb">convert</span><span class="x">(</span><span class="n">Interval</span><span class="x">{</span><span class="kt">Float64</span><span class="x">},</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>true
+</code></pre></div></div>
+
+<p>Finally, we can check that the true value of $\pi$ is indeed inside our interval:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">pi</span> <span class="n">∈</span> <span class="n">π_interval</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>true
+</code></pre></div></div>
+
+<h2 id="calculating-an-area">Calculating an area</h2>
+
+<p>Although the calculation above is simple, the derivation of the series itself is not. In this section, we will use a more natural way to calculate $\pi$, namely that the area of a circle of radius $r$ is $A(r) = \pi r^2$. We will calculate the area of one quadrant of a circle of radius $r=2$, which is equal to $\pi$:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">Plots</span><span class="x">;</span> <span class="n">gr</span><span class="x">();</span>
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">√</span><span class="x">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>f (generic function with 1 method)
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="x">:</span><span class="n">equal</span><span class="x">,</span> <span class="n">fill</span><span class="o">=</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="x">:</span><span class="n">orange</span><span class="x">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">)</span>
+</code></pre></div></div>
+
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewBox="0 0 600 400">
+<defs>
+  <clipPath id="clip00">
+    <rect x="0" y="0" width="600" height="400" />
+  </clipPath>
+</defs>
+<polygon clip-path="url(#clip00)" points="
+0,400 600,400 600,0 0,0 
+  " fill="#ffffff" fill-opacity="1" />
+<defs>
+  <clipPath id="clip01">
+    <rect x="120" y="0" width="421" height="400" />
+  </clipPath>
+</defs>
+<polygon clip-path="url(#clip00)" points="
+125.283,384.952 501.384,384.952 501.384,3.93701 125.283,3.93701 
+  " fill="#ffffff" fill-opacity="1" />
+<defs>
+  <clipPath id="clip02">
+    <rect x="125" y="3" width="377" height="382" />
+  </clipPath>
+</defs>
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  216.82,379.237 216.82,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  312.078,379.237 312.078,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  407.336,379.237 407.336,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  130.924,384.952 495.742,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  130.924,289.694 495.742,289.694 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  130.924,194.435 495.742,194.435 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  130.924,99.1771 495.742,99.1771 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  125.283,384.952 501.384,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  216.82,384.952 216.82,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  312.078,384.952 312.078,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  407.336,384.952 407.336,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  125.283,384.952 125.283,3.93701 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  125.283,384.952 130.924,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  125.283,289.694 130.924,289.694 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  125.283,194.435 130.924,194.435 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  125.283,99.1771 130.924,99.1771 
+  " />
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 216.82, 396.952)" x="216.82" y="396.952">0.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 312.078, 396.952)" x="312.078" y="396.952">1.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 407.336, 396.952)" x="407.336" y="396.952">1.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 124.083, 389.452)" x="124.083" y="389.452">0.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 124.083, 294.194)" x="124.083" y="294.194">0.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 124.083, 198.935)" x="124.083" y="198.935">1.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 124.083, 103.677)" x="124.083" y="103.677">1.5</text>
+</g>
+<polygon clip-path="url(#clip02)" points="
+125.283,3.93701 159.69,5.83128 180.367,8.48391 197.849,11.6338 216.84,16.0233 234.347,20.9937 253.117,27.3498 274.864,36.1189 294.191,45.2676 311.138,54.4265 
+  329.615,65.7341 348.202,78.6508 368.752,94.9811 388.305,112.86 408.636,134.403 425.75,155.483 436.197,170.031 446.644,186.187 456.465,203.221 466.285,222.62 
+  474.152,240.5 482.019,261.433 485.952,273.57 489.885,287.362 493.819,303.645 497.752,324.397 498.963,332.468 500.173,342.064 501.384,354.602 501.384,384.952 
+  500.173,384.952 498.963,384.952 497.752,384.952 493.819,384.952 489.885,384.952 485.952,384.952 482.019,384.952 474.152,384.952 466.285,384.952 456.465,384.952 
+  446.644,384.952 436.197,384.952 425.75,384.952 408.636,384.952 388.305,384.952 368.752,384.952 348.202,384.952 329.615,384.952 311.138,384.952 294.191,384.952 
+  274.864,384.952 253.117,384.952 234.347,384.952 216.84,384.952 197.849,384.952 180.367,384.952 159.69,384.952 125.283,384.952 
+  " fill="#ffa500" fill-opacity="0.2" />
+<polyline clip-path="url(#clip02)" style="stroke:#0099ff; stroke-width:0.8; stroke-opacity:0.2; fill:none" points="
+  125.283,3.93701 159.69,5.83128 180.367,8.48391 197.849,11.6338 216.84,16.0233 234.347,20.9937 253.117,27.3498 274.864,36.1189 294.191,45.2676 311.138,54.4265 
+  329.615,65.7341 348.202,78.6508 368.752,94.9811 388.305,112.86 408.636,134.403 425.75,155.483 436.197,170.031 446.644,186.187 456.465,203.221 466.285,222.62 
+  474.152,240.5 482.019,261.433 485.952,273.57 489.885,287.362 493.819,303.645 497.752,324.397 498.963,332.468 500.173,342.064 501.384,354.602 
+  " />
+</svg>
+
+<p>The circle of radius $r=2$ is given by $x^2 + y^2 = 2^2 = 4$, so</p>
+
+<script type="math/tex; mode=display">\pi = \frac{1}{4} A(2) = \int_{x=0}^2 y(x) \, dx = \int_{x=0}^2 \sqrt{4 - x^2}.</script>
+
+<p>In calculus, we learn that we can approximate integrals using <strong>Riemann sums</strong>. Interval arithmetic allows us to make these Riemann sums <strong>rigorous</strong> in a very simple way, as follows.</p>
+
+<p>We split up the $x$ axis into intervals, for example of equal width:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_intervals</span><span class="x">(</span><span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="x">)</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">linspace</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span>
+    <span class="k">return</span> <span class="x">[</span><span class="n">xs</span><span class="x">[</span><span class="n">i</span><span class="x">]</span><span class="o">..</span><span class="n">xs</span><span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="x">]</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">length</span><span class="x">(</span><span class="n">xs</span><span class="x">)</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span>
+<span class="k">end</span>
+
+<span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">()</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10-element Array{ValidatedNumerics.Interval{Float64},1}:
+ Interval(0.0, 0.2)                               
+ Interval(0.19999999999999998, 0.4)               
+ Interval(0.39999999999999997, 0.6000000000000001)
+ Interval(0.6, 0.8)                               
+ Interval(0.7999999999999999, 1.0)                
+ Interval(1.0, 1.2000000000000002)                
+ Interval(1.2, 1.4000000000000001)                
+ Interval(1.4, 1.6)                               
+ Interval(1.5999999999999999, 1.8)                
+ Interval(1.7999999999999998, 2.0)                
+</code></pre></div></div>
+
+<p>Given one of those intervals, we evaluate the function of interest:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">II</span> <span class="o">=</span> <span class="n">intervals</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Interval(0.0, 0.2)
+</code></pre></div></div>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="x">(</span><span class="n">II</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Interval(1.9899748742132397, 2.0)
+</code></pre></div></div>
+
+<p>The result is an interval that is <strong>guaranteed to contain</strong> the true range of the function $f$ over that interval. So the lower and upper bounds of the intervals may be used as lower and upper bounds of the height of the box in a Riemann integral:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">(</span><span class="mi">30</span><span class="x">)</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">plot</span><span class="x">(</span><span class="n">aspect_ratio</span><span class="o">=</span><span class="x">:</span><span class="n">equal</span><span class="x">)</span>
+<span class="k">for</span> <span class="n">X</span> <span class="k">in</span> <span class="n">intervals</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">f</span><span class="x">(</span><span class="n">X</span><span class="x">)</span>
+    
+    <span class="n">plot!</span><span class="x">(</span><span class="n">IntervalBox</span><span class="x">(</span><span class="n">X</span><span class="x">,</span> <span class="n">Interval</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">lo</span><span class="x">)),</span> <span class="n">c</span><span class="o">=</span><span class="x">:</span><span class="n">blue</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="x">)</span>
+    <span class="n">plot!</span><span class="x">(</span><span class="n">IntervalBox</span><span class="x">(</span><span class="n">X</span><span class="x">,</span> <span class="n">Interval</span><span class="x">(</span><span class="n">Y</span><span class="o">.</span><span class="n">lo</span><span class="x">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">hi</span><span class="x">)),</span> <span class="n">c</span><span class="o">=</span><span class="x">:</span><span class="n">red</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="x">)</span>
+<span class="k">end</span>
+
+<span class="n">plot!</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
+
+<span class="n">p</span>
+</code></pre></div></div>
+
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewBox="0 0 600 400">
+<defs>
+  <clipPath id="clip00">
+    <rect x="0" y="0" width="600" height="400" />
+  </clipPath>
+</defs>
+<polygon clip-path="url(#clip00)" points="
+0,400 600,400 600,0 0,0 
+  " fill="#ffffff" fill-opacity="1" />
+<defs>
+  <clipPath id="clip01">
+    <rect x="120" y="0" width="421" height="400" />
+  </clipPath>
+</defs>
+<polygon clip-path="url(#clip00)" points="
+122.826,384.952 503.841,384.952 503.841,3.93701 122.826,3.93701 
+  " fill="#ffffff" fill-opacity="1" />
+<defs>
+  <clipPath id="clip02">
+    <rect x="122" y="3" width="382" height="382" />
+  </clipPath>
+</defs>
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  122.826,379.237 122.826,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  218.08,379.237 218.08,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  313.333,379.237 313.333,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  408.587,379.237 408.587,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  503.841,379.237 503.841,9.65223 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  128.541,384.952 498.126,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  128.541,289.698 498.126,289.698 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  128.541,194.444 498.126,194.444 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  128.541,99.1907 498.126,99.1907 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" stroke-dasharray="1, 2" points="
+  128.541,3.93701 498.126,3.93701 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,384.952 503.841,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,384.952 122.826,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  218.08,384.952 218.08,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  313.333,384.952 313.333,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  408.587,384.952 408.587,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  503.841,384.952 503.841,379.237 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,384.952 122.826,3.93701 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,384.952 128.541,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,289.698 128.541,289.698 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,194.444 128.541,194.444 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,99.1907 128.541,99.1907 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  122.826,3.93701 128.541,3.93701 
+  " />
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 122.826, 396.952)" x="122.826" y="396.952">0.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 218.08, 396.952)" x="218.08" y="396.952">0.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 313.333, 396.952)" x="313.333" y="396.952">1.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 408.587, 396.952)" x="408.587" y="396.952">1.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:middle;" transform="rotate(0, 503.841, 396.952)" x="503.841" y="396.952">2.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 121.626, 389.452)" x="121.626" y="389.452">0.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 121.626, 294.198)" x="121.626" y="294.198">0.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 121.626, 198.944)" x="121.626" y="198.944">1.0</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 121.626, 103.691)" x="121.626" y="103.691">1.5</text>
+</g>
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:end;" transform="rotate(0, 121.626, 8.43701)" x="121.626" y="8.43701">2.0</text>
+</g>
+<polygon clip-path="url(#clip02)" points="
+122.826,384.952 135.526,384.952 135.526,4.14874 122.826,4.14874 122.826,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  122.826,384.952 135.526,384.952 135.526,4.14874 122.826,4.14874 122.826,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+122.826,4.14874 135.526,4.14874 135.526,3.93701 122.826,3.93701 122.826,4.14874 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  122.826,4.14874 135.526,4.14874 135.526,3.93701 122.826,3.93701 122.826,4.14874 
+  " />
+<polygon clip-path="url(#clip02)" points="
+135.526,384.952 148.227,384.952 148.227,4.78465 135.526,4.78465 135.526,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  135.526,384.952 148.227,384.952 148.227,4.78465 135.526,4.78465 135.526,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+135.526,4.78465 148.227,4.78465 148.227,4.14874 135.526,4.14874 135.526,4.78465 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  135.526,4.78465 148.227,4.78465 148.227,4.14874 135.526,4.14874 135.526,4.78465 
+  " />
+<polygon clip-path="url(#clip02)" points="
+148.227,384.952 160.927,384.952 160.927,5.84687 148.227,5.84687 148.227,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  148.227,384.952 160.927,384.952 160.927,5.84687 148.227,5.84687 148.227,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+148.227,5.84687 160.927,5.84687 160.927,4.78465 148.227,4.78465 148.227,5.84687 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  148.227,5.84687 160.927,5.84687 160.927,4.78465 148.227,4.78465 148.227,5.84687 
+  " />
+<polygon clip-path="url(#clip02)" points="
+160.927,384.952 173.628,384.952 173.628,7.33899 160.927,7.33899 160.927,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  160.927,384.952 173.628,384.952 173.628,7.33899 160.927,7.33899 160.927,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+160.927,7.33899 173.628,7.33899 173.628,5.84687 160.927,5.84687 160.927,7.33899 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  160.927,7.33899 173.628,7.33899 173.628,5.84687 160.927,5.84687 160.927,7.33899 
+  " />
+<polygon clip-path="url(#clip02)" points="
+173.628,384.952 186.328,384.952 186.328,9.26615 173.628,9.26615 173.628,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  173.628,384.952 186.328,384.952 186.328,9.26615 173.628,9.26615 173.628,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+173.628,9.26615 186.328,9.26615 186.328,7.33899 173.628,7.33899 173.628,9.26615 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  173.628,9.26615 186.328,9.26615 186.328,7.33899 173.628,7.33899 173.628,9.26615 
+  " />
+<polygon clip-path="url(#clip02)" points="
+186.328,384.952 199.029,384.952 199.029,11.6351 186.328,11.6351 186.328,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  186.328,384.952 199.029,384.952 199.029,11.6351 186.328,11.6351 186.328,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+186.328,11.6351 199.029,11.6351 199.029,9.26615 186.328,9.26615 186.328,11.6351 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  186.328,11.6351 199.029,11.6351 199.029,9.26615 186.328,9.26615 186.328,11.6351 
+  " />
+<polygon clip-path="url(#clip02)" points="
+199.029,384.952 211.729,384.952 211.729,14.4542 199.029,14.4542 199.029,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  199.029,384.952 211.729,384.952 211.729,14.4542 199.029,14.4542 199.029,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+199.029,14.4542 211.729,14.4542 211.729,11.6351 199.029,11.6351 199.029,14.4542 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  199.029,14.4542 211.729,14.4542 211.729,11.6351 199.029,11.6351 199.029,14.4542 
+  " />
+<polygon clip-path="url(#clip02)" points="
+211.729,384.952 224.43,384.952 224.43,17.734 211.729,17.734 211.729,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  211.729,384.952 224.43,384.952 224.43,17.734 211.729,17.734 211.729,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+211.729,17.734 224.43,17.734 224.43,14.4542 211.729,14.4542 211.729,17.734 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  211.729,17.734 224.43,17.734 224.43,14.4542 211.729,14.4542 211.729,17.734 
+  " />
+<polygon clip-path="url(#clip02)" points="
+224.43,384.952 237.13,384.952 237.13,21.4869 224.43,21.4869 224.43,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  224.43,384.952 237.13,384.952 237.13,21.4869 224.43,21.4869 224.43,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+224.43,21.4869 237.13,21.4869 237.13,17.734 224.43,17.734 224.43,21.4869 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  224.43,21.4869 237.13,21.4869 237.13,17.734 224.43,17.734 224.43,21.4869 
+  " />
+<polygon clip-path="url(#clip02)" points="
+237.13,384.952 249.831,384.952 249.831,25.7276 237.13,25.7276 237.13,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  237.13,384.952 249.831,384.952 249.831,25.7276 237.13,25.7276 237.13,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+237.13,25.7276 249.831,25.7276 249.831,21.4869 237.13,21.4869 237.13,25.7276 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  237.13,25.7276 249.831,25.7276 249.831,21.4869 237.13,21.4869 237.13,25.7276 
+  " />
+<polygon clip-path="url(#clip02)" points="
+249.831,384.952 262.531,384.952 262.531,30.4738 249.831,30.4738 249.831,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  249.831,384.952 262.531,384.952 262.531,30.4738 249.831,30.4738 249.831,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+249.831,30.4738 262.531,30.4738 262.531,25.7276 249.831,25.7276 249.831,30.4738 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  249.831,30.4738 262.531,30.4738 262.531,25.7276 249.831,25.7276 249.831,30.4738 
+  " />
+<polygon clip-path="url(#clip02)" points="
+262.531,384.952 275.232,384.952 275.232,35.746 262.531,35.746 262.531,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  262.531,384.952 275.232,384.952 275.232,35.746 262.531,35.746 262.531,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+262.531,35.746 275.232,35.746 275.232,30.4738 262.531,30.4738 262.531,35.746 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  262.531,35.746 275.232,35.746 275.232,30.4738 262.531,30.4738 262.531,35.746 
+  " />
+<polygon clip-path="url(#clip02)" points="
+275.232,384.952 287.932,384.952 287.932,41.5684 275.232,41.5684 275.232,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  275.232,384.952 287.932,384.952 287.932,41.5684 275.232,41.5684 275.232,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+275.232,41.5684 287.932,41.5684 287.932,35.746 275.232,35.746 275.232,41.5684 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  275.232,41.5684 287.932,41.5684 287.932,35.746 275.232,35.746 275.232,41.5684 
+  " />
+<polygon clip-path="url(#clip02)" points="
+287.932,384.952 300.633,384.952 300.633,47.9696 287.932,47.9696 287.932,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  287.932,384.952 300.633,384.952 300.633,47.9696 287.932,47.9696 287.932,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+287.932,47.9696 300.633,47.9696 300.633,41.5684 287.932,41.5684 287.932,47.9696 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  287.932,47.9696 300.633,47.9696 300.633,41.5684 287.932,41.5684 287.932,47.9696 
+  " />
+<polygon clip-path="url(#clip02)" points="
+300.633,384.952 313.333,384.952 313.333,54.9833 300.633,54.9833 300.633,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  300.633,384.952 313.333,384.952 313.333,54.9833 300.633,54.9833 300.633,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+300.633,54.9833 313.333,54.9833 313.333,47.9696 300.633,47.9696 300.633,54.9833 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  300.633,54.9833 313.333,54.9833 313.333,47.9696 300.633,47.9696 300.633,54.9833 
+  " />
+<polygon clip-path="url(#clip02)" points="
+313.333,384.952 326.034,384.952 326.034,62.6494 313.333,62.6494 313.333,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  313.333,384.952 326.034,384.952 326.034,62.6494 313.333,62.6494 313.333,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+313.333,62.6494 326.034,62.6494 326.034,54.9833 313.333,54.9833 313.333,62.6494 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  313.333,62.6494 326.034,62.6494 326.034,54.9833 313.333,54.9833 313.333,62.6494 
+  " />
+<polygon clip-path="url(#clip02)" points="
+326.034,384.952 338.734,384.952 338.734,71.0158 326.034,71.0158 326.034,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  326.034,384.952 338.734,384.952 338.734,71.0158 326.034,71.0158 326.034,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+326.034,71.0158 338.734,71.0158 338.734,62.6494 326.034,62.6494 326.034,71.0158 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  326.034,71.0158 338.734,71.0158 338.734,62.6494 326.034,62.6494 326.034,71.0158 
+  " />
+<polygon clip-path="url(#clip02)" points="
+338.734,384.952 351.435,384.952 351.435,80.14 338.734,80.14 338.734,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  338.734,384.952 351.435,384.952 351.435,80.14 338.734,80.14 338.734,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+338.734,80.14 351.435,80.14 351.435,71.0158 338.734,71.0158 338.734,80.14 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  338.734,80.14 351.435,80.14 351.435,71.0158 338.734,71.0158 338.734,80.14 
+  " />
+<polygon clip-path="url(#clip02)" points="
+351.435,384.952 364.135,384.952 364.135,90.0924 351.435,90.0924 351.435,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  351.435,384.952 364.135,384.952 364.135,90.0924 351.435,90.0924 351.435,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+351.435,90.0924 364.135,90.0924 364.135,80.14 351.435,80.14 351.435,90.0924 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  351.435,90.0924 364.135,90.0924 364.135,80.14 351.435,80.14 351.435,90.0924 
+  " />
+<polygon clip-path="url(#clip02)" points="
+364.135,384.952 376.836,384.952 376.836,100.96 364.135,100.96 364.135,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  364.135,384.952 376.836,384.952 376.836,100.96 364.135,100.96 364.135,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+364.135,100.96 376.836,100.96 376.836,90.0924 364.135,90.0924 364.135,100.96 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  364.135,100.96 376.836,100.96 376.836,90.0924 364.135,90.0924 364.135,100.96 
+  " />
+<polygon clip-path="url(#clip02)" points="
+376.836,384.952 389.536,384.952 389.536,112.853 376.836,112.853 376.836,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  376.836,384.952 389.536,384.952 389.536,112.853 376.836,112.853 376.836,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+376.836,112.853 389.536,112.853 389.536,100.96 376.836,100.96 376.836,112.853 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  376.836,112.853 389.536,112.853 389.536,100.96 376.836,100.96 376.836,112.853 
+  " />
+<polygon clip-path="url(#clip02)" points="
+389.536,384.952 402.237,384.952 402.237,125.912 389.536,125.912 389.536,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  389.536,384.952 402.237,384.952 402.237,125.912 389.536,125.912 389.536,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+389.536,125.912 402.237,125.912 402.237,112.853 389.536,112.853 389.536,125.912 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  389.536,125.912 402.237,125.912 402.237,112.853 389.536,112.853 389.536,125.912 
+  " />
+<polygon clip-path="url(#clip02)" points="
+402.237,384.952 414.937,384.952 414.937,140.323 402.237,140.323 402.237,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  402.237,384.952 414.937,384.952 414.937,140.323 402.237,140.323 402.237,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+402.237,140.323 414.937,140.323 414.937,125.912 402.237,125.912 402.237,140.323 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  402.237,140.323 414.937,140.323 414.937,125.912 402.237,125.912 402.237,140.323 
+  " />
+<polygon clip-path="url(#clip02)" points="
+414.937,384.952 427.638,384.952 427.638,156.343 414.937,156.343 414.937,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  414.937,384.952 427.638,384.952 427.638,156.343 414.937,156.343 414.937,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+414.937,156.343 427.638,156.343 427.638,140.323 414.937,140.323 414.937,156.343 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  414.937,156.343 427.638,156.343 427.638,140.323 414.937,140.323 414.937,156.343 
+  " />
+<polygon clip-path="url(#clip02)" points="
+427.638,384.952 440.338,384.952 440.338,174.338 427.638,174.338 427.638,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  427.638,384.952 440.338,384.952 440.338,174.338 427.638,174.338 427.638,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+427.638,174.338 440.338,174.338 440.338,156.343 427.638,156.343 427.638,174.338 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  427.638,174.338 440.338,174.338 440.338,156.343 427.638,156.343 427.638,174.338 
+  " />
+<polygon clip-path="url(#clip02)" points="
+440.338,384.952 453.039,384.952 453.039,194.868 440.338,194.868 440.338,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  440.338,384.952 453.039,384.952 453.039,194.868 440.338,194.868 440.338,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+440.338,194.868 453.039,194.868 453.039,174.338 440.338,174.338 440.338,194.868 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  440.338,194.868 453.039,194.868 453.039,174.338 440.338,174.338 440.338,194.868 
+  " />
+<polygon clip-path="url(#clip02)" points="
+453.039,384.952 465.739,384.952 465.739,218.871 453.039,218.871 453.039,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  453.039,384.952 465.739,384.952 465.739,218.871 453.039,218.871 453.039,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+453.039,218.871 465.739,218.871 465.739,194.868 453.039,194.868 453.039,218.871 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  453.039,218.871 465.739,218.871 465.739,194.868 453.039,194.868 453.039,218.871 
+  " />
+<polygon clip-path="url(#clip02)" points="
+465.739,384.952 478.44,384.952 478.44,248.163 465.739,248.163 465.739,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  465.739,384.952 478.44,384.952 478.44,248.163 465.739,248.163 465.739,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+465.739,248.163 478.44,248.163 478.44,218.871 465.739,218.871 465.739,248.163 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  465.739,248.163 478.44,248.163 478.44,218.871 465.739,218.871 465.739,248.163 
+  " />
+<polygon clip-path="url(#clip02)" points="
+478.44,384.952 491.14,384.952 491.14,287.398 478.44,287.398 478.44,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  478.44,384.952 491.14,384.952 491.14,287.398 478.44,287.398 478.44,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+478.44,287.398 491.14,287.398 491.14,248.163 478.44,248.163 478.44,287.398 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  478.44,287.398 491.14,287.398 491.14,248.163 478.44,248.163 478.44,287.398 
+  " />
+<polygon clip-path="url(#clip02)" points="
+491.14,384.952 503.841,384.952 503.841,384.952 491.14,384.952 491.14,384.952 
+  " fill="#0000ff" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  491.14,384.952 503.841,384.952 491.14,384.952 
+  " />
+<polygon clip-path="url(#clip02)" points="
+491.14,384.952 503.841,384.952 503.841,287.398 491.14,287.398 491.14,384.952 
+  " fill="#ff0000" fill-opacity="0.5" />
+<polyline clip-path="url(#clip02)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:0.5; fill:none" points="
+  491.14,384.952 503.841,384.952 503.841,287.398 491.14,287.398 491.14,384.952 
+  " />
+<polyline clip-path="url(#clip02)" style="stroke:#0099ff; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  126.547,3.95518 160.952,5.84936 181.628,8.50187 199.11,11.6516 218.099,16.0409 235.606,21.0111 254.375,27.3669 276.121,36.1356 295.447,45.2838 312.393,54.4423 
+  330.869,65.7493 349.455,78.6654 370.005,94.9949 389.557,112.873 409.886,134.415 427,155.494 437.446,170.042 447.893,186.196 457.713,203.23 467.533,222.627 
+  475.399,240.507 483.266,261.439 487.199,273.576 491.132,287.367 495.065,303.649 498.998,324.4 500.209,332.47 501.42,342.067 502.63,354.603 
+  " />
+<polygon clip-path="url(#clip00)" points="
+406.736,55.057 485.841,55.057 485.841,24.817 406.736,24.817 
+  " fill="#ffffff" fill-opacity="1" />
+<polyline clip-path="url(#clip00)" style="stroke:#00002d; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  406.736,55.057 485.841,55.057 485.841,24.817 406.736,24.817 406.736,55.057 
+  " />
+<polyline clip-path="url(#clip00)" style="stroke:#0099ff; stroke-width:0.8; stroke-opacity:1; fill:none" points="
+  412.736,39.937 448.736,39.937 
+  " />
+<g clip-path="url(#clip00)">
+<text style="fill:#00002d; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:12; text-anchor:start;" transform="rotate(0, 454.736, 44.437)" x="454.736" y="44.437">y61</text>
+</g>
+</svg>
+
+<p>Now we just sum up the areas:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
+
+<span class="n">width</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="n">N</span>
+<span class="n">width</span> <span class="o">*</span> <span class="n">sum</span><span class="x">(</span><span class="n">√</span><span class="x">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">X</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span> <span class="k">for</span> <span class="n">X</span> <span class="k">in</span> <span class="n">intervals</span><span class="x">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Interval(3.0284648797549782, 3.2284648797549846)
+</code></pre></div></div>
+
+<p>As we increase the number of sub-intervals, the approximation gets better and better:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">standard</span><span class="x">,</span> <span class="n">sigfigs</span><span class="o">=</span><span class="mi">5</span><span class="x">)</span>
+
+<span class="n">println</span><span class="x">(</span><span class="s">"N </span><span class="se">\t</span><span class="s"> area interval </span><span class="se">\t</span><span class="s"> </span><span class="se">\t</span><span class="s"> diameter"</span><span class="x">)</span>
+<span class="k">for</span> <span class="n">N</span> <span class="k">in</span> <span class="mi">50</span><span class="x">:</span><span class="mi">50</span><span class="x">:</span><span class="mi">1000</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="x">(</span><span class="mi">2</span><span class="o">/</span><span class="n">N</span><span class="x">)</span> <span class="o">*</span> <span class="n">sum</span><span class="x">(</span><span class="n">√</span><span class="x">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">X</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span> <span class="k">for</span> <span class="n">X</span> <span class="k">in</span> <span class="n">intervals</span><span class="x">)</span>
+            
+    <span class="n">println</span><span class="x">(</span><span class="s">"</span><span class="si">$</span><span class="s">N </span><span class="se">\t</span><span class="s"> </span><span class="si">$</span><span class="s">area </span><span class="se">\t</span><span class="s"> </span><span class="si">$</span><span class="s">(diam(area))"</span><span class="x">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>N 	 area interval 	 	 diameter
+50 	 [3.0982, 3.1783] 	 0.0800000000000165
+100 	 [3.1204, 3.1605] 	 0.040000000000032454
+150 	 [3.1276, 3.1543] 	 0.02666666666670814
+200 	 [3.1311, 3.1512] 	 0.02000000000006308
+250 	 [3.1332, 3.1493] 	 0.016000000000075065
+300 	 [3.1346, 3.1481] 	 0.013333333333415354
+350 	 [3.1356, 3.1472] 	 0.011428571428676815
+400 	 [3.1364, 3.1465] 	 0.010000000000123688
+450 	 [3.137, 3.146] 	 0.008888888889027502
+500 	 [3.1374, 3.1455] 	 0.008000000000148333
+550 	 [3.1378, 3.1452] 	 0.007272727272884527
+600 	 [3.1381, 3.1449] 	 0.006666666666829357
+650 	 [3.1384, 3.1446] 	 0.006153846154013376
+700 	 [3.1386, 3.1444] 	 0.0057142857144931725
+750 	 [3.1388, 3.1443] 	 0.005333333333562784
+800 	 [3.139, 3.1441] 	 0.005000000000246363
+850 	 [3.1391, 3.1439] 	 0.004705882353203794
+900 	 [3.1393, 3.1438] 	 0.004444444444719142
+950 	 [3.1394, 3.1437] 	 0.004210526316076102
+1000 	 [3.1395, 3.1436] 	 0.004000000000294435
+</code></pre></div></div>
+
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

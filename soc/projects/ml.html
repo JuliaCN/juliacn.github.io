@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+
+<head>
+  <meta name="viewport" content="width=device-width; initial-scale=1.0;">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>Data Science and Machine Learning Projects – Summer of Code</title>
+  <meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection" />
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-28835595-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+  <script type="text/javascript">window.liveSettings={api_key:"ab25420d08984953bd7435fd47506f96"};</script>
+  <script type="text/javascript" src="//cdn.transifex.com/live.js"></script>
+</head>
+
+<body>
+  <div id="site" class="site">
+
+    <div class="title"><a href="/">
+<svg version="1.1" id="Layer_1"
+	 xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="210px" height="142px" viewBox="0 0 310 216" enable-background="new 0 0 310 216"
+	 xml:space="preserve">
+
+<!-- blue dot -->
+<circle fill="#6b85dd" stroke="#4266d5" stroke-width="3" cx="50.5" cy="60" r="16.5"/>
+<!-- red dot -->
+<circle fill="#d66661" stroke="#c93d39" stroke-width="3" cx="212.459" cy="60" r="16.5"/>
+<!-- green dot -->
+<circle fill="#6bab5b" stroke="#3b972e" stroke-width="3" cx="233.834" cy="23.874" r="16.5"/>
+<!-- purple dot -->
+<circle fill="#aa7dc0" stroke="#945bb0" stroke-width="3" cx="255.209" cy="60" r="16.5"/>
+
+<!-- "j" -->
+<path fill="#252525" d="M37.216,138.427c0-15.839,0.006-31.679-0.018-47.517c-0.001-0.827,0.169-1.234,1.043-1.47
+	c7.876-2.127,15.739-4.308,23.606-6.47c1.33-0.366,1.333-0.36,1.333,1.019c0,25.758,0.015,51.517-0.012,77.274
+	c-0.006,5.514,0.245,11.032-0.272,16.543c-0.628,6.69-2.15,13.092-6.438,18.506c-3.781,4.771-8.898,7.25-14.767,8.338
+	c-6.599,1.222-13.251,1.552-19.934,0.938c-4.616-0.423-9.045-1.486-12.844-4.363c-2.863-2.168-4.454-4.935-3.745-8.603
+	c0.736-3.806,3.348-5.978,6.861-7.127c2.262-0.74,4.628-0.872,6.994-0.53c1.823,0.264,3.42,1.023,4.779,2.288
+	c1.38,1.284,2.641,2.674,3.778,4.177c0.872,1.15,1.793,2.256,2.991,3.086c2.055,1.426,4,0.965,5.213-1.216
+	c0.819-1.473,0.997-3.106,1.173-4.731c0.255-2.348,0.255-4.707,0.256-7.062C37.218,167.145,37.216,152.786,37.216,138.427z"/>
+
+<!-- "u" -->
+<path fill="#252525" d="M125.536,162.479c-2.908,2.385-5.783,4.312-8.88,5.904c-10.348,5.323-20.514,4.521-30.324-1.253
+	c-6.71-3.95-11.012-9.849-12.52-17.606c-0.236-1.213-0.363-2.438-0.363-3.688c0.01-19.797,0.017-39.593-0.02-59.39
+	c-0.002-1.102,0.285-1.357,1.363-1.351c7.798,0.049,15.597,0.044,23.396,0.003c0.95-0.005,1.177,0.25,1.175,1.183
+	c-0.027,19.356-0.025,38.713-0.018,58.07c0.002,6.34,3.599,10.934,9.672,12.42c2.13,0.521,4.19,0.396,6.173-0.6
+	c4.26-2.139,7.457-5.427,10.116-9.307c0.333-0.487,0.224-1,0.224-1.51c0.007-19.635,0.016-39.271-0.02-58.904
+	c-0.002-1.083,0.255-1.369,1.353-1.361c7.838,0.052,15.677,0.045,23.515,0.004c0.916-0.005,1.103,0.244,1.102,1.124
+	c-0.025,27.677-0.026,55.353,0.002,83.024c0.001,0.938-0.278,1.099-1.139,1.095c-7.918-0.028-15.837-0.028-23.756-0.001
+	c-0.815,0.003-1.1-0.166-1.073-1.037C125.581,167.117,125.536,164.928,125.536,162.479z"/>
+
+<!-- "l" -->
+<path fill="#252525" d="M187.423,107.08c0,20.637-0.011,41.273,0.026,61.91c0.003,1.119-0.309,1.361-1.381,1.355
+	c-7.799-0.052-15.598-0.047-23.396-0.008c-0.898,0.008-1.117-0.222-1.115-1.115c0.021-39.074,0.021-78.147,0-117.226
+	c0-0.811,0.189-1.169,1.006-1.392c7.871-2.149,15.73-4.327,23.584-6.545c1.045-0.295,1.308-0.17,1.306,0.985
+	C187.412,65.727,187.423,86.403,187.423,107.08z"/>
+
+<!-- "i" -->
+<path fill="#252525" d="M223.46,126.477c0,14.155-0.011,28.312,0.021,42.467c0.002,1.027-0.164,1.418-1.332,1.408
+	c-7.838-0.061-15.676-0.047-23.516-0.01c-0.881,0.004-1.121-0.189-1.119-1.104c0.026-26.153,0.025-52.307,0-78.458
+	c0-0.776,0.203-1.101,0.941-1.302c7.984-2.172,15.972-4.35,23.938-6.596c1.049-0.296,1.08,0.031,1.078,0.886
+	C223.454,98.004,223.46,112.239,223.46,126.477z"/>
+
+<!-- "a" -->
+<path fill="#252525" d="M277.695,163.6c-0.786,0.646-1.404,1.125-2,1.635c-4.375,3.746-9.42,5.898-15.16,6.42
+	c-5.792,0.527-11.479,0.244-16.934-2.047c-12.08-5.071-15.554-17.188-11.938-27.448c1.799-5.111,5.472-8.868,9.831-11.94
+	c5.681-4.003,12.009-6.732,18.504-9.074c5.576-2.014,11.186-3.939,16.955-5.347c0.445-0.104,0.773-0.243,0.757-0.854
+	c-0.136-4.389,0.261-8.79-0.479-13.165c-1.225-7.209-6.617-10.013-12.895-9.348c-0.516,0.055-1.029,0.129-1.536,0.241
+	c-4.877,1.081-7.312,4.413-7.374,10.127c-0.02,1.729-0.229,3.418-0.693,5.084c-0.906,3.229-2.969,5.354-6.168,6.266
+	c-3.422,0.979-6.893,0.998-10.23-0.305c-6.529-2.543-8.877-10.164-5.12-16.512c2.249-3.799,5.606-6.4,9.461-8.405
+	c6.238-3.246,12.914-4.974,19.896-5.537c7.565-0.61,15.096-0.366,22.49,1.507c4.285,1.085,8.312,2.776,11.744,5.657
+	c4.473,3.749,6.776,8.647,6.812,14.374c0.139,21.477,0.096,42.951,0.143,64.428c0.002,0.799-0.248,0.983-1.021,0.98
+	c-8.035-0.025-16.074-0.023-24.113-0.001c-0.716,0.002-0.973-0.146-0.941-0.915C277.736,167.562,277.695,165.698,277.695,163.6z
+	 M277.695,126.393c-4.793,2.104-9.25,4.373-13.287,7.408c-2.151,1.618-4.033,3.483-5.732,5.581
+	c-4.229,5.226-1.988,13.343,1.693,16.599c1.592,1.406,3.359,1.906,5.419,1.521c1.621-0.307,3.149-0.857,4.549-1.734
+	c1.521-0.951,2.949-2.072,4.539-2.887c2.31-1.18,2.97-2.861,2.894-5.445C277.561,140.484,277.695,133.527,277.695,126.393z"/>
+
+</svg>
+
+</a></div>
+
+<ul class="links">
+  
+      
+      
+      
+      
+      
+      <li><a href="/" class="">home</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="https://github.com/JuliaLang/julia" class="">source</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/downloads/" class="">downloads</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="http://docs.julialang.org/" class="">docs</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="http://pkg.julialang.org/" class="">packages</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/blog/" class="">blog</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/community/" class="">community</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/ecosystems" class="">ecosystems</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/learning/" class="">learning</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/teaching/" class="">teaching</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/publications/" class="">publications</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="/soc/ideas-page.html" class="">GSoC</a></li>
+  
+      
+      
+      
+      
+      
+      <li><a href="http://juliacon.org" class="">juliacon</a></li>
+  
+</ul>
+
+<!--
+
+<style>
+.banner-box .header {
+  font-size: 1.5em;
+}
+@media (min-width: 830px) {
+  .banner-box {
+    float:left;
+    width:50%;
+  }
+}
+</style>
+
+<div style="text-align:center">
+
+<div class="banner-box">
+<div class="header">JuliaCon 2016</div>
+<p>
+  Held on June 21<sup>st</sup> - 25<sup>th</sup> at MIT<br>
+  <a href="http://juliacon.org">talks</a> |
+  <a href="https://www.youtube.com/playlist?list=PLP8iPy9hna6SQPwZUDtAM59-wPzCPyD_S">videos</a>
+</p>
+</div>
+
+<div class="banner-box">
+<div class="header">Google Summer of Code</div>
+<p>
+  Julia gets 12 slots in the Google Summer of Code!<br />
+  <a href="https://summerofcode.withgoogle.com/organizations/6453977159827456/">projects</a> |
+  <a href="/soc/ideas-page.html">ideas list</a>
+</p>
+</div>
+
+<div style="clear:both; border-top: 1px solid #ddd; margin-bottom:30px;"></div>
+
+
+</div>
+-->
+
+
+<div id="toc-container">
+</div>
+
+<script src="/js/contents.js"></script>
+
+<script>
+function ready(fn) {
+  if (document.readyState != 'loading'){
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+
+ready(function () {
+    c = gajus.Contents()
+    document.querySelector("#toc-container").appendChild(c.list())
+})
+</script>
+
+<p>Note that for any of these projects you should have code samples as part of your application, ideally as patches to one of the ML or GPU libraries or in the form of working ML models.</p>
+
+<h2 id="model-zoo-examples">Model Zoo Examples</h2>
+
+<p><a href="https://github.com/FluxML/Flux.jl">Flux</a>’s <a href="https://github.com/FluxML/model-zoo/">model zoo</a> contains examples of a wide range of deep learning models and techniques. This project would involve adding new models, showing how to recreate state-of-the-art results (e.g. AlphaGo) or interesting and unusual model architectures (e.g. transformer networks). We’d be particularly interested in any models involving reinforcement learning, or anything with images, sound or speech.</p>
+
+<p>Some experience with implementing deep learning models would be ideal for this project, but is not essential for a student willing to pick up the skills and read ML papers. It’s up to you whether you implement a single ambitious model, or multiple small ones. A good source of inspiration might be the <a href="https://nurture.ai/nips-challenge">NIPS Challenge</a>.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/MikeInnes/">Mike Innes</a></p>
+
+<h2 id="fluxjs-demos">Flux.JS demos</h2>
+
+<p><a href="https://github.com/FluxML/FluxJS.jl">Flux.JS</a> enables export of <a href="https://github.com/FluxML/Flux.jl">Flux</a> models to the browser. However, just porting a numerical function to JavaScript is rarely exciting on its own; you need to build an interface to give input to the model (say, via a webcam) and see output (say, by displaying an annotated image) in order to see what the model is thinking.</p>
+
+<p>This project would involve creating new demos that show interesting models running in the browser. Examples could include:</p>
+
+<ul>
+  <li>An MNIST digit classify running on hand-drawn images;</li>
+  <li><a href="https://www.cs.toronto.edu/~graves/handwriting.html">Handwriting generation</a>;</li>
+  <li>Live speech recognition or production;</li>
+  <li>An autoencoder that allows moving sliders to generate images, and explore “digit space”;</li>
+  <li>A Chess or Go AI that plays against the user;</li>
+  <li>A language analysis tool that classifies user-written text.</li>
+</ul>
+
+<p>The possibilities are pretty much endless here. This project will require a pretty solid handle on web technologies, and we’d expect much of the components created to be reusable between demos.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/MikeInnes/">Mike Innes</a>, <a href="https://github.com/shashi">Shashi Gowda</a>.</p>
+
+<h2 id="model-import-and-export">Model Import and Export</h2>
+
+<p>Sharing models with other frameworks would enables us to both export models (say to JavaScript for the browser, or TensorFlow Lite for mobile, or NNVM for optimised training) and to take advantage of the large set of <a href="https://github.com/BVLC/caffe/wiki/Model-Zoo">trained models in the wild</a> in Julia code.</p>
+
+<p>This involves several stages, some or all of which could be tackled over the course of a project.</p>
+
+<ul>
+  <li>Reading and writing the raw model formats. For formats like <a href="https://github.com/onnx/onnx">ONNX</a> this should be relatively easy, as one can use the <a href="https://github.com/JuliaIO/ProtoBuf.jl">ProtoBuf.jl</a> library.</li>
+  <li>For model import:
+    <ul>
+      <li>Converting the raw model format to a more general graph format, such as a <a href="https://github.com/MikeInnes/DataFlow.jl">DataFlow.jl</a> graph.</li>
+      <li>Dumping the model graph as Julia code.</li>
+    </ul>
+  </li>
+  <li>For model export:
+    <ul>
+      <li>Converting a general graph format to the raw model constructs.</li>
+      <li>Tracing Julia code to produce a dataflow graph, as in <a href="https://github.com/FluxML/FluxJS.jl">FluxJS.jl</a>.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/MikeInnes/">Mike Innes</a></p>
+
+<h2 id="benchmarks">Benchmarks</h2>
+
+<p>A benchmark suite would help us to keep Julia’s performance for ML models in shape, as well as revealing opportunities for improvement. Like the model-zoo project, this would involve contributing standard models that exercise common ML use case (images, text etc) and profiles them. The project could extend to include improving performance where possible, or creating a “benchmarking CI” like Julia’s own <a href="https://github.com/JuliaCI/Nanosoldier.jl">nanosoldier</a>.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/MikeInnes/">Mike Innes</a></p>
+
+<h2 id="compiler-optimisations">Compiler Optimisations</h2>
+
+<p>Julia opens up many interesting opportunities for applying new optimisations to ML models, and exploring <a href="https://julialang.org/blog/2017/12/ml&amp;pl">language design for ML</a>. As part of this project you’d help us apply novel optimisation strategies to Julia code, with immediate benefits to Flux and other Julia users.</p>
+
+<p>Possible projects could include:</p>
+
+<ul>
+  <li>Auto-parallelisation and vectorisation in the vain of <a href="http://dynet.readthedocs.io/en/latest/tutorials_notebooks/Autobatching.html">DyNet autobatch</a>, <a href="https://github.com/tensorflow/fold">TensorFlow Fold</a> and <a href="https://github.com/jekbradbury/Minibatch.jl">Matchbox</a>.</li>
+  <li>Using <a href="https://github.com/jrevels/Cassette.jl/">Cassette</a> and techniques similar to <a href="https://github.com/FluxML/FluxJS.jl">Flux.JS</a> to extract dataflow computation graphs from imperative Julia code.</li>
+  <li>Applying optimisations to computation graphs, such as eliding memory allocations, reusing memory and fusing operations, or enabling model parallelism.</li>
+  <li>Applying <a href="http://halide-lang.org/">Halide</a> or <a href="https://futhark-lang.org/">Futhark</a>-like optimisations to array expressions, as in <a href="https://github.com/MikeInnes/Tokamak">Tokamak</a></li>
+  <li>Improving Julia’s GPU support, including tuning memory management and supporting CUDA streams.</li>
+</ul>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/MikeInnes/">Mike Innes</a></p>
+
+<h2 id="sparse-gpu-and-ml-support">Sparse GPU and ML support</h2>
+
+<p>While Julia supports dense GPU arrays well via <a href="https://github.com/JuliaGPU/CUSPARSE.jl">CuArrays</a>, we lack up-to-date wrappers for sparse operations. This project would involve wrapping CUDA’s sparse support, with <a href="https://github.com/JuliaGPU/CUSPARSE.jl">CUSPARSE.jl</a> as a starting point, adding them to CuArrays.jl, and perhaps demonstrating their use via a sparse machine learning model.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/MikeInnes/">Mike Innes</a></p>
+
+<h2 id="parquetjl-enhancements">Parquet.jl enhancements</h2>
+
+<p>Efficient storage of tabular data is an important component of the data analysis story in the ecosystem. Julia has many options here – JLD, JuliaDB’s built-in serialization, CSV.write. These either suffer from lack of performance or lack of standardization. Parquet is a format for efficient storage of tabular data used in the Hadoop world. It has compression techniques which reduce disk usage as well as speed up reads. A well-rounded Parquet implementation in Julia will solve the current issues with storage formats and let Julia interoperate with software from the Hadoop world.</p>
+
+<p>Parquet.jl currently contains a reader for Parquet files. This project involves implementing the writer for Parquet files, as well as some enhancements to the reading functionality.</p>
+
+<p><strong>Deliverables:</strong></p>
+
+<p><em>Reader enhancements:</em></p>
+
+<p>Read a file as a NamedTuple of vectors (using NamedTuples.jl on Julia 0.6). This is on similar lines, but different from the current cursor-based reader. Probably as an implementation of <code class="highlighter-rouge">AbstractBuilder</code> that returns NamedTuple of column vectors, combined with a new iterator/cursor that returns a bunch of records instead of individual records.</p>
+
+<p><em>Writer support:</em></p>
+
+<ul>
+  <li>Write a table (in the form of a NamedTuple of vectors) to disk.
+Note: we will use NamedTuple of vectors as a minimal table which can be converted back into DataFrames or IndexedTables</li>
+  <li>Implement the compression features provided in the Parquet spec-
+Optionally auto detect compression scheme based on the data.</li>
+</ul>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/tanmaykm">Tanmay Mohapatra</a></p>
+
+<h2 id="gpu-support-in-juliadb">GPU support in JuliaDB</h2>
+
+<p>JuliaDB is a distributed analytical database. It uses Julia’s multi-processing for parallelism at the moment. GPU implementations of some operations may allow relational algebra with low latency. In this project, you will be required to add basic GPU support in JuliaDB.</p>
+
+<ul>
+  <li>Copy a table to GPU – this may be as simple as converting every column into a CuArray or GPUArray</li>
+  <li><code class="highlighter-rouge">map</code>, <code class="highlighter-rouge">reduce</code> and <code class="highlighter-rouge">filter</code> operation – apply simple functions on a large table that is on the GPU
+    <ul>
+      <li>Ensure that columnar storage format is made use of in the lower level code generated.</li>
+    </ul>
+  </li>
+  <li>The <code class="highlighter-rouge">groupby</code> and <code class="highlighter-rouge">join</code> operations may involve first implementing an efficient <a href="https://docs.julialang.org/en/stable/stdlib/sort/#Base.sortperm"><code class="highlighter-rouge">sortperm</code></a> that utilize the GPU, or an efficient hash table on the GPU</li>
+  <li><code class="highlighter-rouge">groupby</code> kernel on GPU</li>
+  <li><code class="highlighter-rouge">join</code> kernel on GPU (stretch goal)</li>
+</ul>
+
+<p><strong>Mentors</strong>: <a href="https://shashi.github.io">Shashi Gowda</a>, <a href="http://mikeinnes.github.io/">Mike Innes</a></p>
+
+<h2 id="making-aquiring-open-data-easy">Making Aquiring Open-Data Easy</h2>
+
+<p>Goverments and Universities are releasing huge amounts of data under Open Data policies.
+Web portals such as:</p>
+<ul>
+  <li>http://data.gov</li>
+  <li>http://data.gov.au</li>
+  <li>https://dataverse.harvard.edu/</li>
+  <li>http://datadryad.org/</li>
+  <li>https://figshare.com/</li>
+</ul>
+
+<p>Expose great quanities of data just wating to be used.</p>
+
+<p><a href="https://github.com/oxinabox/DataDeps.jl">DataDeps.jl</a> is a package that helps data scientists ensures that anyone running their code has all the data it needs, no matter when or where it is run.
+To do this it needs a registration block, which is a chunk of julia code which says where the data can be download, who created it, what terms and conditions are on its use etc.
+For a simple dataset that is all in one file writing this is pretty easy – copy and paste the info from the website hosting the data.
+When you want to dozens of datasets, some of which have dozens of files (and no easy way to download a .zip of all of them), writing this registration block is a bit more work.</p>
+
+<p><a href="https://github.com/oxinabox/DataDepsGenerators.jl">DataDepsGenerators.jl</a> exists to solve that.
+Give it a URL (or other identifier) for a page describing a dataset, and outputs all the code for a registration block, that you can copy and paste straight into your julia project.
+Right now DataDepsGenerators only supports a couple of sites: GitHub (for https://github.com/BuzzFeedNews/ and https://github.com/fivethirtyeight/data/ and others) and the <a href="https://archive.ics.uci.edu/ml/datasets/">UCI ML Repository</a>.
+This project aims to change that by adding support for the <a href="http://docs.ckan.org/en/latest/api/index.html">CKAN</a> and the <a href="https://www.openarchives.org/OAI/openarchivesprotocol.html">OA-PMH</a> APIs.</p>
+
+<p>The <a href="http://docs.ckan.org/en/latest/api/index.html">CKAN</a> and the <a href="https://www.openarchives.org/OAI/openarchivesprotocol.html">OA-PMH</a> APIs allow the automated extraction of metadata for a dataset.
+They are primarily used by goverment “data.gov.*” sites and research repositories respectively.
+Together they host millions of datasets, furfilling those institutions open data policies.</p>
+
+<p>This project is to leverage those APIs, to allow others to leaverage those data repositories to produce easily repeatable, data driven research.</p>
+
+<p><strong>Expected Results</strong>: a series of patches to <a href="https://github.com/oxinabox/DataDepsGenerators.jl">DataDepsGenerators.jl</a>, giving it the capacity to generate a DataDeps registration block for any dataset hosted on site exposing a CRAN, or OAI-PMH API.</p>
+
+<p><strong>Recommended Skills</strong>: Familarity with web APIs and related technolgies (e.g. REST, JSON, XML (Probably not OAUTH, but if you’ve done OAUTH then your more than familar enough)). Some practice with webscraping is likely to be useful. A love of data and of doing cool things with it, is a big plus.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/oxinabox/">Lyndon White (oxinabox)</a></p>
+
+<h2 id="parameter-estimation-for-nonlinear-dynamical-models">Parameter estimation for nonlinear dynamical models</h2>
+
+<p>Machine learning has become a popular tool for understanding data, but scientists
+typically understand the world through the lens of physical laws and their
+resulting dynamical models. These models are generally differential equations
+given by physical first principles, where the constants in the equations such
+as chemical reaction rates and planetary masses determine the overall dynamics.
+The inverse problem to simulation, known as parameter estimation, is the process
+of utilizing data to determine these model parameters.</p>
+
+<p>The purpose of this project is to utilize the growing array of statistical,
+optimization, and machine learning tools in the Julia ecosystem to build
+library functions that make it easy for scientists to perform this parameter
+estimation with the most high-powered and robust methodologies. Possible projects
+include investigating methods for Bayesian estimation of parameters via Stan.jl
+and Julia-based libraries like Turing.jl, or global optimization-based approaches.
+Novel techniques like classifying model outcomes via support vector machines
+and deep neural networks is can also be considered. Research and benchmarking
+to attempt to find the most robust methods will take place in this project.</p>
+
+<p>Some work in this area can be found in
+<a href="https://github.com/JuliaDiffEq/DiffEqParamEstim.jl">DiffEqParamEstim.jl</a>
+and <a href="https://github.com/JuliaDiffEq/DiffEqBayes.jl">DiffEqBayes.jl</a>. Examples
+can be found <a href="http://docs.juliadiffeq.org/latest/analysis/parameter_estimation.html">in the DifferentialEquations.jl documentation</a>.</p>
+
+<p><strong>Recommended Skills</strong>: Background knowledge of standard machine learning,
+statistical, or optimization techniques. It’s recommended but not required that
+one has basic knowledge of differential equations and DifferentialEquations.jl.
+Using the differential equation solver to get outputs from parameters can
+be learned on the job, but you should already be familiar (but not necessarily
+an expert) with the estimation techniques you are looking to employ.</p>
+
+<p><strong>Expected Results</strong>: Library functions for performing parameter estimation
+and inferring properties of differential equation solutions from parameters.
+Notebooks containing benchmarks determining the effectiveness of various methods
+and classifying when specific approaches are appropriate will be developed
+simultaneously.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/ChrisRackauckas">Chris Rackauckas</a></p>
+
+<h2 id="artificial-intelligence-library-package-based-on-artificial-intelligence---a-modern-approach-aima">Artificial Intelligence Library Package based on Artificial Intelligence - A Modern Approach (AIMA)</h2>
+
+<p>AIMA is a seminal text on representation of agents to solve AI problems. Most packages 
+available today as AI libraries tend to focus on ML only and not the architectural
+aspect of AI. The scope of the project is to create a library with a clean API 
+(following AIMA) to easily allow the application of core algorithms to AI problems. 
+The student will implement a package that brings together implementations of algorithms 
+like depth-first search and simulated annealing, both from other Julia packages and 
+from sample code in the AIMA book, and build sample programs to demonstrate AI 
+applications. Starter code can be found at [AIMACore]
+(https://github.com/sambitdash/AIMACore.jl) along with [AIMASamples]
+(https://github.com/sambitdash/AIMASamples.jl).</p>
+
+<p><strong>Recommended Skills</strong>: Previous experience with AI or the ability to quickly pick up on 
+the AI algorithms in AIMA</p>
+
+<p><strong>Expected Results</strong>: A well-documented library of functions derived from the AIMA book.</p>
+
+<p><strong>Mentors</strong> <a href="https://github.com/sambitdash">Sambit Kumar Dash</a>.</p>
+
+<h2 id="a-sql-backend-for-queryjl">A SQL backend for Query.jl</h2>
+
+<p><a href="https://github.com/davidanthoff/Query.jl">Query.jl</a> is designed to work
+with multiple backends. This project would add a SQL backend, so that queries
+that are formulated with the query commands in <a href="https://github.com/davidanthoff/Query.jl">Query.jl</a>
+get translated into an equivalent SQL query that can be run within a
+SQL database engine. Both LINQ and dplyr support a similar feature set,
+and this project would enable the same scenario for julia. There is also
+a small academic literature on this topic that we need to understand and
+incorporate.</p>
+
+<p><strong>Recommended Skills</strong>: Very strong database and SQL skills, previous
+experience with compilers (this project is essentially a compiler that
+translates a query AST into SQL) and a strong familiarity with the julia
+data stack.</p>
+
+<p><strong>Expected Results</strong>: A new version of <a href="https://github.com/davidanthoff/Query.jl">Query.jl</a>
+that runs queries as SQL in a database.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/davidanthoff">David Anthoff</a></p>
+
+<h2 id="tabular-file-io">Tabular file IO</h2>
+
+<p>The Queryverse has a large number of file IO packages: <a href="https://github.com/davidanthoff/CSVFiles.jl">CSVFiles.jl</a>,
+<a href="https://github.com/davidanthoff/ExcelFiles.jl">ExcelFiles.jl</a>, <a href="https://github.com/davidanthoff/FeatherFiles.jl">FeatherFiles.jl</a>,
+<a href="https://github.com/davidanthoff/StatFiles.jl">StatFiles.jl</a>, <a href="https://github.com/davidanthoff/ParquetFiles.jl">ParquetFiles</a>
+and <a href="https://github.com/davidanthoff/FstFiles.jl">FstFiles.jl</a>. This project
+will a) do serious performance work across all of the existing packages and
+b) add write capabilities  to a number of them.</p>
+
+<p><strong>Recommended Skills</strong>: Experience with file formats, writing performant
+julia code.</p>
+
+<p><strong>Expected Results</strong>: Write capabilities across the packages listed above,
+competitive performance for all the packages listed above.</p>
+
+<p><strong>Mentors</strong>: <a href="https://github.com/davidanthoff">David Anthoff</a></p>
+
+
+    <div class="footer">
+      Julia is a <a href="https://www.numfocus.org/sponsored-projects/">NumFocus project</a>.
+      We thank <a href="https://fastly.com">Fastly</a> for their generous infrastructural support.
+
+      <a href="https://github.com/JuliaLang/www.julialang.org/edit/master/soc/projects/ml.md">Edit this page on GitHub.</a>
+    </div>
+
+    <!-- Add "contribute" link to the Transifex language dropdown -->
+    <script>
+      // Create a link element for the translation prompt
+      var txPromptLink = document.createElement( "a" );
+      txPromptLink.href = "https://www.transifex.com/julialang-i18n/julialang-web/";
+      txPromptLink.appendChild( document.createTextNode( "Add your language!" ) );
+      txPromptLink.style.fontWeight = "bold";
+
+      // Wrap the translation prompt link in a list item element
+      var txPrompt = document.createElement( "li" );
+      txPrompt.appendChild( txPromptLink );
+
+      // The Transifex dropdown is created dynamically,
+      // so we need to use the DOM MutationObserver API
+      // (https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver)
+      // to know when the menu is ready so we can add our element to it.
+
+      // Callback function to execute when mutations are observed
+      var callback = function(mutationsList, observer) {
+        for(var mutation of mutationsList) {
+          if (mutation.addedNodes.length >= 1) {
+            var addedNode = mutation.addedNodes[0];
+            if (addedNode.nodeType == Node.ELEMENT_NODE && addedNode.id == "tx-live-lang-picker") {
+              // Add the translation prompt list item to the list of languages
+              addedNode.appendChild( txPrompt );
+              // Stop observing the body element for mutations
+              observer.disconnect();
+            }
+          }
+        }
+      };
+
+      // Create an observer instance linked to the callback function
+      var observer = new MutationObserver(callback);
+
+      // Start observing the body element for adding and removal of child elements
+      observer.observe(document.body, { childList: true });
+    </script>
+
+<!--Flipcause Integration v3.0// Flipcause Integration Instructions:
+    Install the following code block once in the website Header (after <head> tag) -->
+
+<style>
+
+  .fc-black_overlay{
+  display:none; position: fixed; z-index:1000001; top: 0%;left: 0%;width: 100%;height: 100%;
+  background-color: black; filter: alpha(opacity=50); cursor:pointer; opacity:0.5;
+  }
+
+  .fc-white_content {
+  opacity:1; display:none; margin-top: -320px; margin-left: -485px; width:970px; height:640px;
+  position:fixed; top:50%; left:50%; border: none;z-index:1000002;overflow: auto;
+  }
+
+  .fc-main-box{
+  opacity:1; display:none; margin:15px auto 0 auto; width:930px; position:relative; z-index:1000003;
+  }
+
+  .fc-widget_close{
+  opacity:1; content:url(http://i1338.photobucket.com/albums/o691/WeCause/X_zpse4a7e538.png);
+  position:absolute; z-index=1000004; right:-16px; top:-16px; display:block; cursor:pointer;
+  }
+
+  .floating_button{
+  display: block; margin-top: 0px; margin-left: 0px; width:auto ; height: auto;
+  position:fixed; z-index:999999; overflow: auto;
+  }
+
+  @keyframes backfadesin {
+  from { opacity:0; }
+  to {opacity:.5;}
+  }
+
+  @-moz-keyframes backfadesin {
+  from { opacity:0; }
+  to {opacity:.5;}
+  }
+
+  @-webkit-keyframes backfadesin {
+  from { opacity:0; }
+  to {opacity:.5;}
+  }
+
+  @-o-keyframes backfadesin {
+  from { opacity:0; }
+  to {opacity:.5;}
+  }
+
+
+  @-ms-keyframes backfadesin {
+  from { opacity:0; }
+  to {opacity:.5;}
+  }
+
+  @keyframes fadesin {
+  0%{ opacity:0; }
+  50%{ opacity:0; }
+  75% {opacity: 0; transform: translateY(20px);}
+  100% {opacity: 1; transform: translateY(0);}
+  }
+
+  @-moz-keyframes fadesin {
+  0%{ opacity:0; }
+  50%{ opacity:0; }
+  75% {opacity: 0; -moz-transform: translateY(20px);}
+  100% {opacity: 1; -moz-transform: translateY(0);}
+  }
+
+  @-webkit-keyframes fadesin {
+  0%{ opacity:0; }
+  50%{ opacity:0; }
+  75% {opacity: 0; -webkit-transform: translateY(20px);}
+  100% {opacity: 1; -webkit-transform: translateY(0);}
+  }
+
+  @-o-keyframes fadesin {
+  0%{ opacity:0; }
+  50%{ opacity:0; }
+  75% {opacity: 0; -o-transform: translateY(20px);}
+  100% {opacity: 1; -o-transform: translateY(0);}
+  }
+
+  @-ms-keyframes fadesin {
+  0%{ opacity:0; }
+  50%{ opacity:0; }
+  75% {opacity: 0; -ms-transform: translateY(20px);}
+  100% {opacity: 1; -ms-transform: translateY(0);}
+  }
+
+</style>
+
+<script>
+
+  function open_window(cause_id) {
+  var  protocol=String(document.location.protocol);
+  var new_url;
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+  new_url="https://www.flipcause.com/widget/"+cause_id
+  window.open(new_url);
+  }
+
+  else {
+  document.getElementById("fc-fade").style.display = "block";
+  document.getElementById("fc-fade").style.webkitAnimation = "backfadesin 1s";
+  document.getElementById("fc-fade").style.animation = "backfadesin 1s";
+  document.getElementById("fc-fade").style.mozAnimation = "backfadesin 1s";
+  document.getElementById("fc-light").style.display = "block";
+  document.getElementById("fc-light").style.webkitAnimation = "fadesin 1.5s";
+  document.getElementById("fc-light").style.animation = "fadesin 1.5s";
+  document.getElementById("fc-light").style.mozAnimation = "fadesin 1.5s";
+  document.getElementById("fc-main").style.display = "block";
+  document.getElementById("fc-main").style.webkitAnimation = "fadesin 1.5s";
+  document.getElementById("fc-main").style.animation = "fadesin 1.5s";
+  document.getElementById("fc-main").style.mozAnimation = "fadesin 1.5s";
+  document.getElementById("fc-close").style.display = "block";
+  document.getElementById("fc-close").style.webkitAnimation = "fadesin 1.5s";
+  document.getElementById("fc-close").style.animation = "fadesin 1.5s";
+  document.getElementById("fc-close").style.mozAnimation = "fadesin 1.5s";
+  document.getElementById("fc-myFrame").style.display = "block";
+  document.getElementById("fc-myFrame").style.webkitAnimation = "fadesin 1.5s";
+  document.getElementById("fc-myFrame").style.animation = "fadesin 1.5s";
+  document.getElementById("fc-myFrame").style.mozAnimation = "fadesin 1.5s";
+  document.getElementById("fc-myFrame").src="https://www.flipcause.com/widget/"+cause_id;
+  }
+  }
+
+
+  function close_window() {
+  document.getElementById("fc-fade").style.display="none";
+  document.getElementById("fc-light").style.display="none";
+  document.getElementById("fc-main").style.display="none";
+  document.getElementById("fc-close").style.display="none";
+  document.getElementById("fc-myFrame").style.display="none";
+  }
+
+</script>
+
+<div id="fc-fade" class="fc-black_overlay" onclick="close_window()"></div>
+<div id="fc-light" class="fc-white_content">
+  <div id="fc-main" class="fc-main-box">
+    <div id="fc-close" class="fc-widget_close" onclick="close_window()"></div>
+    <iframe id="fc-myFrame" iframe height="580" width="925"
+            style="border: 0; border-radius: 5px 5px 5px 5px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);"
+            scrolling="no" src=""></iframe>
+  </div>
+</div>
+
+<!--END Flipcause Main Integration Code-->
+
+    <div style="background: #79afd2; border-radius: 0px 0px 0px 0px; font-weight: normal;
+                font-family: Arial, Helvetica, sans-serif; border: none; box-shadow: none;
+                left: 50%; margin-left: -72.5px; clear: both; display: block; width: 145px;
+                height: 45px; line-height: 2.8; position: relative; font-size: 16px;
+                text-align: center; cursor: pointer; color: #fff; text-decoration: none; z-index:1"
+         onclick="open_window('MjI1Nw==')">
+      Donate Now
+    </div>
+
+  </div><!-- main wrapper -->
+</body>
+</html>

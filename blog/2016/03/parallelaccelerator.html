@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>An introduction to ParallelAccelerator.jl</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>An introduction to ParallelAccelerator.jl</h1>
+
+  <p class="metadata">
+    <span class="timestamp">01 Mar 2016</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author"><a href="https://www.cs.indiana.edu/~lkuper/">Lindsey Kuper</a></span>
+    
+  </p>
+
+  <p>The High Performance Scripting team at Intel Labs recently released
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl">ParallelAccelerator.jl</a>,
+a Julia package for high-performance, high-level
+<a href="https://en.wikipedia.org/wiki/Array_programming">array-style programming</a>.
+The goal of ParallelAccelerator is to make high-level array-style
+programs run as efficiently as possible in Julia, with a minimum of
+extra effort required from the programmer.  In this post, we’ll take a
+look at the ParallelAccelerator package and walk through some examples
+of how to use it to speed up some typical array-style programs in
+Julia.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Ideally, high-level array-style Julia programs should run as
+efficiently as possible on high-performance parallel hardware, with a
+minimum of extra programmer effort required, and with performance
+reasonably close to that of an expert implementation in C or C++.
+There are three main things that ParallelAccelerator does to move us
+toward this goal:</p>
+
+<ul>
+  <li>First, we identify <em>implicit parallel patterns</em> in array-style
+code the user writes.  We’ll say more about these parallel
+patterns shortly.</li>
+  <li>Second, we compile these parallel patterns to explicit parallel
+loops.</li>
+  <li>Third, we <em>minimize runtime overheads</em> incurred by things like
+array bounds checks and intermediate array allocations.</li>
+</ul>
+
+<p>The key user-facing feature that the ParallelAccelerator package
+provides is a Julia macro called <code class="highlighter-rouge">@acc</code>, which is short for
+“accelerate”.  Annotating functions or blocks of code with <code class="highlighter-rouge">@acc</code> lets
+you designate the parts of your Julia program that you want to compile
+to optimized native code.  Here’s a toy example of using <code class="highlighter-rouge">@acc</code> to
+annotate a function:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">ParallelAccelerator</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@acc</span> <span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">x</span> <span class="o">.+</span> <span class="n">x</span> <span class="o">.*</span> <span class="n">x</span>
+<span class="n">f</span> <span class="x">(</span><span class="n">generic</span> <span class="k">function</span><span class="nf"> with</span> <span class="mi">1</span> <span class="n">method</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">f</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">,</span><span class="mi">5</span><span class="x">])</span>
+<span class="mi">5</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">2</span>
+<span class="mi">6</span>
+<span class="mi">12</span>
+<span class="mi">20</span>
+<span class="mi">30</span></code></pre></figure>
+
+<p>Under the hood, ParallelAccelerator is essentially a compiler – itself implemented in Julia – that
+intercepts the usual Julia JIT compilation process for
+<code class="highlighter-rouge">@acc</code>-annotated functions.  It compiles <code class="highlighter-rouge">@acc</code>-annotated code to C++
+OpenMP code, which can then be compiled to a native library by an
+external C++ compiler such as GCC or ICC.
+(This intermediate C++ generation step isn’t essential to the design
+of ParallelAccelerator, though – instead, the compiler could target
+Julia’s own forthcoming native threading backend. [<a href="#footnote1">1</a>])
+On the
+Julia side, ParallelAccelerator generates a <em>proxy function</em> that
+calls into that native library, and replaces calls to <code class="highlighter-rouge">@acc</code>-annotated
+functions, like <code class="highlighter-rouge">f</code> in the above example, with calls to the
+appropriate proxy function.</p>
+
+<p>We’ll say more shortly about the parallel patterns that
+ParallelAccelerator targets and about how the ParallelAccelerator
+compiler works, but before we do, let’s look at some code and some
+performance results.</p>
+
+<h2 id="a-quick-preview-of-results-black-scholes-option-pricing-benchmark">A quick preview of results: Black-Scholes option pricing benchmark</h2>
+
+<p>Let’s see how to use ParallelAccelerator to speed up a classic
+high-performance computing benchmark: an implementation of the
+<a href="https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model">Black-Scholes formula</a>
+for option pricing.  The following code is a Julia implementation of
+the Black-Scholes formula.</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> cndf2</span><span class="x">(</span><span class="k">in</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">.+</span> <span class="mf">0.5</span> <span class="o">.*</span> <span class="n">erf</span><span class="x">(</span><span class="mf">0.707106781</span> <span class="o">.*</span> <span class="k">in</span><span class="x">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> blackscholes</span><span class="x">(</span><span class="n">sptprice</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">strike</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">rate</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">volatility</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">time</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">})</span>
+    <span class="n">logterm</span> <span class="o">=</span> <span class="n">log10</span><span class="x">(</span><span class="n">sptprice</span> <span class="o">./</span> <span class="n">strike</span><span class="x">)</span>
+    <span class="n">powterm</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span> <span class="o">.*</span> <span class="n">volatility</span> <span class="o">.*</span> <span class="n">volatility</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">volatility</span> <span class="o">.*</span> <span class="n">sqrt</span><span class="x">(</span><span class="n">time</span><span class="x">)</span>
+    <span class="n">d1</span> <span class="o">=</span> <span class="x">(((</span><span class="n">rate</span> <span class="o">.+</span> <span class="n">powterm</span><span class="x">)</span> <span class="o">.*</span> <span class="n">time</span><span class="x">)</span> <span class="o">.+</span> <span class="n">logterm</span><span class="x">)</span> <span class="o">./</span> <span class="n">den</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">.-</span> <span class="n">den</span>
+    <span class="n">NofXd1</span> <span class="o">=</span> <span class="n">cndf2</span><span class="x">(</span><span class="n">d1</span><span class="x">)</span>
+    <span class="n">NofXd2</span> <span class="o">=</span> <span class="n">cndf2</span><span class="x">(</span><span class="n">d2</span><span class="x">)</span>
+    <span class="n">futureValue</span> <span class="o">=</span> <span class="n">strike</span> <span class="o">.*</span> <span class="n">exp</span><span class="x">(</span><span class="o">-</span> <span class="n">rate</span> <span class="o">.*</span> <span class="n">time</span><span class="x">)</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">futureValue</span> <span class="o">.*</span> <span class="n">NofXd2</span>
+    <span class="n">call</span> <span class="o">=</span> <span class="n">sptprice</span> <span class="o">.*</span> <span class="n">NofXd1</span> <span class="o">.-</span> <span class="n">c1</span>
+    <span class="n">put</span>  <span class="o">=</span> <span class="n">call</span> <span class="o">.-</span> <span class="n">futureValue</span> <span class="o">.+</span> <span class="n">sptprice</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> run</span><span class="x">(</span><span class="n">iterations</span><span class="x">)</span>
+    <span class="n">sptprice</span>   <span class="o">=</span> <span class="kt">Float64</span><span class="x">[</span> <span class="mf">42.0</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">iterations</span> <span class="x">]</span>
+    <span class="n">initStrike</span> <span class="o">=</span> <span class="kt">Float64</span><span class="x">[</span> <span class="mf">40.0</span> <span class="o">+</span> <span class="x">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">iterations</span><span class="x">)</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">iterations</span> <span class="x">]</span>
+    <span class="n">rate</span>       <span class="o">=</span> <span class="kt">Float64</span><span class="x">[</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">iterations</span> <span class="x">]</span>
+    <span class="n">volatility</span> <span class="o">=</span> <span class="kt">Float64</span><span class="x">[</span> <span class="mf">0.2</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">iterations</span> <span class="x">]</span>
+    <span class="n">time</span>       <span class="o">=</span> <span class="kt">Float64</span><span class="x">[</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">iterations</span> <span class="x">]</span>
+
+    <span class="n">tic</span><span class="x">()</span>
+    <span class="n">put</span> <span class="o">=</span> <span class="n">blackscholes</span><span class="x">(</span><span class="n">sptprice</span><span class="x">,</span> <span class="n">initStrike</span><span class="x">,</span> <span class="n">rate</span><span class="x">,</span> <span class="n">volatility</span><span class="x">,</span> <span class="n">time</span><span class="x">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">toq</span><span class="x">()</span>
+    <span class="n">println</span><span class="x">(</span><span class="s">"checksum: "</span><span class="x">,</span> <span class="n">sum</span><span class="x">(</span><span class="n">put</span><span class="x">))</span>
+    <span class="k">return</span> <span class="n">t</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Here, the <code class="highlighter-rouge">blackscholes</code> function takes five arguments, each of which
+is an array of <code class="highlighter-rouge">Float64</code>s.  The <code class="highlighter-rouge">run</code> function initializes these five
+arrays and passes them to <code class="highlighter-rouge">blackscholes</code>, which, along with the
+<code class="highlighter-rouge">cndf2</code> (cumulative normal distribution) function that it calls, does
+several computations involving pointwise addition (<code class="highlighter-rouge">.+</code>), subtraction
+(<code class="highlighter-rouge">.-</code>), multiplication (<code class="highlighter-rouge">.*</code>), and division (<code class="highlighter-rouge">./</code>) on the arrays.
+It’s not necessary to understand the details of the Black-Scholes
+formula; the important thing to notice about the code is that we are
+doing lots of pointwise array arithmetic.  Using Julia 0.4.4-pre on
+a 4-core Ubuntu 14.04 desktop machine with 8 GB of memory, the <code class="highlighter-rouge">run</code>
+function takes about 11 seconds to run when called with an argument
+of 40,000,000 (meaning that we are dealing with 40-million-element
+arrays):</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">run</span><span class="x">(</span><span class="mi">40_000_000</span><span class="x">)</span>
+<span class="n">checksum</span><span class="x">:</span> <span class="mf">8.381928525856283e8</span>
+ <span class="mf">12.885293</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">458.51</span> <span class="n">k</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">9.855</span> <span class="n">GB</span><span class="x">,</span> <span class="mf">2.95</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="x">)</span>
+<span class="mf">11.297714183</span></code></pre></figure>
+
+<p>Here, the <code class="highlighter-rouge">11.297714183</code> being returned from <code class="highlighter-rouge">run</code> is the number of
+seconds it takes the <code class="highlighter-rouge">blackscholes</code> call alone to return.  The
+<code class="highlighter-rouge">12.885293</code> seconds reported by <code class="highlighter-rouge">@time</code> is a little longer, because
+it’s the running time of the entire <code class="highlighter-rouge">run</code> call.</p>
+
+<p>The many pointwise array operations in this code make it a great
+candidate for speeding up with ParallelAccelerator (as we’ll discuss
+more shortly).  Doing so requires only minor changes to the code: we
+import the ParallelAccelerator library with <code class="highlighter-rouge">using
+ParallelAccelerator</code>, then wrap the <code class="highlighter-rouge">cndf2</code> and <code class="highlighter-rouge">blackscholes</code>
+functions in an <code class="highlighter-rouge">@acc</code> block, as follows:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">using</span> <span class="n">ParallelAccelerator</span>
+
+<span class="nd">@acc</span> <span class="n">begin</span>
+
+<span class="k">function</span><span class="nf"> cndf2</span><span class="x">(</span><span class="k">in</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">.+</span> <span class="mf">0.5</span> <span class="o">.*</span> <span class="n">erf</span><span class="x">(</span><span class="mf">0.707106781</span> <span class="o">.*</span> <span class="k">in</span><span class="x">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> blackscholes</span><span class="x">(</span><span class="n">sptprice</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">strike</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">rate</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">volatility</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span>
+                      <span class="n">time</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">})</span>
+    <span class="n">logterm</span> <span class="o">=</span> <span class="n">log10</span><span class="x">(</span><span class="n">sptprice</span> <span class="o">./</span> <span class="n">strike</span><span class="x">)</span>
+    <span class="n">powterm</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span> <span class="o">.*</span> <span class="n">volatility</span> <span class="o">.*</span> <span class="n">volatility</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">volatility</span> <span class="o">.*</span> <span class="n">sqrt</span><span class="x">(</span><span class="n">time</span><span class="x">)</span>
+    <span class="n">d1</span> <span class="o">=</span> <span class="x">(((</span><span class="n">rate</span> <span class="o">.+</span> <span class="n">powterm</span><span class="x">)</span> <span class="o">.*</span> <span class="n">time</span><span class="x">)</span> <span class="o">.+</span> <span class="n">logterm</span><span class="x">)</span> <span class="o">./</span> <span class="n">den</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">.-</span> <span class="n">den</span>
+    <span class="n">NofXd1</span> <span class="o">=</span> <span class="n">cndf2</span><span class="x">(</span><span class="n">d1</span><span class="x">)</span>
+    <span class="n">NofXd2</span> <span class="o">=</span> <span class="n">cndf2</span><span class="x">(</span><span class="n">d2</span><span class="x">)</span>
+    <span class="n">futureValue</span> <span class="o">=</span> <span class="n">strike</span> <span class="o">.*</span> <span class="n">exp</span><span class="x">(</span><span class="o">-</span> <span class="n">rate</span> <span class="o">.*</span> <span class="n">time</span><span class="x">)</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">futureValue</span> <span class="o">.*</span> <span class="n">NofXd2</span>
+    <span class="n">call</span> <span class="o">=</span> <span class="n">sptprice</span> <span class="o">.*</span> <span class="n">NofXd1</span> <span class="o">.-</span> <span class="n">c1</span>
+    <span class="n">put</span>  <span class="o">=</span> <span class="n">call</span> <span class="o">.-</span> <span class="n">futureValue</span> <span class="o">.+</span> <span class="n">sptprice</span>
+<span class="k">end</span>
+
+<span class="k">end</span></code></pre></figure>
+
+<p>The definition of <code class="highlighter-rouge">run</code> stays the same.  With the addition of the
+<code class="highlighter-rouge">@acc</code> wrapper, we now have much better performance:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">run</span><span class="x">(</span><span class="mi">40_000_000</span><span class="x">)</span>
+<span class="n">checksum</span><span class="x">:</span> <span class="mf">8.381928525856283e8</span>
+  <span class="mf">4.010668</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">1.90</span> <span class="n">M</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">1.584</span> <span class="n">GB</span><span class="x">,</span> <span class="mf">2.06</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="x">)</span>
+<span class="mf">3.503281464</span></code></pre></figure>
+
+<p>This time, <code class="highlighter-rouge">blackscholes</code> returns in about 3.5 seconds, and the entire
+<code class="highlighter-rouge">run</code> call finishes in about 4 seconds.  This is already an
+improvement, but on subsequent calls to <code class="highlighter-rouge">run</code>, we do even better:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">run</span><span class="x">(</span><span class="mi">40_000_000</span><span class="x">)</span>
+<span class="n">checksum</span><span class="x">:</span> <span class="mf">8.381928525856283e8</span>
+  <span class="mf">1.418709</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">158</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">1.490</span> <span class="n">GB</span><span class="x">,</span> <span class="mf">8.98</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="x">)</span>
+<span class="mf">1.007861068</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">run</span><span class="x">(</span><span class="mi">40_000_000</span><span class="x">)</span>
+<span class="n">checksum</span><span class="x">:</span> <span class="mf">8.381928525856283e8</span>
+  <span class="mf">1.410865</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">154</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">1.490</span> <span class="n">GB</span><span class="x">,</span> <span class="mf">7.93</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="x">)</span>
+<span class="mf">1.012813958</span></code></pre></figure>
+
+<p>In subsequent calls, <code class="highlighter-rouge">run</code> finishes in about a second, with the entire
+call taking about 1.4 seconds.  The reason for this additional
+improvement is that ParallelAccelerator has already compiled the
+<code class="highlighter-rouge">blackscholes</code> and <code class="highlighter-rouge">cndf2</code> functions and doesn’t need to do so again
+on subsequent runs.</p>
+
+<p>These results were collected on
+an ordinary desktop machine, but we can scale up further.  The
+following figure reports the time it takes <code class="highlighter-rouge">blackscholes</code> to run on
+arrays of 100 million elements, this time on a 36-core machine with
+128 GB of RAM [<a href="#footnote2">2</a>]:</p>
+
+<p><img src="https://github.com/JuliaLang/www.julialang.org/blob/master/blog/_posts/parallelaccelerator_figures/black-scholes-2016-01-31-blogpost.png?raw=true" alt="Benchmark results for plain Julia and ParallelAccelerator implementations of the Black-Scholes formula" /></p>
+
+<p>The first three bars of the above figure show performance results for
+ParallelAccelerator using different numbers of threads.  Since
+ParallelAccelerator compiles Julia to OpenMP C++, we can use the
+<code class="highlighter-rouge">OMP_NUM_THREADS</code> environment variable to control the number of
+threads that the code runs with.  Here, with <code class="highlighter-rouge">OMP_NUM_THREADS</code> set to
+18, <code class="highlighter-rouge">blackscholes</code> runs in 0.27 seconds; with 36 threads (matching the
+number of cores on the machine), running time drops to 0.16 seconds.
+The third bar shows results for ParallelAccelerator with
+<code class="highlighter-rouge">OMP_NUM_THREADS</code> set to 1, which clocks in at about 3 seconds. For
+comparison, the rightmost bar show results for “plain Julia”, that is,
+a version of the code without <code class="highlighter-rouge">@acc</code>, which runs in about 21 seconds.</p>
+
+<p>Because Julia doesn’t (yet) have native multithreading support, the
+plain Julia results shown in the rightmost bar are for one thread.
+But it is interesting to note that the ParallelAccelerator
+implementation of Black-Scholes outperforms plain Julia by a factor of
+about seven, even when running on just one core.  The reason for this
+speedup is that ParallelAccelerator (despite its name!) does more than
+just parallelize code.  The ParallelAccelerator compiler is able to do
+away with much of the runtime overhead incurred by array bounds checks
+and allocation of intermediate arrays.  After that, with the addition
+of parallelism, we’re able to do even better, for a total speedup of
+more than 100x over plain Julia.</p>
+
+<p>To see how ParallelAccelerator accomplishes this, we’ll discuss the
+parallel patterns that ParallelAccelerator handles in a bit more
+detail, and then we’ll take a closer look at the ParallelAccelerator
+compiler pipeline.</p>
+
+<h2 id="parallel-patterns">Parallel patterns</h2>
+
+<p>ParallelAccelerator works by identifying implicit parallel patterns in
+source code and making the parallelism explicit.  These patterns
+include <em>map</em>, <em>reduce</em>, <em>array comprehension</em>, and <em>stencil</em>.</p>
+
+<h3 id="map">Map</h3>
+
+<p>As we saw in the Black-Scholes example above, the <code class="highlighter-rouge">.+</code>, <code class="highlighter-rouge">.-</code>, <code class="highlighter-rouge">.*</code>,
+and <code class="highlighter-rouge">./</code> operations in Julia are pointwise array operations that take
+input arrays as arguments and produce an output array.
+ParallelAccelerator translates these pointwise array operations into
+data-parallel <em>map</em> operations.  (See
+<a href="http://parallelacceleratorjl.readthedocs.org/en/latest/advanced.html#map-and-reduce">the ParallelAccelerator documentation</a>
+for a complete list of all the pointwise array operations that it
+knows how to parallelize.)  Furthermore, ParallelAccelerator
+translates array assignments into <em>in-place</em> map operations.  For
+instance, assigning <code class="highlighter-rouge">a = a .* b</code> where <code class="highlighter-rouge">a</code> and <code class="highlighter-rouge">b</code> are arrays would
+map <code class="highlighter-rouge">.*</code> over <code class="highlighter-rouge">a</code> and <code class="highlighter-rouge">b</code> and update <code class="highlighter-rouge">a</code> in place with the result.
+For both standard map and in-place map, it is possible for
+ParallelAccelerator to avoid any array bounds checking once we’ve
+established that the input arrays and the output arrays are the same
+size.</p>
+
+<h3 id="reduce">Reduce</h3>
+
+<p>Reduce operations take an array argument and produce a scalar result
+by combining all the elements of an array with an associative and
+commutative operation.  ParallelAccelerator translates the Julia
+functions <code class="highlighter-rouge">minimum</code>, <code class="highlighter-rouge">maximum</code>, <code class="highlighter-rouge">sum</code>, <code class="highlighter-rouge">prod</code>, <code class="highlighter-rouge">any</code>, and <code class="highlighter-rouge">all</code> into
+data-parallel reduce operations when they are called on arrays.</p>
+
+<h3 id="array-comprehension">Array comprehension</h3>
+
+<p>Julia supports
+<a href="http://docs.julialang.org/en/release-0.4/manual/arrays/#comprehensions">array comprehensions</a>,
+a convenient and concise way to construct arrays.  For example, the
+expressions that initialize the five input arrays in the Black-Scholes
+example above are all array comprehensions.  As a more sophisticated
+example, the following <code class="highlighter-rouge">avg</code> function, taken from
+<a href="http://docs.julialang.org/en/release-0.4/manual/arrays/#comprehensions">the Julia manual</a>,
+takes a one-dimensional input array <code class="highlighter-rouge">x</code> of length <em>n</em> and uses an
+array comprehension to construct an output array of length <em>n</em>-2, in
+which each element is a weighted average of the corresponding element
+in the original array and its two neighbors:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">avg</span><span class="x">(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="x">[</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="x">]</span> <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="x">:</span><span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="x">]</span></code></pre></figure>
+
+<p>Comprehensions like this one can also be parallelized by ParallelAccelerator: in a nutshell, ParallelAccelerator can transform array comprehensions to code that first allocates an output array and then performs an in-place map that can write to each element of the output array in parallel.</p>
+
+<p>Array comprehensions differ from map and reduce operations in that
+they involve explicit array indexing.  But it is still possible to
+parallelize array comprehensions in Julia, as long as there are no
+side effects in the comprehension body (everything before the
+<code class="highlighter-rouge">for</code>). [<a href="#footnote3">3</a>] ParallelAccelerator uses a conservative
+static analysis to try to identify and reject side-effecting
+operations in comprehensions.</p>
+
+<h3 id="stencil">Stencil</h3>
+
+<p>In addition to map, reduce, and comprehension, ParallelAccelerator
+targets a fourth parallel pattern:
+<a href="https://en.wikipedia.org/wiki/Stencil_code">stencil computations</a>.  A
+stencil computation updates the elements of an array according to a
+fixed pattern called a stencil.  In fact, the <code class="highlighter-rouge">avg</code> comprehension
+example above could also be thought of as a stencil computation,
+because it updates the contents of an array based on each element’s
+neighbors.  However, stencil computations differ from the other
+patterns that ParallelAccelerator targets, because there’s not a
+built-in, user-facing language feature in Julia that expresses stencil
+computations specifically.  So, ParallelAccelerator introduces a new
+user-facing language construct called <code class="highlighter-rouge">runStencil</code> for expressing
+stencil computations in Julia.  Next, we’ll look at an example that
+illustrates how <code class="highlighter-rouge">runStencil</code> works.</p>
+
+<h2 id="example-blurring-an-image-with-runstencil">Example: Blurring an image with runStencil</h2>
+
+<p>Let’s consider a stencil computation that blurs an image using a
+<a href="https://en.wikipedia.org/wiki/Gaussian_blur">Gaussian blur</a>.  The
+image is represented as a two-dimensional array of pixels.  To blur
+the image, we set the value of each output pixel to a particular
+weighted average of the corresponding input pixel’s value and the
+values of its neighboring input pixels.  By repeating this process
+multiple times, we can get an increasingly blurred
+image. [<a href="#footnote4">4</a>]</p>
+
+<p>The following code implements a Gaussian blur in Julia.  It operates
+on a 2D array of <code class="highlighter-rouge">Float32</code>s: the pixels of the source image.  It’s
+easy to obtain such an array using, for instance, the <code class="highlighter-rouge">load</code> function
+from the <a href="https://github.com/timholy/Images.jl">Images.jl</a> library,
+followed by a call to
+<a href="http://docs.julialang.org/en/release-0.4/manual/conversion-and-promotion/#conversion"><code class="highlighter-rouge">convert</code></a>
+to get an array of type <code class="highlighter-rouge">Array{Float32,2}</code>.  (For simplicity, we’re
+assuming that the input image is a grayscale image, so each pixel has
+just one value instead of red, green, and blue values.  However, it
+would be straightforward to use the same approach for RGB pixels.)</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> blur</span><span class="x">(</span><span class="n">img</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span> <span class="n">iterations</span><span class="o">::</span><span class="kt">Int</span><span class="x">)</span>
+    <span class="n">w</span><span class="x">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">size</span><span class="x">(</span><span class="n">img</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">iterations</span>
+      <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">=</span> 
+           <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">4</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">4</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0030</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">4</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">4</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">4</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">4</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0030</span> <span class="o">+</span>
+           <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">4</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">3</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">3</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">3</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">3</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="x">,</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">3</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span>
+           <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">4</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.1621</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span>
+           <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">4</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span>
+           <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">4</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0030</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">img</span><span class="x">[</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">w</span><span class="x">,</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="x">:</span><span class="n">h</span><span class="o">-</span><span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0030</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="n">img</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Here, to compute the value of a pixel in the output image, we use the
+the corresponding input pixel as well as all its neighboring pixels,
+to a depth of two pixels out from the input pixel – so, twenty-four
+neighbors.  In all, there are twenty-five pixel values to examine.  We
+add all these pixel values together, each multiplied by a weight – in
+this case <code class="highlighter-rouge">0.0030</code> for the cornermost pixels, <code class="highlighter-rouge">0.1621</code> for the center
+pixel, and for all the other pixels, something in between – and the
+total is the value of the output pixel.  At the borders of the image,
+we don’t have enough neighboring pixels to compute an output pixel
+value, so we simply skip those pixels and don’t assign to
+them. [<a href="#footnote5">5</a>]</p>
+
+<p>Notice that the <code class="highlighter-rouge">blur</code> function explicitly loops over the number of
+iterations, that is, times to apply the blur to the the image, but it
+does not explicitly loop over pixels in the image.  Instead, the code
+is written in array style: it performs just one assignment to the
+array <code class="highlighter-rouge">img</code>, using the ranges <code class="highlighter-rouge">3:w-2</code> and <code class="highlighter-rouge">3:h-2</code> to avoid assigning
+to the borders of the image.  On a
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/blob/master/examples/example.jpg">large grayscale input image</a>
+of 7095 by 5322 pixels, this code takes about 10 minutes to run for
+100 iterations.</p>
+
+<p>Using ParallelAccelerator, we can get much better performance.  Let’s look at a version of <code class="highlighter-rouge">blur</code> that uses <code class="highlighter-rouge">runStencil</code>:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="nd">@acc</span> <span class="k">function</span><span class="nf"> blur</span><span class="x">(</span><span class="n">img</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span> <span class="n">iterations</span><span class="o">::</span><span class="kt">Int</span><span class="x">)</span>
+    <span class="n">buf</span> <span class="o">=</span> <span class="n">Array</span><span class="x">(</span><span class="kt">Float32</span><span class="x">,</span> <span class="n">size</span><span class="x">(</span><span class="n">img</span><span class="x">)</span><span class="o">...</span><span class="x">)</span> 
+    <span class="n">runStencil</span><span class="x">(</span><span class="n">buf</span><span class="x">,</span> <span class="n">img</span><span class="x">,</span> <span class="n">iterations</span><span class="x">,</span> <span class="x">:</span><span class="n">oob_skip</span><span class="x">)</span> <span class="n">do</span> <span class="n">b</span><span class="x">,</span> <span class="n">a</span>
+       <span class="n">b</span><span class="x">[</span><span class="mi">0</span><span class="x">,</span><span class="mi">0</span><span class="x">]</span> <span class="o">=</span> 
+            <span class="x">(</span><span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.003</span>  <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">0</span><span class="x">,</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span><span class="o">-</span><span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0030</span> <span class="o">+</span>
+             <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">0</span><span class="x">,</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span>
+             <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span> <span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span> <span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">0</span><span class="x">,</span> <span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.1621</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span> <span class="mi">0</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span>
+             <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">0</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0983</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0596</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span>
+             <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">2</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.003</span>  <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0219</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0133</span> <span class="o">+</span> <span class="n">a</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">*</span> <span class="mf">0.0030</span><span class="x">)</span>
+       <span class="k">return</span> <span class="n">a</span><span class="x">,</span> <span class="n">b</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="n">img</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Here, we again have a function called <code class="highlighter-rouge">blur</code> – now annotated with
+<code class="highlighter-rouge">@acc</code> – that takes the same arguments as the original code.  This
+version of <code class="highlighter-rouge">blur</code> allocates a new 2D array called <code class="highlighter-rouge">buf</code> that is the
+same size as the original <code class="highlighter-rouge">img</code> array.  The allocation of <code class="highlighter-rouge">buf</code> is
+followed by a call to <code class="highlighter-rouge">runStencil</code>.  Let’s take a closer look at the
+<code class="highlighter-rouge">runStencil</code> call.</p>
+
+<p><code class="highlighter-rouge">runStencil</code> has the following signature:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">runStencil</span><span class="x">(</span><span class="n">kernel</span> <span class="o">::</span> <span class="n">Function</span><span class="x">,</span> <span class="n">buffer1</span><span class="x">,</span> <span class="n">buffer2</span><span class="x">,</span> <span class="o">...</span><span class="x">,</span> <span class="n">iteration</span> <span class="o">::</span> <span class="kt">Int</span><span class="x">,</span> <span class="n">boundaryHandling</span> <span class="o">::</span> <span class="n">Symbol</span><span class="x">)</span></code></pre></figure>
+
+<p>In <code class="highlighter-rouge">blur</code>, the call to <code class="highlighter-rouge">runStencil</code> uses Julia’s
+<a href="http://docs.julialang.org/en/release-0.4/manual/functions/#do-block-syntax-for-function-arguments"><code class="highlighter-rouge">do</code>-block syntax for function arguments</a>,
+so the <code class="highlighter-rouge">do b, a ... end</code> block is actually the first argument to the
+<code class="highlighter-rouge">runStencil</code> call.  The <code class="highlighter-rouge">do</code> block creates an anonymous function that
+binds the variables <code class="highlighter-rouge">b</code> and <code class="highlighter-rouge">a</code>.  The arguments <code class="highlighter-rouge">buffer1, buffer2,
+...</code> that are passed to <code class="highlighter-rouge">runStencil</code> become the arguments to the
+anonymous function.  In this case, we are passing two buffers, <code class="highlighter-rouge">buf</code>
+and <code class="highlighter-rouge">img</code>, to <code class="highlighter-rouge">runStencil</code>, and so the anonymous function takes two
+arguments.</p>
+
+<p>Aside from the anonymous function and the two buffers, <code class="highlighter-rouge">runStencil</code>
+takes two other arguments.  The first of these is a number of
+iterations that we want to run the stencil computation for.  In this
+case, we simply pass along the <code class="highlighter-rouge">iterations</code> argument that is passed to
+<code class="highlighter-rouge">blur</code>.  Finally, the last argument to <code class="highlighter-rouge">runStencil</code> is a symbol
+indicating how stencil boundaries are to be handled.  Here, we’re
+using the <code class="highlighter-rouge">:oob_skip</code> symbol, short for “out-of-bounds skip”.  It
+means that when input indices are out of bounds – for instance, in
+the situation where the input pixel is one of those on the two-pixel
+border of the image, and there aren’t enough neighbor pixels to
+compute the output pixel value – then we simply skip writing to the
+output pixel.  This has the same effect as the careful indexing in the
+original version of <code class="highlighter-rouge">blur</code>.</p>
+
+<p>Finally, let’s look at the body of the <code class="highlighter-rouge">do</code> block that we’re passing
+to <code class="highlighter-rouge">runStencil</code>.  It contains an assignment to <code class="highlighter-rouge">b</code>, using values
+computed from <code class="highlighter-rouge">a</code>.  As we’ve said, <code class="highlighter-rouge">b</code> and <code class="highlighter-rouge">a</code> here are <code class="highlighter-rouge">buf</code> and
+<code class="highlighter-rouge">img</code>: our newly-allocated buffer, and the original image.  The code
+here is similar to that of the original implementation of <code class="highlighter-rouge">blur</code>, but
+here we’re using <em>relative</em> rather than absolute indexing into arrays,
+The index <code class="highlighter-rouge">0,0</code> in <code class="highlighter-rouge">b[0,0]</code> doesn’t refer to any particular element of
+<code class="highlighter-rouge">b</code>, but instead to the current position of a cursor that can be
+thought of as traversing all the elements of <code class="highlighter-rouge">b</code>.  On the right side
+of the assignment.  <code class="highlighter-rouge">a[-2,-1]</code> refers to the element in <code class="highlighter-rouge">a</code> that is
+two elements to the left and one element up from the <code class="highlighter-rouge">0,0</code> element of
+<code class="highlighter-rouge">a</code>.  In this way, we can express a stencil computation more concisely
+than the original version of <code class="highlighter-rouge">blur</code> did, and we don’t have to worry
+about getting the indices correct for boundary handling as we had to
+do before, because the <code class="highlighter-rouge">:oob_skip</code> argument tells <code class="highlighter-rouge">runStencil</code>
+everything it needs to no to handle boundaries correctly.</p>
+
+<p>Finally, at the end of the <code class="highlighter-rouge">do</code> block, we return <code class="highlighter-rouge">a, b</code>.  They were
+bound as <code class="highlighter-rouge">b, a</code>, but we return them in the opposite order so that for
+each iteration of the stencil, we’ll be using the already-blurred
+buffer as the input for another round of blurring.  This continues for
+however many iterations we’ve specified.  There’s therefore no need to
+write an explicit <code class="highlighter-rouge">for</code> loop for stencil iterations when using
+<code class="highlighter-rouge">runStencil</code>; one just passes an argument saying how many iterations
+should occur.</p>
+
+<p>Therefore <code class="highlighter-rouge">runStencil</code> enables us to write more concise code than
+plain Julia, as we’d expect from a language extension.  But where
+<code class="highlighter-rouge">runStencil</code> really shines is in the performance it enables.  The
+following figure compares performance results for plain Julia and
+ParallelAccelerator implementations of <code class="highlighter-rouge">blur</code>, each running for 100
+iterations on the aforementioned 7095x5322 source image, run using the
+same machine as for the previous Black-Scholes benchmark.</p>
+
+<p><img src="https://github.com/JuliaLang/www.julialang.org/blob/master/blog/_posts/parallelaccelerator_figures/gaussian-blur-2016-03-02-blogpost.png?raw=true" alt="Benchmark results for plain Julia and ParallelAccelerator implementations of Gaussian blur" /></p>
+
+<p>The rightmost column shows the results for plain Julia, using the
+first implementation of <code class="highlighter-rouge">blur</code> shown above.  The three columns to the
+left show results for the ParallelAccelerator version that uses
+<code class="highlighter-rouge">runStencil</code>.  As we can see, even when running on just one thread,
+ParallelAccelerator enables a speedup of about 15x: from about 600
+seconds to about 40 seconds.  Running on 36 threads provides a further
+parallel speedup of more than 26x, resulting in a total speedup of
+nearly 400x over plain single-threaded Julia.</p>
+
+<h2 id="an-overview-of-the-parallelaccelerator-compiler-architecture">An overview of the ParallelAccelerator compiler architecture</h2>
+
+<p>Now that we’ve talked about the parallel patterns that
+ParallelAccelerator speeds up and seen some code examples, let’s take
+a look at how the ParallelAccelerator compiler works.</p>
+
+<p>The standard Julia JIT compiler parses Julia source code into the
+Julia abstract syntax tree (AST) representation.  It performs type
+inference on the AST, then transforms the AST to LLVM IR, and finally
+generates native assembly code.  ParallelAccelerator intercepts this
+process at the level of the AST.  It introduces new AST nodes for the
+parallel patterns we discussed above.  It then does various
+optimizations on the resulting AST.  Finally, it generates C++ code
+that can be compiled by an external C++ compiler.  The following
+figure shows an overview of the ParallelAccelerator compilation
+process:</p>
+
+<p><img src="https://github.com/JuliaLang/www.julialang.org/blob/master/blog/_posts/parallelaccelerator_figures/compiler-pipeline.png?raw=true" alt="The ParallelAccelerator compiler pipeline" /></p>
+
+<p>As many readers of this blog will know, Julia has good support for
+<a href="http://docs.julialang.org/en/release-0.4/devdocs/reflection/">inspecting and manipulating its own ASTs</a>.
+Its built-in <code class="highlighter-rouge">code_typed</code> function will return the AST of any function
+after Julia’s type inference has taken place.  This is very convenient
+for ParallelAccelerator, which is able to use the output from
+<code class="highlighter-rouge">code_typed</code> as the input to the first pass of its compiler, which is
+called “Domain Transformations”.  The Domain Transformations pass
+produces ParallelAccelerator’s <em>Domain AST</em> intermediate
+representation.</p>
+
+<p>Domain AST is similar to Julia’s AST, except it introduces new AST
+nodes for parallel patterns that it identifies.  We call these nodes
+“domain nodes”, collectively.  The Domain Transformations pass
+replaces certain parts of the AST with domain nodes.</p>
+
+<p>The Domain Transformations pass is followed by the Parallel
+Transformations pass, which replaces domain nodes with “parfor” nodes,
+each of which represents one or more nested parallel <code class="highlighter-rouge">for</code> loops.
+Loop fusion also takes place during the Parallel Transformations pass.
+We call the result of Parallel Transformations <em>Parallel
+AST</em>. [<a href="#footnote6">6</a>]</p>
+
+<p>The compiler hands off Parallel AST code to the last pass of the
+compiler, CGen, which generates C++ code and converts parfor nodes
+into OpenMP loops.  Finally, an external C++ compiler creates an
+executable which is linked to OpenMP and to a small array runtime
+component written in C that manages the transfer of arrays back and
+forth between Julia and C++.</p>
+
+<h2 id="caveats">Caveats</h2>
+
+<p>ParallelAccelerator is still a proof of concept at this stage.  Users
+should be aware of two issues that can stand in the way of being able
+to make effective use of ParallelAccelerator.  Those issues are,
+first, package load time, and second, limitations in what Julia
+programs ParallelAccelerator is able to handle.  We discuss each of
+these issues in turn.</p>
+
+<h3 id="package-load-time">Package load time</h3>
+
+<p>Because ParallelAccelerator is a large Julia package (it’s a compiler,
+after all), it takes a long time (perhaps 20 or 25 seconds on a 4-core
+desktop machine) for <code class="highlighter-rouge">using ParallelAccelerator</code> to run.  This long
+pause is <em>not</em> the time that ParallelAccelerator is taking to compile
+your <code class="highlighter-rouge">@acc</code>-annotated code; it’s the time that Julia is taking to
+compile ParallelAccelerator itself.  After this initial pause, the
+first call to an <code class="highlighter-rouge">@acc</code>-annotated function will incur a brief
+compilation pause (this time from the ParallelAccelerator compiler,
+not Julia itself) of perhaps a couple of seconds.  Subsequent calls to
+the same function won’t incur the compilation pause.</p>
+
+<p>Let’s see what these compilation pauses look like in practice.  The
+ParallelAccelerator package comes with a collection of
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/tree/master/examples">example programs</a>
+that print timing information, including the
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/blob/master/examples/black-scholes/black-scholes.jl">Black-Scholes</a>
+and
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/blob/master/examples/gaussian-blur/gaussian-blur.jl">Gaussian blur</a>
+examples shown in this post.  All the examples print timing
+information for two calls to an <code class="highlighter-rouge">@acc</code>-annotated function: first a
+“warm-up” call with trivial arguments to measure compilation time, and
+then a more realistic call.  In the output printed by each example,
+timing information for the more realistic call is preceded by the
+string <code class="highlighter-rouge">"SELFTIMED"</code>, while timing information for the warm-up call is
+preceded by <code class="highlighter-rouge">"SELFPRIMED"</code>.  Let’s run the Black-Scholes example and
+time it using the <code class="highlighter-rouge">time</code> shell command:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">time </span>julia ParallelAccelerator/examples/black-scholes/black-scholes.jl 
+iterations <span class="o">=</span> 10000000
+SELFPRIMED 1.766323497
+checksum: 2.0954821257116848e8
+rate <span class="o">=</span> 1.9205394841503927e8 opts/sec
+SELFTIMED 0.052068703
+
+real	0m26.454s
+user	0m31.027s
+sys	0m0.874s</code></pre></figure>
+
+<p>Here, we’re running Black-Scholes for 10,000,000 iterations on our
+4-core desktop machine.  The total wall-clock time of 26.454 seconds
+consists mostly of the time it takes for <code class="highlighter-rouge">using ParallelAccelerator</code>
+to run.  Once that’s done, Julia reports a <code class="highlighter-rouge">SELFPRIMED</code> time of about
+1.8 seconds, which is dominated by the time it takes for
+ParallelAccelerator to compile the <code class="highlighter-rouge">@acc</code>-annotated code, and finally
+the <code class="highlighter-rouge">SELFTIMED</code> time is about 0.05 seconds for this problem size.</p>
+
+<p>As Julia’s compilation speed improves, we expect that
+package load time will be less of a problem for ParallelAccelerator.</p>
+
+<h3 id="compiler-limitations">Compiler limitations</h3>
+
+<p>ParallelAccelerator is able to handle only a limited subset of Julia
+language features, and it only supports a limited subset of Julia’s
+<code class="highlighter-rouge">Base</code> library functions.  In other words, you cannot yet put an
+<code class="highlighter-rouge">@acc</code> annotation on arbitrary Julia code and expect it to go faster out of
+the box.  The examples in this post give an idea of what kinds of
+programs are supported currently; for more, check out the
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/tree/master/examples">full collection of ParallelAccelerator examples</a>.
+However, if ParallelAccelerator can’t compile some code in an
+<code class="highlighter-rouge">@acc</code>-annotated function, it will simply fall back to running the
+function under regular Julia.  So your code will run, regardless of
+whether ParallelAccelerator can speed it up.</p>
+
+<p>One reason why an <code class="highlighter-rouge">@acc</code>-annotated function might fail to compile is
+that ParallelAccelerator tries to transitively compile every Julia
+function that is called by the <code class="highlighter-rouge">@acc</code>-annotated function.  So, if an
+<code class="highlighter-rouge">@acc</code>-annotated function makes several Julia library calls,
+ParallelAccelerator will attempt to compile those functions as well –
+and every Julia function that <em>they</em> call, and so on.  If any of the
+code in the call chain contains a feature that ParallelAccelerator
+doesn’t currently support, ParallelAccelerator will fail to compile
+the original <code class="highlighter-rouge">@acc</code>-annotated function.  It is therefore a good idea
+to begin by annotating small (but expensive) computational kernels
+with <code class="highlighter-rouge">@acc</code>, rather than wrapping an entire program in an <code class="highlighter-rouge">@acc</code>
+block.  The ParallelAccelerator
+<a href="http://parallelacceleratorjl.readthedocs.org/en/latest/limits.html">documentation</a>
+has many more details on which Julia features we don’t support and why.</p>
+
+<p>These limitations explain why the kind of performance improvements
+that ParallelAccelerator provides aren’t already the default in Julia.
+Supporting all of Julia would be a major undertaking; however, in many
+cases, there’s not a fundamental reason why ParallelAccelerator
+couldn’t support a particular Julia feature or a function in <code class="highlighter-rouge">Base</code>,
+and supporting it is a matter of realizing that it is a problem for
+users and putting in the necessary engineering effort to fix it.  So,
+when you come across code that ParallelAccelerator can’t handle,
+please do
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/issues">file bugs</a>!</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In this post, we’ve introduced
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl">ParallelAccelerator.jl</a>,
+a package for speeding up array-style Julia programs.  It works by
+identifying implicit parallel patterns in source code and compiling
+them to efficient, explicitly parallel executables, along the way
+getting rid of many of the usual overheads of high-level array-style
+programming.</p>
+
+<p>ParallelAccelerator is an open source project in its early stages, and
+we enthusiastically encourage comments, questions,
+<a href="https://github.com/IntelLabs/ParallelAccelerator.jl/issues">bug reports</a>,
+and contributions from the Julia community.  We welcome everyone’s
+participation, and we are especially interested in how
+ParallelAccelerator can be used to speed up real-world Julia programs.</p>
+
+<hr />
+
+<p><a name="footnote1"></a>[1] Starting with Julia 0.5, Julia will have its own
+native threading support, which means that ParallelAccelerator can
+target Julia’s own native threads instead of generating C++ OpenMP
+code for parallelism.  We’ve begun work on implementing a
+native-threading-based backend for ParallelAccelerator, but we still
+target C++ by default.</p>
+
+<p><a name="footnote2"></a>[2] Detailed machine and benchmarking
+specifications: We use a machine with two Intel Xeon E5-2699 v3
+processors (2.3 GHz) with 18 physical cores each and 128 GB RAM,
+running the CentOS 6.7 Linux distribution.  We use the Intel C++
+Compiler (ICC) v15.0.2 with “-O3” for compilation of the generated C++
+code.  The Julia version is 0.4.4-pre+26.  The results shown are the
+average of three runs (we run each version of a benchmark five times
+and discard the first and last runs).</p>
+
+<p><a name="footnote3"></a>[3] In Julia, it is not possible to index into
+a comprehension’s output array in the body of the comprehension.  (The
+<code class="highlighter-rouge">avg</code> example indexes only into the input array, not the output
+array.)  Therefore, it’s not necessary to do any bounds checking on
+writes to the output array.  However, we still need to bounds-check
+reads from the input array (for instance, in the <code class="highlighter-rouge">avg</code> example, if
+we’d written <code class="highlighter-rouge">0.25*x[i-2]</code>, that would be out of bounds), so we cannot
+avoid all array bounds checking for comprehensions in the way that we
+can for map operations.</p>
+
+<p><a name="footnote4"></a>[4] In practice, rather than applying
+successive Gaussian blurs to an image, we’d probably apply a single,
+larger Gaussian blur, which, as
+<a href="https://en.wikipedia.org/wiki/Gaussian_blur">Wikipedia notes</a>, is at
+least as efficient computationally.  Nevertheless, we’ll use it here
+as an example of a stencil computation that can be iterated.</p>
+
+<p><a name="footnote5"></a>[5] A more sophisticated implementation of
+Gaussian blur might do a fancier form of border handling, using only
+the pixels it has available at the borders.</p>
+
+<p><a name="footnote6"></a>[6] The names “Domain AST” and “Parallel AST”
+are inspired by the Domain IR and Parallel IR of the
+<a href="https://ppl.stanford.edu/papers/pact11-brown.pdf">Delite compiler framework</a>.</p>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

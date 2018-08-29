@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Technical preview: Native GPU programming with CUDAnative.jl</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>Technical preview: Native GPU programming with CUDAnative.jl</h1>
+
+  <p class="metadata">
+    <span class="timestamp">14 Mar 2017</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author"><a href="https://github.com/maleadt">Tim Besard</a></span>
+    
+  </p>
+
+  <p>After 2 years of slow but steady development, we would like to announce the first preview
+release of native GPU programming capabilities for Julia. You can now write your CUDA
+kernels in Julia, albeit with some restrictions, making it possible to use Julia’s
+high-level language features to write high-performance GPU code.</p>
+
+<p>The programming support we’re demonstrating here today consists of the low-level building
+blocks, sitting at the same abstraction level of CUDA C. You should be interested if you
+know (or want to learn) how to program a parallel accelerator like a GPU, while dealing with
+tricky performance characteristics and communication semantics.</p>
+
+<p>You can easily add GPU support to your Julia installation (see below for detailed
+instructions) by installing <a href="https://github.com/JuliaGPU/CUDAnative.jl">CUDAnative.jl</a>. This
+package is built on top of experimental interfaces to the Julia compiler, and the
+purpose-built <a href="https://github.com/maleadt/LLVM.jl">LLVM.jl</a> and
+<a href="https://github.com/JuliaGPU/CUDAdrv.jl">CUDAdrv.jl</a> packages to compile and execute code.
+All this functionality is brand-new and thoroughly untested, so we need your help and
+feedback in order to improve and finalize the interfaces before Julia 1.0.</p>
+
+<h2 id="how-to-get-started">How to get started</h2>
+
+<p>CUDAnative.jl is tightly integrated with the Julia compiler and the underlying LLVM
+framework, which complicates version and platform compatibility. For this preview we only
+support Julia 0.6 built from source, on Linux or macOS. Luckily, installing Julia from
+source is well documented in the <a href="https://github.com/JuliaLang/julia/blob/master/README.md#source-download-and-compilation">main repository’s
+README</a>.
+Most of the time it boils down to the following commands:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git clone https://github.com/JuliaLang/julia.git
+$ cd julia
+$ git checkout v0.6.0-pre.alpha  # or any later tag
+$ make                           # add -jN for N parallel jobs
+$ ./julia
+</code></pre></div></div>
+
+<p>From the Julia REPL, installing CUDAnative.jl and its dependencies is just a matter of using
+the package manager. Do note that you need to be using the NVIDIA binary driver, and have
+the CUDA toolkit installed.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; Pkg.add("CUDAnative")
+
+# Optional: test the package
+&gt; Pkg.test("CUDAnative")
+</code></pre></div></div>
+
+<p>At this point, you can start writing kernels and execute them on the GPU using CUDAnative’s
+<code class="highlighter-rouge">@cuda</code>! Be sure to check out the
+<a href="https://github.com/JuliaGPU/CUDAnative.jl/tree/master/examples">examples</a>, or continue
+reading for a more textual introduction.</p>
+
+<h2 id="hello-world-vector-addition"><del>Hello World</del> Vector addition</h2>
+
+<p>A typical small demo of GPU programming capabilities (think of it as the <em>GPU Hello World</em>)
+is to perform a vector addition. The snippet below does exactly that using Julia and
+CUDAnative.jl:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">CUDAdrv</span><span class="x">,</span> <span class="n">CUDAnative</span>
+
+<span class="k">function</span><span class="nf"> kernel_vadd</span><span class="x">(</span><span class="n">a</span><span class="x">,</span> <span class="n">b</span><span class="x">,</span> <span class="n">c</span><span class="x">)</span>
+    <span class="c"># from CUDAnative: (implicit) CuDeviceArray type,</span>
+    <span class="c">#                  and thread/block intrinsics</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="x">(</span><span class="n">blockIdx</span><span class="x">()</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="x">)</span> <span class="o">*</span> <span class="n">blockDim</span><span class="x">()</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="x">()</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">c</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">=</span> <span class="n">a</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+</span> <span class="n">b</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>
+
+    <span class="k">return</span> <span class="n">nothing</span>
+<span class="k">end</span>
+
+<span class="n">dev</span> <span class="o">=</span> <span class="n">CuDevice</span><span class="x">(</span><span class="mi">0</span><span class="x">)</span>
+<span class="n">ctx</span> <span class="o">=</span> <span class="n">CuContext</span><span class="x">(</span><span class="n">dev</span><span class="x">)</span>
+
+<span class="c"># generate some data</span>
+<span class="n">len</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="kt">Int</span><span class="x">,</span> <span class="n">len</span><span class="x">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="kt">Int</span><span class="x">,</span> <span class="n">len</span><span class="x">)</span>
+
+<span class="c"># allocate &amp; upload on the GPU</span>
+<span class="n">d_a</span> <span class="o">=</span> <span class="n">CuArray</span><span class="x">(</span><span class="n">a</span><span class="x">)</span>
+<span class="n">d_b</span> <span class="o">=</span> <span class="n">CuArray</span><span class="x">(</span><span class="n">b</span><span class="x">)</span>
+<span class="n">d_c</span> <span class="o">=</span> <span class="n">similar</span><span class="x">(</span><span class="n">d_a</span><span class="x">)</span>
+
+<span class="c"># execute and fetch results</span>
+<span class="nd">@cuda</span> <span class="x">(</span><span class="mi">1</span><span class="x">,</span><span class="n">len</span><span class="x">)</span> <span class="n">kernel_vadd</span><span class="x">(</span><span class="n">d_a</span><span class="x">,</span> <span class="n">d_b</span><span class="x">,</span> <span class="n">d_c</span><span class="x">)</span>    <span class="c"># from CUDAnative.jl</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Array</span><span class="x">(</span><span class="n">d_c</span><span class="x">)</span>
+
+<span class="n">using</span> <span class="n">Base</span><span class="o">.</span><span class="n">Test</span>
+<span class="nd">@test</span> <span class="n">c</span> <span class="o">==</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="n">destroy</span><span class="x">(</span><span class="n">ctx</span><span class="x">)</span>
+</code></pre></div></div>
+
+<h3 id="how-does-it-work">How does it work?</h3>
+
+<p>Most of this example does not rely on CUDAnative.jl, but uses functionality from CUDAdrv.jl.
+This package makes it possible to interact with CUDA hardware through user-friendly wrappers
+of CUDA’s driver API. For example, it provides an array type <code class="highlighter-rouge">CuArray</code>, takes care of memory
+management, integrates with Julia’s garbage collector, implements <code class="highlighter-rouge">@elapsed</code> using GPU
+events, etc. It is meant to form a strong foundation for all interactions with the CUDA
+driver, and does not require a bleeding-edge version of Julia. A slightly higher-level
+alternative is available under <a href="https://github.com/JuliaGPU/CUDArt.jl">CUDArt.jl</a>, building
+on the CUDA runtime API instead, but hasn’t been integrated with CUDAnative.jl yet.</p>
+
+<p>Meanwhile, CUDAnative.jl takes care of all things related to native GPU programming. The
+most significant part of that is generating GPU code, and essentially consists of three
+phases:</p>
+
+<ol>
+  <li><strong>interfacing with Julia</strong>: repurpose the compiler to emit GPU-compatible LLVM IR (no
+calls to CPU libraries, simplified exceptions, …)</li>
+  <li><strong>interfacing with LLVM</strong> (using LLVM.jl): optimize the IR, and compile to PTX</li>
+  <li><strong>interfacing with CUDA</strong> (using CUDAdrv.jl): compile PTX to SASS, and upload it to the
+GPU</li>
+</ol>
+
+<p>All this is hidden behind the call to <code class="highlighter-rouge">@cuda</code>, which generates code to compile our kernel
+upon first use. Every subsequent invocation will re-use that code, convert and upload
+arguments<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>, and finally launch the kernel. And much like we’re used to on the CPU, you
+can introspect this code using runtime reflection:</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># CUDAnative.jl provides alternatives to the @code_ macros,</span>
+<span class="c"># looking past @cuda and converting argument types</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">CUDAnative</span><span class="o">.</span><span class="nd">@code_llvm</span> <span class="nd">@cuda</span> <span class="x">(</span><span class="mi">1</span><span class="x">,</span><span class="n">len</span><span class="x">)</span> <span class="n">kernel_vadd</span><span class="x">(</span><span class="n">d_a</span><span class="x">,</span> <span class="n">d_b</span><span class="x">,</span> <span class="n">d_c</span><span class="x">)</span>
+<span class="n">define</span> <span class="n">void</span> <span class="nd">@julia_kernel_vadd_68711</span> <span class="x">{</span>
+    <span class="x">[</span><span class="n">LLVM</span> <span class="n">IR</span><span class="x">]</span>
+<span class="x">}</span>
+
+<span class="c"># ... but you can also invoke without @cuda</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@code_ptx</span> <span class="n">kernel_vadd</span><span class="x">(</span><span class="n">d_a</span><span class="x">,</span> <span class="n">d_b</span><span class="x">,</span> <span class="n">d_c</span><span class="x">)</span>
+<span class="o">.</span><span class="n">visible</span> <span class="o">.</span><span class="n">func</span> <span class="n">julia_kernel_vadd_68729</span><span class="x">(</span><span class="o">...</span><span class="x">)</span> <span class="x">{</span>
+    <span class="x">[</span><span class="n">PTX</span> <span class="n">CODE</span><span class="x">]</span>
+<span class="x">}</span>
+
+<span class="c"># or manually specify types (this is error prone!)</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">code_sass</span><span class="x">(</span><span class="n">kernel_vadd</span><span class="x">,</span> <span class="x">(</span><span class="n">CuDeviceArray</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">CuDeviceArray</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">CuDeviceArray</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">}))</span>
+<span class="n">code</span> <span class="k">for</span> <span class="n">sm_20</span>
+        <span class="n">Function</span> <span class="x">:</span> <span class="n">julia_kernel_vadd_68481</span>
+<span class="x">[</span><span class="n">SASS</span> <span class="n">CODE</span><span class="x">]</span>
+</code></pre></div></div>
+
+<p>Another important part of CUDAnative.jl are the intrinsics: special functions and macros
+that provide functionality hard or impossible to express using normal functions. For
+example, the <code class="highlighter-rouge">{thread,block,grid}{Idx,Dim}</code> functions provide access to the size and index
+of each level of work. Local shared memory can be created using the <code class="highlighter-rouge">@cuStaticSharedMem</code> and
+<code class="highlighter-rouge">@cuDynamicSharedMem</code> macros, while <code class="highlighter-rouge">@cuprintf</code> can be used to display a formatted string
+from within a kernel function. Many <a href="https://github.com/JuliaGPU/CUDAnative.jl/blob/0721783db9ac4cc2c2948cbf8cbff4aa5f7c4271/src/device/intrinsics.jl#L499-L807">math
+functions</a> are also available;
+these should be used instead of similar functions in the standard library.</p>
+
+<h3 id="what-is-missing">What is missing?</h3>
+
+<p>As I’ve already hinted, we don’t support all features of the Julia language yet. For
+example, it is currently impossible to call any function from the Julia C runtime library
+(aka. <code class="highlighter-rouge">libjulia.so</code>). This makes dynamic allocations impossible, cripples exceptions, etc.
+As a result, large parts of the standard library are unavailable for use on the GPU. We will
+obviously try to improve this in the future, but for now the compiler will error when it
+encounters unsupported language features:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>julia&gt; nope() = println(42)
+nope (generic function with 1 method)
+
+julia&gt; @cuda (1,1) nope()
+ERROR: error compiling nope: emit_builtin_call for REPL[1]:1 requires the runtime language feature, which is disabled
+</code></pre></div></div>
+
+<p>Another big gap is documentation. Most of CUDAnative.jl mimics or copies <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/">CUDA
+C</a>, while CUDAdrv.jl wraps the <a href="http://docs.nvidia.com/cuda/cuda-driver-api/">CUDA
+driver API</a>. But we haven’t documented what
+parts of those APIs are covered, or how the abstractions behave, so you’ll need to refer to
+the examples and tests in the CUDAnative and CUDAdrv repositories.</p>
+
+<h2 id="another-example-parallel-reduction">Another example: parallel reduction</h2>
+
+<p>For a more complex example, let’s have a look at a <a href="https://github.com/JuliaGPU/CUDAnative.jl/blob/0721783db9ac4cc2c2948cbf8cbff4aa5f7c4271/examples/reduce/reduce.cu">parallel
+reduction</a> for <a href="https://devblogs.nvidia.com/parallelforall/faster-parallel-reductions-kepler/">Kepler-generation
+GPUs</a>. This
+is a typical well-optimized GPU implementation, using fast communication primitives at each
+level of execution. For example, threads within a warp execute together on a SIMD-like core,
+and can share data through each other’s registers. At the block level, threads are allocated
+on the same core but don’t necessarily execute together, which means they need to
+communicate through core local memory. Another level up, only the GPU’s DRAM memory is a
+viable communication medium.</p>
+
+<p>The <a href="https://github.com/JuliaGPU/CUDAnative.jl/blob/0721783db9ac4cc2c2948cbf8cbff4aa5f7c4271/examples/reduce/reduce.jl">Julia version of this algorithm</a>
+looks pretty similar to the CUDA original: this is as intended, because CUDAnative.jl is a
+counterpart to CUDA C. The new version is much more generic though, specializing both on the
+reduction operator and value type. And just like we’re used to with regular Julia code, the
+<code class="highlighter-rouge">@cuda</code> macro will just-in-time compile and dispatch to the correct specialization based on
+the argument types.</p>
+
+<p>So how does it perform? Turns out, pretty good! The chart below compares the performance of
+both the CUDAnative.jl and CUDA C implementations<sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>, using BenchmarkTools.jl to <a href="https://github.com/JuliaGPU/CUDAnative.jl/blob/0721783db9ac4cc2c2948cbf8cbff4aa5f7c4271/examples/reduce/benchmark.jl">measure
+the execution time</a>. The small
+constant overhead (note the logarithmic scale) is due to a deficiency in argument passing,
+and will be fixed.</p>
+
+<p><img src="/images/blog/2017-03-14-cudanative/performance.png" alt="Performance comparison of parallel reduction
+implementations." /></p>
+
+<p>We also aim to be compatible with tools from the CUDA toolkit. For example, you can <a href="/images/blog/2017-03-14-cudanative/nvvp.png">profile
+Julia kernels</a> using the NVIDIA Visual
+Profiler, or use <code class="highlighter-rouge">cuda-memcheck</code> to detect out-of-bound accesses<sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cuda-memcheck julia examples/oob.jl
+========= CUDA-MEMCHECK
+========= Invalid __global__ write of size 4
+=========     at 0x00000148 in examples/oob.jl:14:julia_memset_66041
+=========     by thread (10,0,0) in block (0,0,0)
+=========     Address 0x1020b000028 is out of bounds
+</code></pre></div></div>
+
+<p>Full debug information <a href="https://github.com/JuliaGPU/CUDAnative.jl/issues/31">is not
+available</a> yet, so <code class="highlighter-rouge">cuda-gdb</code> and
+friends will not work very well.</p>
+
+<h2 id="try-it-out">Try it out!</h2>
+
+<p>If you have experience with GPUs or CUDA development, or maintain a package which could
+benefit from GPU acceleration, please have a look or try out CUDAnative.jl! We need all the
+feedback we can get, in order to prioritize development and finalize the infrastructure
+before Julia hits 1.0.</p>
+
+<h3 id="i-want-to-help">I want to help</h3>
+
+<p>Even better! There’s many ways to contribute, for example by looking at the issues trackers
+of the individual packages making up this support:</p>
+
+<ul>
+  <li><a href="https://github.com/JuliaGPU/CUDAnative.jl/issues">CUDAnative.jl</a></li>
+  <li><a href="https://github.com/JuliaGPU/CUDAdrv.jl/issues">CUDAdrv.jl</a></li>
+  <li><a href="https://github.com/maleadt/LLVM.jl/issues">LLVM.jl</a></li>
+</ul>
+
+<p>Each of those packages are also in perpetual need of better API coverage, and documentation
+to cover and explain what has already been implemented.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>This work would not have been possible without Viral Shah and Alan Edelman arranging my stay
+at MIT. I’d like to thank everybody at Julia Central and around, it has been a blast! I’m
+also grateful to Bjorn De Sutter, and IWT Vlaanderen, for supporting my time at Ghent
+University.</p>
+
+<hr />
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>See the <a href="https://github.com/JuliaGPU/CUDAnative.jl/blob/0721783db9ac4cc2c2948cbf8cbff4aa5f7c4271/README.md#object-arguments">README</a> for a note on how expensive this currently is. <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>The measurements include memory transfer time, which is why a CPU implementation was not included (realistically, data would be kept on the GPU as long as possible, making it an unfair comparison). <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>Bounds-checked arrays are not supported yet, due to <a href="https://github.com/JuliaGPU/CUDAnative.jl/issues/4">a bug in the NVIDIA PTX compiler</a>. <a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

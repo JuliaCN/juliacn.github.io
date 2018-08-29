@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Multidimensional algorithms and iteration</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>Multidimensional algorithms and iteration</h1>
+
+  <p class="metadata">
+    <span class="timestamp">01 Feb 2016</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author"><a href="http://holylab.wustl.edu">Tim Holy</a></span>
+    
+  </p>
+
+  <p>Starting with release 0.4, Julia makes it easy to write elegant and
+efficient multidimensional algorithms. The new capabilities rest on
+two foundations: a new type of iterator, called <code class="highlighter-rouge">CartesianRange</code>, and
+sophisticated array indexing mechanisms.  Before I explain, let me
+emphasize that developing these capabilities was a collaborative
+effort, with the bulk of the work done by Matt Bauman (@mbauman),
+Jutho Haegeman (@Jutho), and myself (@timholy).</p>
+
+<p>These new iterators are deceptively simple, so much so that I’ve never
+been entirely convinced that this blog post is necessary: once you
+learn a few principles, there’s almost nothing to it.  However, like
+many simple concepts, the implications can take a while to sink in.
+There also seems to be some widespread confusion about the
+relationship between these iterators and
+<a href="http://docs.julialang.org/en/stable/devdocs/cartesian/"><code class="highlighter-rouge">Base.Cartesian</code></a>,
+which is a completely different (and much more painful) approach to
+solving the same problem.  There are still a few occasions where
+<code class="highlighter-rouge">Base.Cartesian</code> is necessary, but for many problems these new
+capabilities represent a vastly simplified approach.</p>
+
+<p>Let’s introduce these iterators with an extension of an example taken
+from the
+<a href="http://docs.julialang.org/en/stable/manual/arrays/#iteration">manual</a>.</p>
+
+<h1 id="eachindex-cartesianindex-and-cartesianrange">eachindex, CartesianIndex, and CartesianRange</h1>
+
+<p>You may already know that, in julia 0.4, there are two recommended
+ways to iterate over the elements in an <code class="highlighter-rouge">AbstractArray</code>: if you don’t
+need an index associated with each element, then you can use</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">for</span> <span class="n">a</span> <span class="k">in</span> <span class="n">A</span>    <span class="c"># A is an AbstractArray</span>
+    <span class="c"># Code that does something with the element a</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>If instead you also need the index, then use</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">eachindex</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
+    <span class="c"># Code that does something with i and/or A[i]</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>In some cases, the first line of this loop expands to <code class="highlighter-rouge">for i =
+1:length(A)</code>, and <code class="highlighter-rouge">i</code> is just an integer.  However, in other cases,
+this will expand to the equivalent of</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
+    <span class="c"># i is now a CartesianIndex</span>
+    <span class="c"># Code that does something with i and/or A[i]</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Let’s see what these objects are:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">3</span><span class="x">,</span><span class="mi">2</span><span class="x">)</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
+          <span class="nd">@show</span> <span class="n">i</span>
+       <span class="k">end</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">1</span><span class="x">,</span><span class="mi">1</span><span class="x">))</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">2</span><span class="x">,</span><span class="mi">1</span><span class="x">))</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">3</span><span class="x">,</span><span class="mi">1</span><span class="x">))</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">1</span><span class="x">,</span><span class="mi">2</span><span class="x">))</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">2</span><span class="x">,</span><span class="mi">2</span><span class="x">))</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">3</span><span class="x">,</span><span class="mi">2</span><span class="x">))</span></code></pre></figure>
+
+<p>A <code class="highlighter-rouge">CartesianIndex{N}</code> represents an <code class="highlighter-rouge">N</code>-dimensional index.
+<code class="highlighter-rouge">CartesianIndex</code>es are based on tuples, and indeed you can access the
+underlying tuple with <code class="highlighter-rouge">i.I</code>.  However, they also support certain
+arithmetic operations, treating their contents like a fixed-size
+<code class="highlighter-rouge">Vector{Int}</code>.  Since the length is fixed, julia/LLVM can generate
+very efficient code (without introducing loops) for operations with
+N-dimensional <code class="highlighter-rouge">CartesianIndex</code>es.</p>
+
+<p>A <code class="highlighter-rouge">CartesianRange</code> is just a pair of <code class="highlighter-rouge">CartesianIndex</code>es, encoding the
+start and stop values along each dimension, respectively:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
+<span class="n">CartesianRange</span><span class="x">{</span><span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}}(</span><span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">1</span><span class="x">,</span><span class="mi">1</span><span class="x">)),</span><span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">3</span><span class="x">,</span><span class="mi">2</span><span class="x">)))</span></code></pre></figure>
+
+<p>You can construct these manually: for example,</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">CartesianIndex</span><span class="x">((</span><span class="o">-</span><span class="mi">7</span><span class="x">,</span><span class="mi">0</span><span class="x">)),</span> <span class="n">CartesianIndex</span><span class="x">((</span><span class="mi">7</span><span class="x">,</span><span class="mi">15</span><span class="x">)))</span>
+<span class="n">CartesianRange</span><span class="x">{</span><span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}}(</span><span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="o">-</span><span class="mi">7</span><span class="x">,</span><span class="mi">0</span><span class="x">)),</span><span class="n">CartesianIndex</span><span class="x">{</span><span class="mi">2</span><span class="x">}((</span><span class="mi">7</span><span class="x">,</span><span class="mi">15</span><span class="x">)))</span></code></pre></figure>
+
+<p>constructs a range that will loop over <code class="highlighter-rouge">-7:7</code> along the first
+dimension and <code class="highlighter-rouge">0:15</code> along the second.</p>
+
+<p>One reason that <code class="highlighter-rouge">eachindex</code> is recommended over <code class="highlighter-rouge">for i = 1:length(A)</code>
+is that some <code class="highlighter-rouge">AbstractArray</code>s cannot be indexed efficiently with a
+linear index; in contrast, a much wider class of objects can be
+efficiently indexed with a multidimensional iterator.  (SubArrays are,
+generally speaking, <a href="http://docs.julialang.org/en/stable/devdocs/subarrays/#indexing-cartesian-vs-linear-indexing">a prime
+example</a>.)
+<code class="highlighter-rouge">eachindex</code> is designed to pick the most efficient iterator for the
+given array type.  You can even use</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">eachindex</span><span class="x">(</span><span class="n">A</span><span class="x">,</span> <span class="n">B</span><span class="x">)</span>
+    <span class="o">...</span></code></pre></figure>
+
+<p>to increase the likelihood that <code class="highlighter-rouge">i</code> will be efficient for accessing
+both <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code>.</p>
+
+<p>As we’ll see below, these iterators have another purpose: independent
+of whether the underlying arrays have efficient linear indexing,
+multidimensional iteration can be a powerful ally when writing
+algorithms.  The rest of this blog post will focus on this
+latter application.</p>
+
+<h1 id="writing-multidimensional-algorithms-with-cartesianindex-iterators">Writing multidimensional algorithms with CartesianIndex iterators</h1>
+
+<h2 id="a-multidimensional-boxcar-filter">A multidimensional boxcar filter</h2>
+
+<p>Let’s suppose we have a multidimensional array <code class="highlighter-rouge">A</code>, and we want to
+compute the <a href="https://en.wikipedia.org/wiki/Boxcar_averager">“moving
+average”</a> over a
+3-by-3-by-… block around each element.  From any given index position,
+we’ll want to sum over a region offset by <code class="highlighter-rouge">-1:1</code> along each dimension.
+Edge positions have to be treated specially, of course, to avoid going
+beyond the bounds of the array.</p>
+
+<p>In many languages, writing a general (N-dimensional) implementation of
+this conceptually-simple algorithm is somewhat painful, but in Julia
+it’s a piece of cake:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> boxcar3</span><span class="x">(</span><span class="n">A</span><span class="o">::</span><span class="n">AbstractArray</span><span class="x">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">similar</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
+    <span class="n">I1</span><span class="x">,</span> <span class="n">Iend</span> <span class="o">=</span> <span class="n">first</span><span class="x">(</span><span class="n">R</span><span class="x">),</span> <span class="n">last</span><span class="x">(</span><span class="n">R</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">I</span> <span class="k">in</span> <span class="n">R</span>
+        <span class="n">n</span><span class="x">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span><span class="x">,</span> <span class="n">zero</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">out</span><span class="x">))</span>
+        <span class="k">for</span> <span class="n">J</span> <span class="k">in</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">max</span><span class="x">(</span><span class="n">I1</span><span class="x">,</span> <span class="n">I</span><span class="o">-</span><span class="n">I1</span><span class="x">),</span> <span class="n">min</span><span class="x">(</span><span class="n">Iend</span><span class="x">,</span> <span class="n">I</span><span class="o">+</span><span class="n">I1</span><span class="x">))</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">A</span><span class="x">[</span><span class="n">J</span><span class="x">]</span>
+            <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">end</span>
+        <span class="n">out</span><span class="x">[</span><span class="n">I</span><span class="x">]</span> <span class="o">=</span> <span class="n">s</span><span class="o">/</span><span class="n">n</span>
+    <span class="k">end</span>
+    <span class="n">out</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Let’s walk through this line by line:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">out = similar(A)</code> allocates the output. In a “real” implementation,
+you’d want to be a little more careful about the element type of the
+output (what if the input array element type is <code class="highlighter-rouge">Int</code>?), but
+we’re cutting a few corners here for simplicity.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">R = CartesianRange(size(A))</code> creates the iterator for the array,
+ranging from <code class="highlighter-rouge">CartesianIndex((1, 1, 1, ...))</code> to
+<code class="highlighter-rouge">CartesianIndex((size(A,1), size(A,2), size(A,3), ...))</code>.  We don’t
+use <code class="highlighter-rouge">eachindex</code>, because we can’t be sure whether that will return a
+<code class="highlighter-rouge">CartesianRange</code> iterator, and here we explicitly need one.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">I1 = first(R)</code> and <code class="highlighter-rouge">Iend = last(R)</code> return the lower
+(<code class="highlighter-rouge">CartesianIndex((1, 1, 1, ...))</code>) and upper
+(<code class="highlighter-rouge">CartesianIndex((size(A,1), size(A,2), size(A,3), ...))</code>) bounds
+of the iteration range, respectively.  We’ll use these to ensure
+that we never access out-of-bounds elements of <code class="highlighter-rouge">A</code>.</p>
+
+    <p>Conveniently, <code class="highlighter-rouge">I1</code> can also be used to compute the offset range.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">for I in R</code>: here we loop over each entry of <code class="highlighter-rouge">A</code>.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">n = 0</code> and <code class="highlighter-rouge">s = zero(eltype(out))</code> initialize the accumulators. <code class="highlighter-rouge">s</code>
+will hold the sum of neighboring values. <code class="highlighter-rouge">n</code> will hold the number of
+neighbors used; in most cases, after the loop we’ll have <code class="highlighter-rouge">n == 3^N</code>,
+but for edge points the number of valid neighbors will be smaller.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">for J in CartesianRange(max(I1, I-I1), min(Iend, I+I1))</code> is
+probably the most “clever” line in the algorithm.  <code class="highlighter-rouge">I-I1</code> is a
+<code class="highlighter-rouge">CartesianIndex</code> that is lower by 1 along each dimension, and <code class="highlighter-rouge">I+I1</code>
+is higher by 1.  Therefore, this constructs a range that, for
+interior points, extends along each coordinate by an offset of 1 in
+either direction along each dimension.</p>
+
+    <p>However, when <code class="highlighter-rouge">I</code> represents an edge point, either <code class="highlighter-rouge">I-I1</code> or <code class="highlighter-rouge">I+I1</code>
+(or both) might be out-of-bounds.  <code class="highlighter-rouge">max(I-I1, I1)</code> ensures that each
+coordinate of <code class="highlighter-rouge">J</code> is 1 or larger, while <code class="highlighter-rouge">min(I+I1, Iend)</code> ensures
+that <code class="highlighter-rouge">J[d] &lt;= size(A,d)</code>.</p>
+  </li>
+  <li>
+    <p>The inner loop accumulates the sum in <code class="highlighter-rouge">s</code> and the number of visited
+neighbors in <code class="highlighter-rouge">n</code>.</p>
+  </li>
+  <li>
+    <p>Finally, we store the average value in <code class="highlighter-rouge">out[I]</code>.</p>
+  </li>
+</ul>
+
+<p>Not only is this implementation simple, but it is surprisingly robust:
+for edge points it computes the average of whatever nearest-neighbors
+it has available.  It even works if <code class="highlighter-rouge">size(A, d) &lt; 3</code> for some
+dimension <code class="highlighter-rouge">d</code>; we don’t need any error checking on the size of <code class="highlighter-rouge">A</code>.</p>
+
+<h2 id="computing-a-reduction">Computing a reduction</h2>
+
+<p>For a second example, consider the implementation of multidimensional
+<em>reductions</em>. A reduction takes an input array, and returns an array
+(or scalar) of smaller size.  A classic example would be summing along
+particular dimensions of an array: given a three-dimensional array,
+you might want to compute the sum along dimension 2, leaving
+dimensions 1 and 3 intact.</p>
+
+<h3 id="the-core-algorithm">The core algorithm</h3>
+
+<p>An efficient way to write this algorithm requires that the output
+array, <code class="highlighter-rouge">B</code>, is pre-allocated by the caller (later we’ll see how one
+might go about allocating <code class="highlighter-rouge">B</code> programmatically).  For example, if the
+input <code class="highlighter-rouge">A</code> is of size <code class="highlighter-rouge">(l,m,n)</code>, then when summing along just dimension
+2 the output <code class="highlighter-rouge">B</code> would have size <code class="highlighter-rouge">(l,1,n)</code>.</p>
+
+<p>Given this setup, the implementation is shockingly simple:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> sumalongdims</span><span class="o">!</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="n">A</span><span class="x">)</span>
+    <span class="c"># It's assumed that B has size 1 along any dimension that we're summing</span>
+    <span class="n">fill!</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
+    <span class="n">Bmax</span> <span class="o">=</span> <span class="n">CartesianIndex</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">))</span>
+    <span class="k">for</span> <span class="n">I</span> <span class="k">in</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
+        <span class="n">B</span><span class="x">[</span><span class="n">min</span><span class="x">(</span><span class="n">Bmax</span><span class="x">,</span><span class="n">I</span><span class="x">)]</span> <span class="o">+=</span> <span class="n">A</span><span class="x">[</span><span class="n">I</span><span class="x">]</span>
+    <span class="k">end</span>
+    <span class="n">B</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The key idea behind this algorithm is encapsulated in the single
+statement <code class="highlighter-rouge">B[min(Bmax,I)]</code>.  For our three-dimensional example where
+<code class="highlighter-rouge">A</code> is of size <code class="highlighter-rouge">(l,m,n)</code> and <code class="highlighter-rouge">B</code> is of size <code class="highlighter-rouge">(l,1,n)</code>, the inner loop
+is essentially equivalent to</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>B[i,1,k] += A[i,j,k]
+</code></pre></div></div>
+
+<p>because <code class="highlighter-rouge">min(1,j) = 1</code>.</p>
+
+<h3 id="the-wrapper-and-handling-type-instability-using-function-barriers">The wrapper, and handling type-instability using function barriers</h3>
+
+<p>As a user, you might prefer an interface more like <code class="highlighter-rouge">sumalongdims(A,
+dims)</code> where <code class="highlighter-rouge">dims</code> specifies the dimensions you want to sum along.
+<code class="highlighter-rouge">dims</code> might be a single integer, like <code class="highlighter-rouge">2</code> in our example above, or
+(should you want to sum along multiple dimensions at once) a tuple or
+<code class="highlighter-rouge">Vector{Int}</code>.  This is indeed the interface used in <code class="highlighter-rouge">sum(A, dims)</code>;
+here we want to write our own (somewhat simpler) implementation.</p>
+
+<p>A bare-bones implementation of the wrapper is straightforward:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> sumalongdims</span><span class="x">(</span><span class="n">A</span><span class="x">,</span> <span class="n">dims</span><span class="x">)</span>
+    <span class="n">sz</span> <span class="o">=</span> <span class="x">[</span><span class="n">size</span><span class="x">(</span><span class="n">A</span><span class="x">)</span><span class="o">...</span><span class="x">]</span>
+    <span class="n">sz</span><span class="x">[[</span><span class="n">dims</span><span class="o">...</span><span class="x">]]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">Array</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">A</span><span class="x">),</span> <span class="n">sz</span><span class="o">...</span><span class="x">)</span>
+    <span class="n">sumalongdims!</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="n">A</span><span class="x">)</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Obviously, this simple implementation skips all relevant error
+checking.  However, here the main point I wish to explore is that the
+allocation of <code class="highlighter-rouge">B</code> turns out to be
+<a href="http://docs.julialang.org/en/stable/manual/faq/#what-does-type-stable-mean">type-unstable</a>:
+<code class="highlighter-rouge">sz</code> is a <code class="highlighter-rouge">Vector{Int}</code>, the length (number of elements) of a specific
+<code class="highlighter-rouge">Vector{Int}</code> is not encoded by the type itself, and therefore the
+dimensionality of <code class="highlighter-rouge">B</code> cannot be inferred.</p>
+
+<p>Now, we could fix that in several ways, for example by annotating the
+result:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">B</span> <span class="o">=</span> <span class="n">Array</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">A</span><span class="x">),</span> <span class="n">sz</span><span class="o">...</span><span class="x">)</span><span class="o">::</span><span class="nb">typeof</span><span class="x">(</span><span class="n">A</span><span class="x">)</span></code></pre></figure>
+
+<p>However, this isn’t really necessary: in the remainder of this
+function, <code class="highlighter-rouge">B</code> is not used for any performance-critical operations.
+<code class="highlighter-rouge">B</code> simply gets passed to <code class="highlighter-rouge">sumalongdims!</code>, and it’s the job of the
+compiler to ensure that, given the type of <code class="highlighter-rouge">B</code>, an efficient version
+of <code class="highlighter-rouge">sumalongdims!</code> gets generated.  In other words, the type
+instability of <code class="highlighter-rouge">B</code>’s allocation is prevented from “spreading” by the
+fact that <code class="highlighter-rouge">B</code> is henceforth used only as an argument in a function
+call.  This trick, using a <a href="http://docs.julialang.org/en/stable/manual/performance-tips/#separate-kernel-functions">function-call to separate a
+performance-critical step from a potentially type-unstable
+precursor</a>,
+is sometimes referred to as introducing a <em>function barrier</em>.</p>
+
+<p>As a general rule, when writing multidimensional code you should
+ensure that the main iteration is in a separate function from
+type-unstable precursors.  Even when you take appropriate precautions,
+there’s a potential “gotcha”: if your inner loop is small, julia’s
+ability to inline code might eliminate the intended function barrier,
+and you get dreadful performance.  For this reason, it’s recommended
+that you annotate function-barrier callees with <code class="highlighter-rouge">@noinline</code>:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="nd">@noinline</span> <span class="k">function</span><span class="nf"> sumalongdims</span><span class="o">!</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="n">A</span><span class="x">)</span>
+    <span class="o">...</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Of course, in this example there’s a second motivation for making this
+a standalone function: if this calculation is one you’re going to
+repeat many times, re-using the same output array can reduce the
+amount of memory allocation in your code.</p>
+
+<h2 id="filtering-along-a-specified-dimension-exploiting-multiple-indexes">Filtering along a specified dimension (exploiting multiple indexes)</h2>
+
+<p>One final example illustrates an important new point: when you index
+an array, you can freely mix <code class="highlighter-rouge">CartesianIndex</code>es and
+integers.  To illustrate this, we’ll write an <a href="https://en.wikipedia.org/wiki/Exponential_smoothing">exponential
+smoothing
+filter</a>.  An
+efficient way to implement such filters is to have the smoothed output
+value <code class="highlighter-rouge">s[i]</code> depend on a combination of the current input <code class="highlighter-rouge">x[i]</code> and
+the previous filtered value <code class="highlighter-rouge">s[i-1]</code>; in one dimension, you can write
+this as</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> expfilt1</span><span class="o">!</span><span class="x">(</span><span class="n">s</span><span class="x">,</span> <span class="n">x</span><span class="x">,</span> <span class="n">α</span><span class="x">)</span>
+    <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">α</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="o">||</span> <span class="nb">error</span><span class="x">(</span><span class="s">"α must be between 0 and 1"</span><span class="x">)</span>
+    <span class="n">s</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="o">=</span> <span class="n">x</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="x">:</span><span class="n">length</span><span class="x">(</span><span class="n">a</span><span class="x">)</span>
+        <span class="n">s</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">=</span> <span class="n">α</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+</span> <span class="x">(</span><span class="mi">1</span><span class="o">-</span><span class="n">α</span><span class="x">)</span><span class="o">*</span><span class="n">s</span><span class="x">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span>
+    <span class="k">end</span>
+    <span class="n">s</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>This would result in an approximately-exponential decay with timescale <code class="highlighter-rouge">1/α</code>.</p>
+
+<p>Here, we want to implement this algorithm so that it can be used to
+exponentially filter an array along any chosen dimension.  Once again,
+the implementation is surprisingly simple:</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> expfiltdim</span><span class="x">(</span><span class="n">x</span><span class="x">,</span> <span class="n">dim</span><span class="o">::</span><span class="n">Integer</span><span class="x">,</span> <span class="n">α</span><span class="x">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">similar</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+    <span class="n">Rpre</span> <span class="o">=</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">x</span><span class="x">)[</span><span class="mi">1</span><span class="x">:</span><span class="n">dim</span><span class="o">-</span><span class="mi">1</span><span class="x">])</span>
+    <span class="n">Rpost</span> <span class="o">=</span> <span class="n">CartesianRange</span><span class="x">(</span><span class="n">size</span><span class="x">(</span><span class="n">x</span><span class="x">)[</span><span class="n">dim</span><span class="o">+</span><span class="mi">1</span><span class="x">:</span><span class="k">end</span><span class="x">])</span>
+    <span class="n">_expfilt!</span><span class="x">(</span><span class="n">s</span><span class="x">,</span> <span class="n">x</span><span class="x">,</span> <span class="n">α</span><span class="x">,</span> <span class="n">Rpre</span><span class="x">,</span> <span class="n">size</span><span class="x">(</span><span class="n">x</span><span class="x">,</span> <span class="n">dim</span><span class="x">),</span> <span class="n">Rpost</span><span class="x">)</span>
+<span class="k">end</span>
+
+<span class="nd">@noinline</span> <span class="k">function</span><span class="nf"> _expfilt</span><span class="o">!</span><span class="x">(</span><span class="n">s</span><span class="x">,</span> <span class="n">x</span><span class="x">,</span> <span class="n">α</span><span class="x">,</span> <span class="n">Rpre</span><span class="x">,</span> <span class="n">n</span><span class="x">,</span> <span class="n">Rpost</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">Ipost</span> <span class="k">in</span> <span class="n">Rpost</span>
+        <span class="c"># Initialize the first value along the filtered dimension</span>
+        <span class="k">for</span> <span class="n">Ipre</span> <span class="k">in</span> <span class="n">Rpre</span>
+            <span class="n">s</span><span class="x">[</span><span class="n">Ipre</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="n">Ipost</span><span class="x">]</span> <span class="o">=</span> <span class="n">x</span><span class="x">[</span><span class="n">Ipre</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="n">Ipost</span><span class="x">]</span>
+        <span class="k">end</span>
+        <span class="c"># Handle all other entries</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="x">:</span><span class="n">n</span>
+            <span class="k">for</span> <span class="n">Ipre</span> <span class="k">in</span> <span class="n">Rpre</span>
+                <span class="n">s</span><span class="x">[</span><span class="n">Ipre</span><span class="x">,</span> <span class="n">i</span><span class="x">,</span> <span class="n">Ipost</span><span class="x">]</span> <span class="o">=</span> <span class="n">α</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="n">Ipre</span><span class="x">,</span> <span class="n">i</span><span class="x">,</span> <span class="n">Ipost</span><span class="x">]</span> <span class="o">+</span> <span class="x">(</span><span class="mi">1</span><span class="o">-</span><span class="n">α</span><span class="x">)</span><span class="o">*</span><span class="n">s</span><span class="x">[</span><span class="n">Ipre</span><span class="x">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span> <span class="n">Ipost</span><span class="x">]</span>
+            <span class="k">end</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="n">s</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Note once again the use of the function barrier technique.  In the
+core algorithm (<code class="highlighter-rouge">_expfilt!</code>), our strategy is to use <em>two</em>
+<code class="highlighter-rouge">CartesianIndex</code> iterators, <code class="highlighter-rouge">Ipre</code> and <code class="highlighter-rouge">Ipost</code>, where the first covers
+dimensions <code class="highlighter-rouge">1:dim-1</code> and the second <code class="highlighter-rouge">dim+1:ndims(x)</code>; the filtering
+dimension <code class="highlighter-rouge">dim</code> is handled separately by an integer-index <code class="highlighter-rouge">i</code>.
+Because the filtering dimension is specified by an integer input,
+there is no way to infer how many entries will be within each
+index-tuple <code class="highlighter-rouge">Ipre</code> and <code class="highlighter-rouge">Ipost</code>.  Hence, we compute the <code class="highlighter-rouge">CartesianRange</code>s in
+the type-unstable portion of the algorithm, and then pass them as
+arguments to the core routine <code class="highlighter-rouge">_expfilt!</code>.</p>
+
+<p>What makes this implementation possible is the fact that we can index
+<code class="highlighter-rouge">x</code> as <code class="highlighter-rouge">x[Ipre, i, Ipost]</code>.  Note that the total number of indexes
+supplied is <code class="highlighter-rouge">(dim-1) + 1 + (ndims(x)-dim)</code>, which is just <code class="highlighter-rouge">ndims(x)</code>.
+In general, you can supply any combination of integer and
+<code class="highlighter-rouge">CartesianIndex</code> indexes when indexing an <code class="highlighter-rouge">AbstractArray</code> in Julia.</p>
+
+<p>The <a href="https://github.com/timholy/AxisAlgorithms.jl">AxisAlgorithms</a>
+package makes heavy use of tricks such as these, and in turn provides
+core support for high-performance packages like
+<a href="https://github.com/tlycken/Interpolations.jl">Interpolations</a> that
+require multidimensional computation.</p>
+
+<h1 id="additional-issues">Additional issues</h1>
+
+<p>It’s worth noting one point that has thus far remained unstated: all
+of the examples here are relatively <em>cache efficient</em>.  This is a key
+property to observe when writing <a href="http://julialang.org/blog/2013/09/fast-numeric">efficient
+code</a>.  In
+particular, julia arrays are stored in first-to-last dimension order
+(for matrices, “column-major” order), and hence you should nest
+iterations from last-to-first dimensions.  For example, in the
+filtering example above we were careful to iterate in the order</p>
+
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">for</span> <span class="n">Ipost</span> <span class="o">...</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">...</span>
+        <span class="k">for</span> <span class="n">Ipre</span> <span class="o">...</span>
+            <span class="n">x</span><span class="x">[</span><span class="n">Ipre</span><span class="x">,</span> <span class="n">i</span><span class="x">,</span> <span class="n">Ipost</span><span class="x">]</span> <span class="o">...</span></code></pre></figure>
+
+<p>so that <code class="highlighter-rouge">x</code> would be traversed in memory-order.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>As is hopefully clear by now, much of the pain of writing generic
+multidimensional algorithms is eliminated by Julia’s elegant
+iterators.  The examples here just scratch the surface, but the
+underlying principles are very simple; it is hoped that these
+examples will make it easier to write your own algorithms.</p>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>

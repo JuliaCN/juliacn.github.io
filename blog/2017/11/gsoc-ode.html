@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>GSoC 2017: Native Julia second order ODE and BVP solvers</title>
+<meta name="author" content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al." />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel="stylesheet">
+<link rel="stylesheet" href="/v2/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/v2/css/app.css" />
+<link rel="stylesheet" href="/v2/css/fonts.css" />
+<link rel="stylesheet" href="/v2/css/highlight/github.css" />
+</head>
+
+<body>
+
+   
+
+<!-- main menu -->
+<div class="container py-3 py-lg-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+    <a class="navbar-brand" href="/" id="logo">
+      <img src="/v2/img/logo.png" height="55" width="118" />
+    </a>
+
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <!-- li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/">Home</a>
+        </li -->
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/downloads">下载</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+        </li>
+        <li class="nav-item  active  flex-md-fill text-md-center">
+          <a class="nav-link" href="/blog/">Blog</a>
+        </li>
+        <li class="nav-item  flex-md-fill text-md-center">
+          <a class="nav-link" href="/meetups">活动</a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</div>
+<!-- end main menu -->
+
+
+   <br /><br />
+
+  <div class="container">
+    <br /><br />
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 col-lg-8 offset-lg-2">
+      <h1></h1>
+
+<div id="blogpost">
+  <h1>GSoC 2017: Native Julia second order ODE and BVP solvers</h1>
+
+  <p class="metadata">
+    <span class="timestamp">01 Nov 2017</span>
+    
+    &nbsp;|&nbsp;
+    <span class="author">Yingbo Ma, Chris Rackauckas, Jiahao Chen, Christoph Ortner</span>
+    
+  </p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+processEscapes: true,
+processEnvironments: true
+},
+// Center justify equations in code and markdown cells. Elsewhere
+// we use CSS to left justify single line equations in code cells.
+displayAlign: 'center',
+"HTML-CSS": {
+styles: {'.MathJax_Display': {"margin": 0}},
+linebreaks: { automatic: true }
+}
+});
+</script>
+
+<p>My original GSoC project was about implementing native Julia solvers for solving boundary value problems (BVPs) that were determined from second order ordinary differential equations (ODEs). I started down the BVP path, built a shooting method to solve BVPs from initial value problems (IVPs), and then built the beginning of the mono-implicit Runge-Kutta (MIRK) method. Those solvers are in the <a href="https://github.com/JuliaDiffEq/BoundaryValueDiffEq.jl">BoundaryValueDiffEq.jl</a> repository. Instead of trying to jump directly to the end point, and talk about how to do every detail in MIRK, I went to explore how those details naturally arise in second order ODEs. I implemented many solvers for dynamical IVPs. Although I didn’t fully complete my original goal by the end of GSoC, I am almost there.</p>
+
+<h2 id="symplecticity">Symplecticity</h2>
+
+<p>First, there the idea of symplecticity, because the Labatto (Lobatto IIIA-IIIB) MIRK tableaux are actually symplectic. Basically, symplecticity is another way to say that first integrals (energy, angular momentum and etc.) are conserved, so symplectic integrators are specialized for solving second order ODEs that are raised from dynamic systems which require energy conservation. It is easier to see what symplecticity actually entails on dynamical IVPs. For instance, the Hamiltonian $\mathcal{H}$ and the angular momentum $L$ for the Kepler problem are</p>
+
+<script type="math/tex; mode=display">\mathcal{H} = \frac{1}{2}(\dot{q}^2_1+\dot{q}^2_2)-\frac{1}{\sqrt{q^2_1+q^2_2}},\quad
+L = q_1\dot{q_2} - \dot{q_1}q_2.</script>
+
+<p>We can solve the Hamilton’s equations</p>
+
+<script type="math/tex; mode=display">\dot{\boldsymbol{p}}=-\frac{\partial{\mathcal{H}}}{\partial{\boldsymbol{q}}}\quad ,\quad \dot{\boldsymbol{q}}=\frac{\partial{\mathcal{H}}}{\partial{\boldsymbol{p}}}</script>
+
+<p>to get the solution of the Kepler problem.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">OrdinaryDiffEq</span><span class="x">,</span> <span class="n">ForwardDiff</span>
+<span class="n">H</span><span class="x">(</span><span class="n">q</span><span class="x">,</span><span class="n">p</span><span class="x">)</span> <span class="o">=</span> <span class="n">norm</span><span class="x">(</span><span class="n">p</span><span class="x">)</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">inv</span><span class="x">(</span><span class="n">norm</span><span class="x">(</span><span class="n">q</span><span class="x">))</span>
+<span class="n">L</span><span class="x">(</span><span class="n">q</span><span class="x">,</span><span class="n">p</span><span class="x">)</span> <span class="o">=</span> <span class="n">q</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span><span class="o">*</span><span class="n">p</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="o">-</span> <span class="n">p</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span><span class="o">*</span><span class="n">q</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span>
+<span class="n">qdot</span><span class="x">(</span><span class="n">t</span><span class="x">,</span><span class="n">q</span><span class="x">,</span><span class="n">p</span><span class="x">,</span><span class="n">dq</span><span class="x">)</span> <span class="o">=</span> <span class="n">ForwardDiff</span><span class="o">.</span><span class="n">gradient!</span><span class="x">(</span><span class="n">dq</span><span class="x">,</span> <span class="n">p</span><span class="o">-&gt;</span> <span class="n">H</span><span class="x">(</span><span class="n">q</span><span class="x">,</span> <span class="n">p</span><span class="x">),</span> <span class="n">p</span><span class="x">)</span>
+<span class="n">pdot</span><span class="x">(</span><span class="n">t</span><span class="x">,</span><span class="n">q</span><span class="x">,</span><span class="n">p</span><span class="x">,</span><span class="n">dq</span><span class="x">)</span> <span class="o">=</span> <span class="n">ForwardDiff</span><span class="o">.</span><span class="n">gradient!</span><span class="x">(</span><span class="n">dq</span><span class="x">,</span> <span class="n">q</span><span class="o">-&gt;-</span><span class="n">H</span><span class="x">(</span><span class="n">q</span><span class="x">,</span> <span class="n">p</span><span class="x">),</span> <span class="n">q</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p>Then, we solve this problem by <code class="highlighter-rouge">Ruth3</code> symplectic integrator with appropriate initial conditions.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">initial_position</span> <span class="o">=</span> <span class="x">[</span><span class="o">.</span><span class="mi">4</span><span class="x">,</span> <span class="mi">0</span><span class="x">]</span>
+<span class="n">initial_velocity</span> <span class="o">=</span> <span class="x">[</span><span class="mf">0.</span><span class="x">,</span> <span class="mf">2.</span><span class="x">]</span>
+<span class="n">tspan</span> <span class="o">=</span> <span class="x">(</span><span class="mi">0</span><span class="x">,</span><span class="mf">20.</span><span class="x">)</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">DynamicalODEProblem</span><span class="x">(</span><span class="n">qdot</span><span class="x">,</span><span class="n">pdot</span><span class="x">,</span> <span class="n">initial_position</span><span class="x">,</span> <span class="n">initial_velocity</span><span class="x">,</span> <span class="n">tspan</span><span class="x">)</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="n">solve</span><span class="x">(</span><span class="n">prob</span><span class="x">,</span> <span class="n">Ruth3</span><span class="x">(),</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">//</span><span class="mi">50</span><span class="x">);</span>
+</code></pre></div></div>
+
+<p>Finally, we analyze the solution by computing the first integrals and plotting them.</p>
+
+<p><img src="/images/blog/2017-11-01-gsoc-ode/symplectic_ruth3.svg" alt="first integrals" /></p>
+
+<p>Note that symplectic integrator doesn’t mean that it has exact conservation. The solutions of a symplectic integrator are on a symplectic manifold, but don’t necessarily conserve the Hamiltonian (energy). The energy can have fluctuations in a (quasi-)periodic manner, so that the first integrals have small variations. In the above case, the energy varies at most <code class="highlighter-rouge">6e-6</code>, and it tends to come back. The variations also decrease as <code class="highlighter-rouge">dt</code> is smaller. The angular momentum is conserved perfectly. More details are in this <a href="http://nbviewer.jupyter.org/github/JuliaDiffEq/DiffEqTutorials.jl/blob/master/PhysicalModels/KeplerProblem.ipynb">notebook</a>.</p>
+
+<h2 id="adaptivity-and-dense-output">Adaptivity and Dense Output</h2>
+
+<p>Again, I explored adaptivity and dense output in the IVP world. I implemented several adaptive Runge-Kutta-Nyström (RKN) solvers. The MIRK adaptivity and RKN adaptivity share one common theme, which is error estimation, and MIRK does it by using dense output. Calculating Poincaré section is an example of a practical usage of the dense output. When plotting the Poincaré section, we usually need to use <a href="http://docs.juliadiffeq.org/latest/basics/common_solver_opts.html#Output-Control-1"><code class="highlighter-rouge">saveat</code></a> or <a href="http://docs.juliadiffeq.org/latest/features/callback_functions.html#ContinuousCallbacks-1"><code class="highlighter-rouge">ContinuousCallback</code></a>, and both of them need dense output in order to do well. Dense output is essentially a continuous solution of a ODE. <code class="highlighter-rouge">saveat</code> uses dense output to evaluate values at the specified time, so the ODE integration can still be adaptive (the integrator doesn’t need to hit the exact <code class="highlighter-rouge">saveat</code> point). <code class="highlighter-rouge">ContinuousCallback</code> performs root-finding on the dense output to find when does an event occur. Thus, high order dense output is important for calculating accurate <code class="highlighter-rouge">saveat</code> and <code class="highlighter-rouge">ContinuousCallback</code>. Here are two examples of plotting Poincaré section.</p>
+
+<h4 id="duffing-oscillator">Duffing oscillator</h4>
+
+<p><a href="http://www.scholarpedia.org/article/Duffing_oscillator">Duffing oscillator</a> is a forced oscillator that has nonlinear elasticity, which has the form</p>
+
+<script type="math/tex; mode=display">\ddot{x} + \delta \dot{x} + \beta x + \alpha x^3 = \gamma \cos(\omega t).</script>
+
+<p>First, we need to write the ordinary differential equation with parameters.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">Plots</span><span class="x">,</span> <span class="n">OrdinaryDiffEq</span><span class="x">;</span> <span class="n">pgfplots</span><span class="x">()</span>
+<span class="n">Γ</span><span class="x">,</span> <span class="n">α</span><span class="x">,</span> <span class="n">β</span><span class="x">,</span> <span class="n">δ</span><span class="x">,</span> <span class="n">ω</span> <span class="o">=</span> <span class="mi">8</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">5</span><span class="x">,</span> <span class="mf">0.02</span><span class="x">,</span> <span class="mf">0.5</span>
+<span class="n">duffing</span><span class="x">(</span><span class="n">t</span><span class="x">,</span> <span class="n">x</span><span class="x">,</span> <span class="n">v</span><span class="x">,</span> <span class="n">dv</span><span class="x">)</span> <span class="o">=</span> <span class="n">dv</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="o">=</span> <span class="n">Γ</span><span class="o">*</span><span class="n">cos</span><span class="x">(</span><span class="n">ω</span><span class="o">*</span><span class="n">t</span><span class="x">)</span> <span class="o">-</span> <span class="n">β</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span><span class="o">^</span><span class="mi">3</span> <span class="o">-</span> <span class="n">α</span><span class="o">*</span><span class="n">x</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="o">-</span> <span class="n">δ</span><span class="o">*</span><span class="n">v</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+<span class="n">duffing_prob</span> <span class="o">=</span> <span class="n">SecondOrderODEProblem</span><span class="x">(</span><span class="n">duffing</span><span class="x">,</span> <span class="x">[</span><span class="mf">1.5</span><span class="x">],</span> <span class="x">[</span><span class="mf">0.</span><span class="x">],</span> <span class="x">(</span><span class="mf">5000.</span><span class="x">,</span> <span class="mf">35000.</span><span class="x">))</span>
+</code></pre></div></div>
+
+<p>Then, we need to get the solution at $\omega t \mod 2\pi=0$ to plot the Poincaré section, and we can achieve this by using <a href="http://docs.juliadiffeq.org/latest/basics/common_solver_opts.html#Output-Control-1"><code class="highlighter-rouge">saveat</code></a>.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sol</span> <span class="o">=</span> <span class="n">solve</span><span class="x">(</span><span class="n">duffing_prob</span><span class="x">,</span> <span class="n">DPRKN6</span><span class="x">(),</span> <span class="n">saveat</span><span class="o">=</span><span class="mi">2</span><span class="nb">pi</span><span class="o">/</span><span class="n">ω</span><span class="x">)</span>
+<span class="n">x</span><span class="x">,</span> <span class="n">y</span> <span class="o">=</span> <span class="x">[</span><span class="n">map</span><span class="x">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">],</span> <span class="n">sol</span><span class="o">.</span><span class="n">u</span><span class="x">[</span><span class="k">end</span><span class="o">-</span><span class="mi">2000</span><span class="x">:</span><span class="k">end</span><span class="x">])</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="mi">2</span><span class="x">]</span>
+<span class="n">scatter</span><span class="x">(</span><span class="n">x</span><span class="x">,</span> <span class="n">y</span><span class="x">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">1.1</span><span class="x">,</span> <span class="n">leg</span><span class="o">=</span><span class="n">false</span><span class="x">,</span> <span class="n">title</span><span class="o">=</span><span class="s">"Poincaré surface of duffing oscillator"</span><span class="x">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s">"\</span><span class="si">$</span><span class="s">x\</span><span class="si">$</span><span class="s">"</span><span class="x">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s">"\</span><span class="si">$</span><span class="se">\\</span><span class="s">dot{x}\</span><span class="si">$</span><span class="s">"</span><span class="x">);</span>
+</code></pre></div></div>
+
+<p><img src="/images/blog/2017-11-01-gsoc-ode/duffing_poincare_0.svg" alt="duffing Poincaré section" /></p>
+
+<h4 id="driven-pendulum">Driven pendulum</h4>
+
+<p>Drive pendulum is a periodically forced pendulum, which has the form of</p>
+
+<script type="math/tex; mode=display">\ddot{\theta} + \sin(\theta) = f_0 cos(\omega t)</script>
+
+<p>Again, we do the same thing as what we did above.</p>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">forced_pend</span><span class="x">(</span><span class="n">t</span><span class="x">,</span><span class="n">x</span><span class="x">,</span><span class="n">v</span><span class="x">,</span><span class="n">dv</span><span class="x">)</span> <span class="o">=</span> <span class="n">dv</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">sin</span><span class="x">(</span><span class="n">x</span><span class="x">[</span><span class="mi">1</span><span class="x">])</span> <span class="o">+</span> <span class="n">Γ</span><span class="o">*</span><span class="n">cos</span><span class="x">(</span><span class="n">ω</span><span class="o">*</span><span class="n">t</span><span class="x">)</span>
+<span class="n">forced_prob</span> <span class="o">=</span> <span class="n">SecondOrderODEProblem</span><span class="x">(</span><span class="n">forced_pend</span><span class="x">,</span> <span class="x">[</span><span class="nb">pi</span><span class="o">/</span><span class="mi">5</span><span class="x">],</span> <span class="x">[</span><span class="mf">0.49</span><span class="x">],</span> <span class="x">(</span><span class="mf">5000.</span><span class="x">,</span><span class="mf">15000.</span><span class="x">))</span>
+<span class="n">sol_f</span> <span class="o">=</span> <span class="n">solve</span><span class="x">(</span><span class="n">forced_prob</span><span class="x">,</span> <span class="n">DPRKN6</span><span class="x">(),</span> <span class="n">saveat</span><span class="o">=</span><span class="mi">2</span><span class="nb">pi</span><span class="o">/</span><span class="n">ω</span><span class="x">)</span>
+<span class="n">x1</span><span class="x">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="x">[</span><span class="n">map</span><span class="x">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">],</span> <span class="n">sol_f</span><span class="o">.</span><span class="n">u</span><span class="x">)</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="mi">2</span><span class="x">]</span>
+<span class="n">scatter</span><span class="x">(</span><span class="n">x1</span><span class="o">.%</span><span class="nb">pi</span><span class="x">,</span> <span class="n">y1</span><span class="x">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">1.1</span><span class="x">,</span> <span class="n">leg</span><span class="o">=</span><span class="n">false</span><span class="x">,</span> <span class="n">title</span><span class="o">=</span><span class="s">"Poincaré surface of driven pendulum"</span><span class="x">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s">"\</span><span class="si">$</span><span class="se">\\</span><span class="s">theta\</span><span class="si">$</span><span class="s">"</span><span class="x">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s">"\</span><span class="si">$</span><span class="se">\\</span><span class="s">dot{</span><span class="se">\\</span><span class="s">theta}\</span><span class="si">$</span><span class="s">"</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p><img src="/images/blog/2017-11-01-gsoc-ode/driven_poincare_0.svg" alt="driven pendulum Poincaré section" /></p>
+
+<h2 id="boundary-value-problem">Boundary Value Problem</h2>
+
+<p>The MIRK solver in <a href="https://github.com/JuliaDiffEq/BoundaryValueDiffEq.jl"><code class="highlighter-rouge">BoundaryValueDiffEq</code></a> doesn’t have adaptivity and dense output yet, but with all the things that I have learned from IVPs, most of the pieces have been implemented or understood and so we can expect this to be completed in the near future. Here is an example of using the <code class="highlighter-rouge">BoundaryValueDiffEq</code> package. In this example, we will solve the problem</p>
+
+<script type="math/tex; mode=display">\ddot{\theta}+\frac{g}{L}\theta=0,\quad \theta(\frac{\pi}{4})=-\frac{\pi}{2},\quad \dot{\theta}(\frac{\pi}{2})=\frac{\pi}{2}.</script>
+
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">BoundaryValueDiffEq</span>
+<span class="kd">const</span> <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
+<span class="n">L</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">tspan</span> <span class="o">=</span> <span class="x">(</span><span class="mf">0.0</span><span class="x">,</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="x">)</span>
+<span class="k">function</span><span class="nf"> simplependulum</span><span class="x">(</span><span class="n">t</span><span class="x">,</span><span class="n">u</span><span class="x">,</span><span class="n">du</span><span class="x">)</span>
+    <span class="n">θ</span>  <span class="o">=</span> <span class="n">u</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span>
+    <span class="n">dθ</span> <span class="o">=</span> <span class="n">u</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span>
+    <span class="n">du</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="o">=</span> <span class="n">dθ</span>
+    <span class="n">du</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="o">=</span> <span class="o">-</span><span class="x">(</span><span class="n">g</span><span class="o">/</span><span class="n">L</span><span class="x">)</span><span class="o">*</span><span class="n">sin</span><span class="x">(</span><span class="n">θ</span><span class="x">)</span>
+<span class="k">end</span>
+<span class="k">function</span><span class="nf"> bc1</span><span class="x">(</span><span class="n">residual</span><span class="x">,</span> <span class="n">u</span><span class="x">)</span>
+    <span class="n">residual</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="o">=</span> <span class="n">u</span><span class="x">[</span><span class="k">end</span><span class="n">÷2</span><span class="x">][</span><span class="mi">1</span><span class="x">]</span> <span class="o">+</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">2</span> <span class="c"># the solution at the middle of the time span should be -pi/2</span>
+    <span class="n">residual</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="o">=</span> <span class="n">u</span><span class="x">[</span><span class="k">end</span><span class="x">][</span><span class="mi">1</span><span class="x">]</span> <span class="o">-</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">2</span> <span class="c"># the solution at the end of the time span should be pi/2</span>
+<span class="k">end</span>
+<span class="n">bvp1</span> <span class="o">=</span> <span class="n">BVProblem</span><span class="x">(</span><span class="n">simplependulum</span><span class="x">,</span> <span class="n">bc1</span><span class="x">,</span> <span class="x">[</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="x">,</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="x">],</span> <span class="n">tspan</span><span class="x">)</span>
+<span class="n">sol1</span> <span class="o">=</span> <span class="n">solve</span><span class="x">(</span><span class="n">bvp1</span><span class="x">,</span> <span class="n">GeneralMIRK4</span><span class="x">(),</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.05</span><span class="x">)</span>
+</code></pre></div></div>
+
+<p><img src="/images/blog/2017-11-01-gsoc-ode/bvp.svg" alt="bvp" /></p>
+
+<p>More details can be found in <a href="http://docs.juliadiffeq.org/latest/tutorials/bvp_example.html">here</a>.</p>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>I would like to thank all my mentors Chris Rackauckas, Jiahao Chen and Christoph Ortner for their responsiveness and kind guidance. Especially my mentor Rackauckas, he can answer my questions in five minutes after I asked on Slack. I would also like to thank Julia community for managing GSoC project and JuliaCon 2017.</p>
+
+
+</div>
+
+
+
+</div>
+</div>
+</div>
+
+<br />
+
+
+  </div>
+
+  <footer class="container-fluid footer-copy">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 py-2">
+        <p>
+           ©2018 JuliaCN Julia 中文社区. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <script src="/v2/js/jquery.min.js"></script>
+<script src="/v2/js/bootstrap.min.js"></script>
+<script src="/v2/js/platform.js"></script>
+<script src="/v2/js/app.js"></script>
+<script src="/v2/js/highlight.pack.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>
