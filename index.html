@@ -17,8 +17,7 @@
 </head>
 
 <body>
-
-   
+  
 
 <!-- main menu -->
 <div class="container py-3 py-lg-0">
@@ -41,10 +40,13 @@
           <a class="nav-link" href="/downloads">下载</a>
         </li>
         <li class="nav-item flex-md-fill text-md-center">
-          <a class="nav-link" href="http://docs.juliacn.com/">文档</a>
+          <a class="nav-link" href="https://docs.juliacn.com/">文档</a>
         </li>
         <li class="nav-item  flex-md-fill text-md-center">
-          <a class="nav-link" href="/blog/">Blog</a>
+          <a class="nav-link" href="/blog/">博客</a>
+        </li>
+        <li class="nav-item flex-md-fill text-md-center">
+          <a class="nav-link" href="https://discourse.juliacn.com/">中文社区</a>
         </li>
         <li class="nav-item  flex-md-fill text-md-center">
           <a class="nav-link" href="/meetups">活动</a>
@@ -57,18 +59,17 @@
 <!-- end main menu -->
 
 
-   <br /><br />
-
-  <div class="container">
-    <!-- jumbotron -->
+  <br />
+  
+  <!-- jumbotron -->
 <div class="container">
   <div class="jumbotron" style="text-align: center;" id="main-jumbo">
     <div class="container page-heading">
       <h1 class="display-5 main-heading">
-        Julia中文社区
+        Julia 中文社区
       </h1>
       <h2 class="lead secondary-heading">
-       社区驱动, 致力于Julia语言的中文支持的开源组织
+        社区驱动，致力于 Julia 语言的中文支持的开源组织
       </h2>
     </div>
   </div>
@@ -82,7 +83,7 @@
     <div class="col-lg-4 col-md-3 language-features "><hr/></div>
     <div class="col-lg-4 col-md-6 language-features section-heading">
       <h2 class="lead secondary-heading">
-        简而言之, Julia语言就是
+        简而言之, Julia 语言就是
       </h2>
     </div>
     <div class="col-lg-4 col-md-3 language-features"><hr/></div>
@@ -94,43 +95,53 @@
     <div class="col-lg-4 col-md-6 feature">
       <h4>快!</h4>
       <p>
-        Julia一开始就是为<a href="/benchmarks/">高性能</a>设计的。
-        Julia程序被LLVM编译成高效的多平台机器码。
+        Julia 一开始就是为<a href="/benchmarks/">高性能</a>设计的。
+        Julia 程序被 LLVM 编译成高效的多平台机器码。
       </p>
     </div>
     <div class="col-lg-4 col-md-6 feature">
       <h4>动态</h4>
       <p>
-        Julia是动态类型语言，感觉上像脚本语言，有很好的交互开发支持。
+        Julia 是动态类型语言，感觉上像脚本语言，有很好的交互开发支持。
       </p>
     </div>
     <div class="col-lg-4 col-md-6 feature">
-      <h4>非强制的类型</h4>
+      <h4>可选类型</h4>
       <p>
-        Julia有丰富的数据类型描述语言，类型声明可以使程序更清晰可靠。
+        Julia 有丰富的数据类型描述语言，类型声明可以使程序更清晰可靠。
       </p>
     </div>
 
     <div class="col-lg-4 col-md-6 feature">
-      <h4>通用型</h4>
+      <h4>通用</h4>
       <p>
-        Julia使用多分派范式, 容易表达很多面向对象和函数编程的模式。
-        标准库提供异步输入/输出，进程控制，日志，性能分析，库管理器，还有更多。
+        Julia 使用多分派范式, 容易表达很多面向对象和函数编程的模式。
+        标准库提供异步输入/输出、进程控制、日志、性能分析、包管理器，
+        还有更多优秀的库等你发现。
       </p>
     </div>
     <div class="col-lg-4 col-md-6 feature">
-      <h4>技术</h4>
+      <h4>易用</h4>
       <p>
-        Julia的强项是数值计算。它的语法非常适合数学计算，支持很多数值计算数据类型, 并行计算拿来就可以用。
-        Julia的多分派机制很自然地支持自定义数字和数组类的数据类型。
+        Julia 拥有高阶的语法。
+        这让具有不同编程语言背景和经验的程序员都能使用它。
+      </p>
+      <!-- <h4>技术</h4>
+      <p>
+        Julia 的强项是数值计算。它的语法非常适合数学计算，支持很多数值计算数据类型, 并行计算拿来就可以用。
+        Julia 的多分派机制很自然地支持自定义数字和数组类的数据类型。
         datatypes.
-      </p>
+      </p> -->
     </div>
     <div class="col-lg-4 col-md-6 feature">
-      <h4>可组合</h4>
+      <h4>开源</h4>
       <p>
-        Julia库用在一起很自然。比如单元矩阵，货币和颜色数据表列, 等等拿来可用，性能优异。
+        Julia 是开源免费的，所有的源代码都可以在 Github 上看到。
       </p>
+      <!-- <h4>可组合</h4>
+      <p>
+        Julia 库用在一起很自然。比如单元矩阵，货币和颜色数据表列, 等等拿来可用，性能优异。
+      </p> -->
     </div>
   </div>
 
@@ -412,16 +423,24 @@ end
       </div>
 -->
       <p>
-        Julia 已经被下载超过两百万次。Julia的社区开发了一千九百多外部库。这些包括各种数学库，数据处理工具，以及通用计算库等。除此之外，您还可以很容易地调用
-        from <a href="https://github.com/JuliaPy/PyCall.jl">Python</a>, <a href="https://github.com/JuliaInterop/RCall.jl">R</a>, <a href="https://docs.julialang.org/en/stable/manual/calling-c-and-fortran-code/#Calling-C-and-Fortran-Code-1">C/Fortran</a>, <a href="https://github.com/Keno/Cxx.jl">C++</a>, and <a href="https://github.com/JuliaInterop/JavaCall.jl">Java</a>等的外部库. 如果您找不到需要的，可以在<a href="http://discourse.juliacn.org">Discourse</a>询问, 自己贡献更好！
+        Julia 已经被下载超过两百万次。Julia 的社区开发了一千九百多外部库。这些包括各种数学库，数据处理工具，以及通用计算库等。除此之外，您还可以很容易地调用
+        <a href="https://github.com/JuliaPy/PyCall.jl">Python</a>,
+        <a href="https://github.com/JuliaInterop/RCall.jl">R</a>,
+        <a href="https://docs.julialang.org/en/stable/manual/calling-c-and-fortran-code/#Calling-C-and-Fortran-Code-1">C/Fortran</a>,
+        <a href="https://github.com/Keno/Cxx.jl">C++</a>,
+        和 
+        <a href="https://github.com/JuliaInterop/JavaCall.jl">Java</a>
+        等的外部库. 如果您找不到需要的，可以在
+        <a href="http://discourse.juliacn.org">Julia 中文社区</a>
+        询问, 自己贡献更好！
       </p>
 
       <br /><br />
 
       <div class="row">
         <div class="col-12" style="text-align: center">
-          <a class="btn btn-sm btn-outline-danger" href="//juliaobserver.com">外部库探寻</a>
-          <a class="btn btn-sm btn-outline-danger" href="//pkg.julialang.org/pulse">生态系统动态</a>
+          <a class="btn btn-sm btn-outline-danger" href="https://juliaobserver.com">外部库探寻</a>
+          <a class="btn btn-sm btn-outline-danger" href="https://pkg.julialang.org/pulse">生态系统动态</a>
         </div>
       </div>
 
@@ -433,6 +452,82 @@ end
 
 
 <br /><br />
+
+<!-- ides -->
+<div class="container">
+    <br/><br/>
+
+    <div class="row">
+      <div class="col-lg-4 col-md-3 language-features"><hr/></div>
+      <div class="col-lg-4 col-md-6 language-features section-heading">
+        <h2 class="lead secondary-heading">
+          编辑器与开发环境
+        </h2>
+      </div>
+      <div class="col-lg-4 col-md-3 language-features"><hr/></div>
+    </div>
+
+    <br />
+
+    <div class="row ides">
+      <div class="col-lg-4 col-md-6 ide ide-feature">
+        <h4>Juno</h4>
+        <a href="http://junolab.org/" class="editor-icon">
+          <img src="v2/img/atom.png" />
+        </a>
+        <h6 class="outer-link">
+          <a class="link extra-link" href="http://junolab.org/" target="_blank">Atom 插件</a>
+        </h6>
+      </div>
+      <div class="col-lg-4 col-md-6 ide ide-feature">
+        <h4>Visual Studio Code</h4>
+        <a href="https://github.com/JuliaEditorSupport/julia-vscode" class="editor-icon">
+          <img src="v2/img/vscode.png" />
+        </a>
+        <h6 class="outer-link">
+          <a class="link extra-link" href="https://github.com/JuliaEditorSupport/julia-vscode" target="_blank">VS Code 扩展</a>
+        </h6>
+      </div>
+      <div class="col-lg-4 col-md-6 ide ide-feature">
+        <h4>Jupyter</h4>
+        <a href="https://github.com/JuliaLang/IJulia.jl" class="editor-icon">
+          <img src="v2/img/jupyter.svg"/>
+        </a>
+        <h6 class="outer-link">
+          <a class="link extra-link" href="https://github.com/JuliaLang/IJulia.jl" target="_blank">Jupyter kernel</a>
+        </h6>
+      </div>
+      <div class="col-lg-4 col-md-6 ide ide-feature">
+        <h4>Vim</h4>
+        <a href="https://github.com/JuliaEditorSupport/julia-vim" class="editor-icon">
+          <img src="images/vim.png" />
+        </a>
+        <h6 class="outer-link">
+          <a class="link extra-link" href="https://github.com/JuliaEditorSupport/julia-vim" target="_blank">Vim 插件</a>
+        </h6>
+      </div>
+      <div class="col-lg-4 col-md-6 ide ide-feature">
+        <h4>Emacs</h4>
+        <a href="https://github.com/JuliaEditorSupport/julia-emacs" class="editor-icon">
+          <img src="images/emacs.png" />
+        </a>
+        <h6 class="outer-link">
+          <a class="link extra-link" href="https://github.com/JuliaEditorSupport/julia-emacs" target="_blank">Emacs 插件</a>
+        </h6>
+      </div>
+      <div class="col-lg-4 col-md-6 ide ide-feature">
+        <h4>SublimeText</h4>
+        <a href="https://github.com/JuliaEditorSupport/Julia-sublime" class="editor-icon">
+          <img src="images/sublime.png" />
+        </a>
+        <h6 class="outer-link">
+          <a class="link extra-link" href="https://github.com/JuliaEditorSupport/Julia-sublime" target="_blank">Sublime Text 插件</a>
+        </h6>
+      </div>
+    </div>
+  </div>
+  <!-- end ides -->
+
 
 <!-- contact -->
 <div class="container-fluid alt-color">
@@ -455,9 +550,9 @@ end
         <div class="col-lg-2 col-md-0 col-sm-0"></div>
         <div class="col-lg-4 col-md-6 col-sm-6">
           <div class="social-network discourse">
-            <h4><a href="http://discourse.juliacn.com/">Discourse</a></h4>
+            <h4><a href="https://discourse.juliacn.com/">Discourse</a></h4>
             <p>
-              Discussion forums
+              JuliaCN 中文讨论社区
             </p>
           </div>
         </div>
@@ -465,7 +560,7 @@ end
           <div class="social-network github">
             <h4><a href="https://github.com/JuliaCN">Github</a></h4>
             <p>
-              Source code and development
+              JuliaCN 中文开源组织
             </p>
           </div>
         </div>
@@ -476,17 +571,17 @@ end
         <div class="col-lg-2 col-md-0 col-sm-0"></div>
         <div class="col-lg-4 col-md-6 col-sm-6">
           <div class="social-network QQ">
-            <h4>QQ群</h4>
+            <h4>QQ 群</h4>
             <p>
-			  Julia中文社区，316628299
+              中文社区讨论群：316628299
             </p>
           </div>
         </div>
         <div class="col-lg-4 col-md-6 col-sm-6">
           <div class="social-network zhihu">
-            <h4>知乎</h4>
+            <h4><a href="https://www.zhihu.com/topic/19678370/hot">知乎</a></h4>
             <p>
-              Julia板块下提问即可
+              提问时带上 “Julia（编程语言）” 标签即可
             </p>
           </div>
         </div>
@@ -504,7 +599,6 @@ end
 <br />
 
 
-  </div>
 
   <footer class="container-fluid footer-copy">
   <div class="container">
