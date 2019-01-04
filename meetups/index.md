@@ -1,5 +1,5 @@
 ---
-layout: homepage
+layout: meetups
 title:  Julia用户见面会（Meetups）
 ---
 
@@ -7,9 +7,9 @@ Julia User Meet Up是Julia社区的传统活动。旨在为Julian互相分享技
 我们2015年在中国科学技术大学办了第一场国内的meetup，之后在深圳Haplox公司的赞助下办了第二场，随着Julia 1.0的临近
 我们今年将在**中国科学院软件研究所**办第三次用户小聚活动。
 
-活动内容的更新可以通过访问中文社区的主页获得：http://juliacn.com
+活动内容的更新可以通过访问中文社区的主页获得：[juliacn.com](https://juliacn.com)
 
-如果您无法在官网（julialang.org）上下载到编译器，可以通过我们境内的服务器下载：[Julia中文社区](http://47.95.118.149)
+如果您无法在官网（julialang.org）上下载到编译器，可以通过我们境内的服务器下载：[Julia中文社区](https://discourse.juliacn.com/)
 
 到目前为止，我们将有以下Julian分享自己的心得和技术：
 
