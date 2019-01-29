@@ -33,6 +33,7 @@ title:  下载 Julia
         <li> 在浏览器中通过
           <a href="https://www.juliabox.com" target="_blank" rel="noopener">JuliaBox.com</a>
           在 Jupyter notebook 上运行。不需要任何下载或安装——只要点开浏览器、注册，就可以开始计算啦。
+        <li>使用 Docker Hub 上由 <a href="https://github.com/docker-library/julia">Docker 社区</a>维护的<a href="https://hub.docker.com/_/julia">镜像</a>。</li>
         <li> 下载由
           <a href="https://juliacomputing.com" target="_blank" rel="noopener">Julia Computing</a>
           提供的
@@ -64,39 +65,17 @@ title:  下载 Julia
   <!-- 4.row = Current stable release -->
   <div class="row">
     <div class="col-12">
-      <h2>当前的稳定版本 (v1.0.2)</h2>
       <p>
-        如果你准备从 Julia 0.6.0 迁移到新版本，我们强烈建议你使用 Julia 的过渡版本 <a href="#0.7.0">v0.7.0</a>，而不是直接一步迁移到 v1.0.0。
-        v1.0.0 和 v0.7.0 两个版本是大致相同的。二者最主要的区别是：0.7.0 包含了函数弃用警告 (deprecation warnings)，
-        如果你使用了 1.0.0 中功能或行为有所改变的函数，在 0.7.0 中 Julia 会给你一个弃用警告。
-        举个例子：你在程序中使用了 1.0.0 弃用的方法，在 0.7.0 中会产生一个警告。而在 1.0.0 中会导致 MethodError 错误。
-        因为这些方法在 1.0.0 中已经被移除了。
-        所以即使你在 1.0 上进行开发，保留一份 Julia 0.7 的副本是十分有用的，这样你可以随时检查某些 0.6 的方法在新版本上还能否工作。
-
-        注意！1.0.x 版本包含了 0.7 没有的 bug 修复补丁。
-      </p>
-
-      <p>
-        下面的下载链接均指向
-        <a href="https://mirrors.ustc.edu.cn/julia/">USTC 的 Julia 镜像源</a>。
-        镜像源中
-        <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/">Julia 1.0.x</a>
-        的最新稳定版会滚动更新，新的版本会覆盖老版本
-        (即：镜像源更新到 1.0.3 后，会只保留 1.0.3 的安装包，并删掉同文件夹下 1.0.2 及以前的老安装包)。
-        故“当前的稳定版本”的链接很容易失效。
-        <br />
-        <b>若连接失效请到
-          <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/">USTC镜像源: Julia/v1.0</a>
-          下载最新的“当前的稳定版本”。
-        </b>
+        下面的下载链接均指向 <a href="https://mirrors.ustc.edu.cn/julia/releases/">USTC 的 Julia 镜像源</a>。
+        若连接失效请到 <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/">USTC镜像源: Julia/v1.1</a> 下载最新的“当前的稳定版本”。
       </p>
       
       <table class="downloads table table-hover table-responsive table-bordered">
         <tbody>
           <tr>
             <th rowspan="2"> Windows 自解压文档（.exe）<a href="platform.html#windows">[帮助]</a> </th>
-            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-win32.exe" target="_blank" rel="noopener">32-bit</a> </td>
-            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-win64.exe" target="_blank" rel="noopener">64-bit</a> </td>
+            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-win32.exe" target="_blank" rel="noopener">32-bit</a> </td>
+            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-win64.exe" target="_blank" rel="noopener">64-bit</a> </td>
           </tr>
           <tr>
             <td colspan="6">
@@ -107,56 +86,55 @@ title:  下载 Julia
           <tr>
             <th> macOS 10.8+ 安装包（.dmg）<a href="platform.html#macos">[帮助]</a> </th>
             <td colspan="3"> </td>
-            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-mac64.dmg" target="_blank" rel="noopener">64-bit</a> </td>
+            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-mac64.dmg" target="_blank" rel="noopener">64-bit</a> </td>
           </tr>
           <tr>
             <th> 通用 Linux 二进制文件（x86）<a href="platform.html#generic-binaries">[帮助]</a> </th>
             <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-linux-i686.tar.gz" target="_blank" rel="noopener">32-bit</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-linux-i686.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-linux-i686.tar.gz" target="_blank" rel="noopener">32-bit</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-linux-i686.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
             </td>
             <td colspan="3">
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-linux-x86_64.tar.gz" target="_blank" rel="noopener">64-bit</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-linux-x86_64.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-linux-x86_64.tar.gz" target="_blank" rel="noopener">64-bit</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-linux-x86_64.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
             </td>
           </tr>
           <tr>
             <th> 通用 Linux 二进制文件（ARM）</th>
             <td colspan="6">
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.0-linux-armv7l.tar.gz">32-bit (ARMv7-a hard float)</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.0-linux-armv7l.tar.gz.asc">GPG</a>)
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.0.0-linux-armv7l.tar.gz">32-bit (ARMv7-a hard float)</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.0.0-linux-armv7l.tar.gz.asc">GPG</a>)
               <br />
               注意！此为 1.0.0 版本的下载链接。新版的下载链接 USTC 镜像源尚未更新。
             </td>
-            <!-- NOTE! ARMv7l 只有 1.0.0 和 1.0.3 的；新版本 1.0.3 USTC 镜像源尚未更新 -->
-            <!-- <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.3-linux-armv7l.tar.gz" target="_blank" rel="noopener">32-bit (armv7-a hard float)</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.3-linux-armv7l.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
+            <td colspan="3"> 
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.0.3-linux-armv7l.tar.gz" target="_blank" rel="noopener">32-bit (armv7-a hard float)</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.0.3-linux-armv7l.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
             </td>
             <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.3-linux-aarch64.tar.gz" target="_blank" rel="noopener">64-bit (armv8-a)</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.3-linux-aarch64.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
-            </td> -->
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.0.3-linux-aarch64.tar.gz" target="_blank" rel="noopener">64-bit (armv8-a)</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.0.3-linux-aarch64.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
+            </td>
           </tr>
           <tr>
             <th> 通用 FreeBSD 二进制文件（x86）<a href="platform.html#generic-binaries">[帮助]</a></th>
             <td colspan="3"> </td>
             <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-freebsd-x86_64.tar.gz" target="_blank" rel="noopener">64-bit</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-freebsd-x86_64.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-freebsd-x86_64.tar.gz" target="_blank" rel="noopener">64-bit</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-freebsd-x86_64.tar.gz.asc" target="_blank" rel="noopener">GPG</a>)
             </td>
           </tr>
           <tr>
             <th> 源码 </th>
             <td colspan="2">
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2.tar.gz" target="_blank" rel="noopener">Tarball</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2.tar.gz.asc" target="_blank" rel="noopener">GPG</a>) 
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0.tar.gz" target="_blank" rel="noopener">Tarball</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0.tar.gz.asc" target="_blank" rel="noopener">GPG</a>) 
             </td>
             <td colspan="2"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-full.tar.gz" target="_blank" rel="noopener">Tarball with dependencies</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2-full.tar.gz.asc" target="_blank" rel="noopener">GPG</a>) 
+              <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-full.tar.gz" target="_blank" rel="noopener">Tarball with dependencies</a>
+              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0-full.tar.gz.asc" target="_blank" rel="noopener">GPG</a>) 
             </td>
-            <td colspan="2"> <a href="https://github.com/JuliaLang/julia/tree/v1.0.2" target="_blank" rel="noopener">GitHub</a> </td>
+            <td colspan="2"> <a href="https://github.com/JuliaLang/julia/tree/v1.1.2" target="_blank" rel="noopener">GitHub</a> </td>
           </tr>
         </tbody>
       </table><!-- Current stable release table end -->
@@ -164,9 +142,9 @@ title:  下载 Julia
       <p>
         如果您安装 Julia 出现了问题，请查看<a href="platform.html">特定平台的安装指南</a>。
         我们提供了
-        <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2.md5" target="_blank" rel="noopener">MD5</a>
+        <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0.md5" target="_blank" rel="noopener">MD5</a>
         和
-        <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.0/julia-1.0.2.sha256" target="_blank" rel="noopener">SHA256</a>
+        <a href="https://mirrors.ustc.edu.cn/julia/releases/v1.1/julia-1.1.0.sha256" target="_blank" rel="noopener">SHA256</a>
         格式的校验和进行验证。
       </p>
       <p>
@@ -174,192 +152,6 @@ title:  下载 Julia
       </p>
     </div>
   </div><!-- Current stable release //END -->
-
-  <br />
-
-  <!-- 5.row = Previous stable release -->
-  <div class="row">
-    <div class="col-12">
-      <h2 id="0.7.0">前一个稳定版本 (v0.7.0)</h2>
-      <p>
-        Julia v0.7.0 是一个过渡版本，用于帮助人们从 Julia v0.6 迁移到 Julia v1.0。
-      </p>
-  
-      <table class="downloads table table-hover table-responsive table-bordered">
-        <tbody>
-          <tr>
-            <th rowspan="2"> Windows 自解压文档（.exe）<a href="platform.html#windows">[帮助]</a></th>
-            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-win32.exe">32-bit</a>
-            </td>
-            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-win64.exe">64-bit</a>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="6">Windows 7/Windows Server 2012 用户需要安装
-              <a href="https://docs.microsoft.com/en-us/powershell/wmf/overview">Windows Management Framework 3.0 或更新版本</a></td>
-          </tr>
-          <tr>
-            <th> macOS 安装包（.dmg）<a href="platform.html#macos">[帮助]</a></th>
-            <td colspan="3"> </td>
-            <td colspan="3"> <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-mac64.dmg">64-bit</a>
-            </td>
-          </tr>
-          </tr>
-          <tr>
-            <th> 通用 Linux 二进制文件（x86）<a href="platform.html#generic-binaries">[帮助]</a></th>
-            <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-linux-i686.tar.gz">32-bit</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-linux-i686.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-linux-x86_64.tar.gz">64-bit</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-linux-x86_64.tar.gz.asc">GPG</a>)
-            </td>
-          </tr>
-          <tr>
-            <th> 通用 FreeBSD 二进制文件（x86）<a href="platform.html#generic-binaries">[帮助]</a></th>
-            <td colspan="3"> </td>
-            <td colspan="3"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-freebsd-x86_64.tar.gz">64-bit</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-freebsd-x86_64.tar.gz.asc">GPG</a>)
-            </td>
-          </tr>
-          </tr>
-          <tr>
-            <th> 源码 </th>
-            <td colspan="2"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0.tar.gz">Tarball</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="2"> 
-              <a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-full.tar.gz">Tarball with dependencies</a>
-              (<a href="https://mirrors.ustc.edu.cn/julia/releases/v0.7/julia-0.7.0-full.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="2"> <a href="https://github.com/JuliaLang/julia/tree/v0.7.0">GitHub</a> </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div><!-- Previous stable release //END -->
-
-  <!-- 6.row = Upcoming release -->
-  <!-- <div class="row">
-    <div class="col-12">
-      <h2>即将到来的测试版本 (v1.1.0-rc1)</h2>
-      <p>
-        We're currently testing a release candidate for Julia v1.1.0, the first minor release
-        in the 1.x series of releases. We encourage developers and interested users to try it
-        out and report any issues they encounter. As a prerelease, it should not be considered
-        production-ready; it's intended to give users a chance to try out 1.1 with their code
-        before the full release.
-      </p>
-
-      <table class="downloads table table-hover table-responsive table-bordered">
-        <tbody>
-          <tr>
-            <th rowspan="2"> Windows Self-Extracting Archive (.exe) <a href="platform.html#windows">[帮助]</a></th>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/winnt/x86/1.1/julia-1.1.0-rc1-win32.exe">32-bit</a>
-            </td>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/winnt/x64/1.1/julia-1.1.0-rc1-win64.exe">64-bit</a>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="6">Windows 7/Windows Server 2012 users also require
-              <a href="https://docs.microsoft.com/en-us/powershell/wmf/overview">Windows Management Framework 3.0 or
-                later</a></td>
-          </tr>
-          <tr>
-            <th> macOS 10.8+ Package (.dmg) <a href="platform.html#macos">[帮助]</a></th>
-            <td colspan="3"> </td>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/mac/x64/1.1/julia-1.1.0-rc1-mac64.dmg">64-bit</a>
-            </td>
-          </tr>
-          <tr>
-            <th> Generic Linux Binaries for x86 <a href="platform.html#generic-binaries">[帮助]</a></th>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/linux/x86/1.1/julia-1.1.0-rc1-linux-i686.tar.gz">32-bit</a>
-              (<a href="https://julialang-s3.julialang.org/bin/linux/x86/1.1/julia-1.1.0-rc1-linux-i686.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-rc1-linux-x86_64.tar.gz">64-bit</a>
-              (<a href="https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-rc1-linux-x86_64.tar.gz.asc">GPG</a>)
-            </td>
-          </tr>
-          <tr>
-            <th> Generic Linux Binaries for ARM <a href="platform.html#generic-binaries">[帮助]</a></th>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/linux/armv7l/1.1/julia-1.1.0-rc1-linux-armv7l.tar.gz">32-bit
-                (ARMv7-a hard float)</a>
-              (<a href="https://julialang-s3.julialang.org/bin/linux/armv7l/1.1/julia-1.1.0-rc1-linux-armv7l.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="3"> </td>
-          </tr>
-          <tr>
-            <th> Generic FreeBSD Binaries for x86 <a href="platform.html#generic-binaries">[帮助]</a></th>
-            <td colspan="3"> </td>
-            <td colspan="3"> <a href="https://julialang-s3.julialang.org/bin/freebsd/x64/1.1/julia-1.1.0-rc1-freebsd-x86_64.tar.gz">64-bit</a>
-              (<a href="https://julialang-s3.julialang.org/bin/freebsd/x64/1.1/julia-1.1.0-rc1-freebsd-x86_64.tar.gz.asc">GPG</a>)
-            </td>
-          </tr>
-          <tr>
-            <th> Source </th>
-            <td colspan="2"> <a href="https://github.com/JuliaLang/julia/releases/download/v1.1.0-rc1/julia-1.1.0-rc1.tar.gz">Tarball</a>
-              (<a href="https://github.com/JuliaLang/julia/releases/download/v1.1.0-rc1/julia-1.1.0-rc1.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="2"> <a href="https://github.com/JuliaLang/julia/releases/download/v1.1.0-rc1/julia-1.1.0-rc1-full.tar.gz">Tarball
-                with dependencies</a>
-              (<a href="https://github.com/JuliaLang/julia/releases/download/v1.1.0-rc1/julia-1.1.0-rc1-full.tar.gz.asc">GPG</a>)
-            </td>
-            <td colspan="2"> <a href="https://github.com/JuliaLang/julia/tree/v1.1.0-rc1">GitHub</a> </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div> -->
-  <!-- Upcoming release //END -->
-  
-  <br />
-  
-  <!-- 7.row = Older Releases -->
-  <!-- <div class="row">
-    <div class="col-12">
-      <h2>Older Releases</h2>
-      <p>
-        Older releases of Julia for all platforms are available on the <a href="oldreleases.html">Older releases page</a>.
-        Releases older than 0.6 are now unmaintained.
-      </p>
-    </div>
-  </div>
-  
-  <br /> -->
-  
-  <!-- 8.row = Nightly builds -->
-  <!-- <div class="row">
-    <div class="col-12">
-      <h2>Nightly builds</h2>
-      <p>
-        Nightly builds of the current unstable development version of Julia are available on the
-        <a href="nightlies.html">nightlies page</a>.
-        These are intended as developer previews into the latest work and are not intended for
-        normal use.
-        Most users are advised to use the current release version of Julia, above.
-      </p>
-    </div>
-  </div> 
-  
-  <br /> -->
-  
-  <!-- 9.row = Download verification -->
-  <!-- <div class="row">
-    <div class="col-12">
-      <h2>Download verification</h2>
-      <p>
-        All Julia binary releases are cryptographically secured using the traditional methods on each
-        operating system platform. macOS and Windows releases are codesigned by certificates that are
-        verified by the operating system before installation. Generic Linux tarballs and source tarballs
-        are signed via GPG using <a href="../juliareleases.asc">this key</a>. Ubuntu and Fedora/RHEL/CentOS/SL
-        releases are signed by their own keys that are verified by the package managers when installing.
-      </p>
-    </div>
-  </div> -->
-
 </div><!-- 1.container end -->
 
 <br />
