@@ -10,3 +10,12 @@ jobs:
       - deploy:
           name: Deploy Release to GitHub
           command: bash .circleci/setup-github.sh
+          
+workflows:	
+  version: 2	
+  build:	
+    jobs:	
+      - build:	
+          filters:	
+            branches:	
+              only: master
