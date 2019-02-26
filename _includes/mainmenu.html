@@ -1,5 +1,6 @@
 {% assign current_page = (page.url | downcase | split: '/') %}
 {% comment %} {{current_page[1] | inspect}} {% endcomment %}
+{% include alerts.html %}
 <!-- main menu -->
 <div class="container py-3 py-lg-0">
   <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
