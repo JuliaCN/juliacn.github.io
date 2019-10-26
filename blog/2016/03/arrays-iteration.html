@@ -303,9 +303,9 @@ writing <code class="highlighter-rouge">B[ii,jj]*v[j]</code>.  <code class="high
 in-sync, but they don’t necessarily need to both be integers. Using
 this kind of strategy, matrix-vector multiplication</p>
 
-<div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
+<div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
     <span class="n">vj</span> <span class="o">=</span> <span class="n">v</span><span class="x">[</span><span class="n">j</span><span class="x">]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
         <span class="n">dest</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+=</span> <span class="n">B</span><span class="x">[</span><span class="n">i</span><span class="x">,</span><span class="n">j</span><span class="x">]</span> <span class="o">*</span> <span class="n">vj</span>
     <span class="k">end</span>
 <span class="k">end</span>
@@ -314,7 +314,7 @@ this kind of strategy, matrix-vector multiplication</p>
 <p>might be written in a more performant manner like this:</p>
 
 <div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="x">(</span><span class="n">jj</span><span class="x">,</span> <span class="n">vj</span><span class="x">)</span> <span class="k">in</span> <span class="n">zip</span><span class="x">(</span><span class="n">eachindex</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="n">Dimension</span><span class="x">{</span><span class="mi">2</span><span class="x">}),</span> <span class="n">v</span><span class="x">)</span>
-    <span class="k">for</span> <span class="x">(</span><span class="n">i</span><span class="x">,</span> <span class="n">ii</span><span class="x">)</span> <span class="k">in</span> <span class="n">zip</span><span class="x">(</span><span class="n">eachindex</span><span class="x">(</span><span class="n">dest</span><span class="x">),</span> <span class="n">eachindex</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="x">(:,</span> <span class="n">jj</span><span class="x">)))</span>
+    <span class="k">for</span> <span class="x">(</span><span class="n">i</span><span class="x">,</span> <span class="n">ii</span><span class="x">)</span> <span class="k">in</span> <span class="n">zip</span><span class="x">(</span><span class="n">eachindex</span><span class="x">(</span><span class="n">dest</span><span class="x">),</span> <span class="n">eachindex</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="x">(</span><span class="o">:</span><span class="x">,</span> <span class="n">jj</span><span class="x">)))</span>
         <span class="n">dest</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+=</span> <span class="n">B</span><span class="x">[</span><span class="n">ii</span><span class="x">,</span><span class="n">jj</span><span class="x">]</span><span class="o">*</span><span class="n">vj</span>
     <span class="k">end</span>
 <span class="k">end</span>
@@ -359,7 +359,7 @@ memory is proportional to <code class="highlighter-rouge">i-j</code>.  For row-m
 notion is not viable, because otherwise a loop</p>
 
 <div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> copy</span><span class="o">!</span><span class="x">(</span><span class="n">dest</span><span class="x">,</span> <span class="n">src</span><span class="x">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">length</span><span class="x">(</span><span class="n">src</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="x">(</span><span class="n">src</span><span class="x">)</span>
         <span class="n">dest</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">=</span> <span class="n">src</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>  <span class="c"># trouble if `i` means "memory offset"</span>
     <span class="k">end</span>
     <span class="n">dest</span>
@@ -381,17 +381,17 @@ slower to access elements of an array in anything other than
 <a href="http://julialang.org/blog/2013/09/fast-numeric">storage-order</a>.  Some
 reasonably fast ways to write matrix-vector multiplication are</p>
 
-<div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
+<div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
     <span class="n">vj</span> <span class="o">=</span> <span class="n">v</span><span class="x">[</span><span class="n">j</span><span class="x">]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
         <span class="n">dest</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+=</span> <span class="n">B</span><span class="x">[</span><span class="n">i</span><span class="x">,</span><span class="n">j</span><span class="x">]</span> <span class="o">*</span> <span class="n">vj</span>
     <span class="k">end</span>
 <span class="k">end</span>
 </code></pre></div></div>
 <p>for a column-major matrix <code class="highlighter-rouge">B</code>, and</p>
 
-<div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
-    <span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
+<div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">size</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
         <span class="n">dest</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+=</span> <span class="n">B</span><span class="x">[</span><span class="n">i</span><span class="x">,</span><span class="n">j</span><span class="x">]</span> <span class="o">*</span> <span class="n">v</span><span class="x">[</span><span class="n">j</span><span class="x">]</span>
     <span class="k">end</span>
 <span class="k">end</span>

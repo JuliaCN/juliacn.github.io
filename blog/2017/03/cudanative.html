@@ -155,7 +155,7 @@ reading for a more textual introduction.</p>
 is to perform a vector addition. The snippet below does exactly that using Julia and
 CUDAnative.jl:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">CUDAdrv</span><span class="x">,</span> <span class="n">CUDAnative</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">CUDAdrv</span><span class="x">,</span> <span class="n">CUDAnative</span>
 
 <span class="k">function</span><span class="nf"> kernel_vadd</span><span class="x">(</span><span class="n">a</span><span class="x">,</span> <span class="n">b</span><span class="x">,</span> <span class="n">c</span><span class="x">)</span>
     <span class="c"># from CUDAnative: (implicit) CuDeviceArray type,</span>
@@ -163,7 +163,7 @@ CUDAnative.jl:</p>
     <span class="n">i</span> <span class="o">=</span> <span class="x">(</span><span class="n">blockIdx</span><span class="x">()</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="x">)</span> <span class="o">*</span> <span class="n">blockDim</span><span class="x">()</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="x">()</span><span class="o">.</span><span class="n">x</span>
     <span class="n">c</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">=</span> <span class="n">a</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">+</span> <span class="n">b</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>
 
-    <span class="k">return</span> <span class="n">nothing</span>
+    <span class="k">return</span> <span class="nb">nothing</span>
 <span class="k">end</span>
 
 <span class="n">dev</span> <span class="o">=</span> <span class="n">CuDevice</span><span class="x">(</span><span class="mi">0</span><span class="x">)</span>
@@ -181,9 +181,9 @@ CUDAnative.jl:</p>
 
 <span class="c"># execute and fetch results</span>
 <span class="nd">@cuda</span> <span class="x">(</span><span class="mi">1</span><span class="x">,</span><span class="n">len</span><span class="x">)</span> <span class="n">kernel_vadd</span><span class="x">(</span><span class="n">d_a</span><span class="x">,</span> <span class="n">d_b</span><span class="x">,</span> <span class="n">d_c</span><span class="x">)</span>    <span class="c"># from CUDAnative.jl</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">Array</span><span class="x">(</span><span class="n">d_c</span><span class="x">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="kt">Array</span><span class="x">(</span><span class="n">d_c</span><span class="x">)</span>
 
-<span class="n">using</span> <span class="n">Base</span><span class="o">.</span><span class="n">Test</span>
+<span class="k">using</span> <span class="n">Base</span><span class="o">.</span><span class="n">Test</span>
 <span class="nd">@test</span> <span class="n">c</span> <span class="o">==</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 
 <span class="n">destroy</span><span class="x">(</span><span class="n">ctx</span><span class="x">)</span>
@@ -233,7 +233,7 @@ can introspect this code using runtime reflection:</p>
 <span class="c"># or manually specify types (this is error prone!)</span>
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">code_sass</span><span class="x">(</span><span class="n">kernel_vadd</span><span class="x">,</span> <span class="x">(</span><span class="n">CuDeviceArray</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">CuDeviceArray</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">},</span><span class="n">CuDeviceArray</span><span class="x">{</span><span class="kt">Float32</span><span class="x">,</span><span class="mi">2</span><span class="x">}))</span>
 <span class="n">code</span> <span class="k">for</span> <span class="n">sm_20</span>
-        <span class="n">Function</span> <span class="x">:</span> <span class="n">julia_kernel_vadd_68481</span>
+        <span class="kt">Function</span> <span class="o">:</span> <span class="n">julia_kernel_vadd_68481</span>
 <span class="x">[</span><span class="n">SASS</span> <span class="n">CODE</span><span class="x">]</span>
 </code></pre></div></div>
 

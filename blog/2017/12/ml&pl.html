@@ -119,10 +119,10 @@ By Mike Innes (Julia Computing), David Barber (UCL), Tim Besard (UGent), James B
   <span class="k">return</span> <span class="s2">`</span><span class="p">${</span><span class="nx">a</span><span class="p">}</span><span class="s2">+</span><span class="p">${</span><span class="nx">b</span><span class="p">}</span><span class="s2">`</span><span class="p">;</span>
 <span class="p">}</span>
 <span class="nx">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="nx">z</span> <span class="o">=</span> <span class="nx">add</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">)</span> <span class="c1">// 'x+y'</span>
-<span class="kr">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 3</span>
+<span class="nx">z</span> <span class="o">=</span> <span class="nx">add</span><span class="p">(</span><span class="dl">'</span><span class="s1">x</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">y</span><span class="dl">'</span><span class="p">)</span> <span class="c1">// 'x+y'</span>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 3</span>
 <span class="nx">x</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="kr">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 6</span></code></pre></figure>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 6</span></code></pre></figure>
 
 <p>Here we are <em>metaprogramming</em> – writing code that writes code. In this case both the meta-language and the target language are the same (JavaScript) but they could just as well be different languages (as in the C preprocessor for the C language), or we can use a data structure (an <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a>) instead of a string – the principle is the same. In TensorFlow, Python serves as a meta-language for writing programs in TF’s graph-based language.<sup id="fnref:ast"><a href="#fn:ast" class="footnote">3</a></sup> If you’re not convinced, consider that TensorFlow’s graph even supports constructs like <a href="https://www.tensorflow.org/programmers_guide/variables">variable scoping</a> and <a href="https://www.tensorflow.org/api_docs/python/tf/cond">control flow</a> – but rather than using Python syntax, you manipulate these constructs through an API.</p>
 

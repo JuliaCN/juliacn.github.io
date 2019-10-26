@@ -123,10 +123,10 @@
   <span class="k">return</span> <span class="s2">`</span><span class="p">${</span><span class="nx">a</span><span class="p">}</span><span class="s2">+</span><span class="p">${</span><span class="nx">b</span><span class="p">}</span><span class="s2">`</span><span class="p">;</span>
 <span class="p">}</span>
 <span class="nx">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="nx">z</span> <span class="o">=</span> <span class="nx">add</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">)</span> <span class="c1">// 'x+y'</span>
-<span class="kr">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 3</span>
+<span class="nx">z</span> <span class="o">=</span> <span class="nx">add</span><span class="p">(</span><span class="dl">'</span><span class="s1">x</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">y</span><span class="dl">'</span><span class="p">)</span> <span class="c1">// 'x+y'</span>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 3</span>
 <span class="nx">x</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="kr">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 6</span></code></pre></figure>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 6</span></code></pre></figure>
 
 <p>在這邊我們用了 <em>metaprogramming</em> —— 用程式碼產生程式碼。在這種情況下模板語言與目標語言都是相同的(JavaScript)，但他們也可以是不同的（就像是 C 的前置處理器(preprocessor) 對應到 C），或者我們也可以用一個資料結構（一個語法樹(<a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a>)）來代替字串 —— 原則是相同的。在 TensorFlow 中，Python 作為一個模板語言用來編寫 TF 的 graph-based laguage<sup id="fnref:ast"><a href="#fn:ast" class="footnote">3</a></sup>。如果你不相信，思考看看 TensorFlow 的 graph 甚至支援像是<a href="https://www.tensorflow.org/programmers_guide/variables">變數作用域</a>跟<a href="https://www.tensorflow.org/api_docs/python/tf/cond">控制流程</a>的構造元素 —— 而不是利用 Python 本身的語法，你正在透過 API 操作這些構造元素。</p>
 

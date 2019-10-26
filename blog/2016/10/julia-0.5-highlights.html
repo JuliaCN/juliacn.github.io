@@ -134,25 +134,25 @@ First, some definitions – they’re the same in both 0.4 and 0.5:</p>
 
 <p>First, a timing comparison in Julia 0.4:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">VERSION</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">VERSION</span>
 <span class="n">v</span><span class="s">"0.4.7"</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_vec</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">100</span><span class="x">])</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_vec</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">100</span><span class="x">])</span>
 <span class="mf">0.024444888209999998</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_map</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">100</span><span class="x">])</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_map</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">100</span><span class="x">])</span>
 <span class="mf">0.5515606454499999</span></code></pre></figure>
 
 <p>On 0.4, the functional version using <code class="highlighter-rouge">map</code> is 22 times slower than the vectorized version, which uses specialized generated code for maximal speed.
 Now, the same comparison in Julia 0.5:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">VERSION</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">VERSION</span>
 <span class="n">v</span><span class="s">"0.5.0"</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_vec</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">100</span><span class="x">])</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_vec</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">100</span><span class="x">])</span>
 <span class="mf">0.024549842180000003</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_map</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">100</span><span class="x">])</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="nd">@elapsed</span><span class="x">(</span><span class="n">double_it_map</span><span class="x">(</span><span class="n">v</span><span class="x">))</span> <span class="k">for</span> <span class="n">_</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">100</span><span class="x">])</span>
 <span class="mf">0.023871925960000002</span></code></pre></figure>
 
 <p>The version using <code class="highlighter-rouge">map</code> is as fast as the vectorized one in 0.5.
@@ -164,18 +164,18 @@ Now, they are also fast.</p>
 <p>One design decision that any multiple dispatch language must make is how to handle dispatch ambiguities: cases where none of the methods applicable to a given set of arguments is more specific than the rest.
 Suppose, for example, that a generic function, <code class="highlighter-rouge">f</code>, has the following methods:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Int</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="n">Real</span><span class="x">)</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="n">Real</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="kt">Int</span><span class="x">)</span> <span class="o">=</span> <span class="mi">2</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Int</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="kt">Real</span><span class="x">)</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Real</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="kt">Int</span><span class="x">)</span> <span class="o">=</span> <span class="mi">2</span></code></pre></figure>
 
 <p>In Julia 0.4 and earlier, the second method definition causes an ambiguity warning:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">WARNING</span><span class="x">:</span> <span class="n">New</span> <span class="n">definition</span>
-    <span class="n">f</span><span class="x">(</span><span class="n">Real</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="n">none</span><span class="x">:</span><span class="mi">1</span>
-<span class="nb">is</span> <span class="n">ambiguous</span> <span class="n">with</span><span class="x">:</span>
-    <span class="n">f</span><span class="x">(</span><span class="kt">Int64</span><span class="x">,</span> <span class="n">Real</span><span class="x">)</span> <span class="n">at</span> <span class="n">none</span><span class="x">:</span><span class="mf">1.</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">WARNING</span><span class="o">:</span> <span class="n">New</span> <span class="n">definition</span>
+    <span class="n">f</span><span class="x">(</span><span class="kt">Real</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="n">none</span><span class="o">:</span><span class="mi">1</span>
+<span class="n">is</span> <span class="n">ambiguous</span> <span class="n">with</span><span class="o">:</span>
+    <span class="n">f</span><span class="x">(</span><span class="kt">Int64</span><span class="x">,</span> <span class="kt">Real</span><span class="x">)</span> <span class="n">at</span> <span class="n">none</span><span class="o">:</span><span class="mf">1.</span>
 <span class="n">To</span> <span class="n">fix</span><span class="x">,</span> <span class="n">define</span>
     <span class="n">f</span><span class="x">(</span><span class="kt">Int64</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">)</span>
-<span class="n">before</span> <span class="n">the</span> <span class="nb">new</span> <span class="n">definition</span><span class="o">.</span></code></pre></figure>
+<span class="n">before</span> <span class="n">the</span> <span class="n">new</span> <span class="n">definition</span><span class="o">.</span></code></pre></figure>
 
 <p>This warning is clear and gets right to the point: the case <code class="highlighter-rouge">f(a,b)</code> where <code class="highlighter-rouge">a</code> and <code class="highlighter-rouge">b</code> are of type <code class="highlighter-rouge">Int</code> (aka <code class="highlighter-rouge">Int64</code> on 64-bit systems) is ambiguous.
 Evaluating <code class="highlighter-rouge">f(3,4)</code> calls the first method of <code class="highlighter-rouge">f</code> – but this behavior is undefined.
@@ -196,11 +196,11 @@ Usually the method works – it does apply, after all – but this is clearly 
 The above method definitions for <code class="highlighter-rouge">f</code>, which previously triggered a warning, are now silent, but <em>calling</em> <code class="highlighter-rouge">f</code> with two <code class="highlighter-rouge">Int</code> arguments is a method dispatch error:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">f</span><span class="x">(</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">)</span>
-<span class="n">ERROR</span><span class="x">:</span> <span class="n">MethodError</span><span class="x">:</span> <span class="n">f</span><span class="x">(</span><span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="nb">is</span> <span class="n">ambiguous</span><span class="o">.</span> <span class="n">Candidates</span><span class="x">:</span>
-  <span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="n">Real</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="n">REPL</span><span class="x">[</span><span class="mi">2</span><span class="x">]:</span><span class="mi">1</span>
-  <span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="n">Real</span><span class="x">)</span> <span class="n">at</span> <span class="n">REPL</span><span class="x">[</span><span class="mi">1</span><span class="x">]:</span><span class="mi">1</span>
- <span class="k">in</span> <span class="n">eval</span><span class="x">(</span><span class="o">::</span><span class="n">Module</span><span class="x">,</span> <span class="o">::</span><span class="kt">Any</span><span class="x">)</span> <span class="n">at</span> <span class="o">./</span><span class="n">boot</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">231</span>
- <span class="k">in</span> <span class="n">macro</span> <span class="n">expansion</span> <span class="n">at</span> <span class="o">./</span><span class="n">REPL</span><span class="o">.</span><span class="n">jl</span><span class="x">:</span><span class="mi">92</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
+<span class="n">ERROR</span><span class="o">:</span> <span class="kt">MethodError</span><span class="o">:</span> <span class="n">f</span><span class="x">(</span><span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="n">is</span> <span class="n">ambiguous</span><span class="o">.</span> <span class="n">Candidates</span><span class="o">:</span>
+  <span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Real</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="kt">Int64</span><span class="x">)</span> <span class="n">at</span> <span class="n">REPL</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span><span class="o">:</span><span class="mi">1</span>
+  <span class="n">f</span><span class="x">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="n">b</span><span class="o">::</span><span class="kt">Real</span><span class="x">)</span> <span class="n">at</span> <span class="n">REPL</span><span class="x">[</span><span class="mi">1</span><span class="x">]</span><span class="o">:</span><span class="mi">1</span>
+ <span class="k">in</span> <span class="n">eval</span><span class="x">(</span><span class="o">::</span><span class="kt">Module</span><span class="x">,</span> <span class="o">::</span><span class="kt">Any</span><span class="x">)</span> <span class="n">at</span> <span class="o">./</span><span class="n">boot</span><span class="o">.</span><span class="n">jl</span><span class="o">:</span><span class="mi">231</span>
+ <span class="k">in</span> <span class="k">macro</span><span class="nf"> expansion</span> <span class="n">at</span> <span class="o">./</span><span class="n">REPL</span><span class="o">.</span><span class="n">jl</span><span class="o">:</span><span class="mi">92</span> <span class="x">[</span><span class="n">inlined</span><span class="x">]</span>
  <span class="k">in</span> <span class="x">(</span><span class="o">::</span><span class="n">Base</span><span class="o">.</span><span class="n">REPL</span><span class="o">.</span><span class="c">##1#2{Base.REPL.REPLBackend})() at ./event.jl:46</span></code></pre></figure>
 
 <p>This improves the experience of using the Julia package ecosystem considerably, while also making Julia safer and more reliable.
@@ -214,7 +214,7 @@ No more risk that a method call could be silently broken because of warnings tha
 This aids the clarity of code, serves as self-documentation, helps the compiler reason about code, and ensures that return types are what programmers intend them to be.
 In 0.5, you can annotate method definitions with a return type like so:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> clip</span><span class="x">{</span><span class="n">T</span><span class="o">&lt;:</span><span class="n">Real</span><span class="x">}(</span><span class="n">x</span><span class="o">::</span><span class="n">T</span><span class="x">,</span> <span class="n">lo</span><span class="o">::</span><span class="n">Real</span><span class="x">,</span> <span class="n">hi</span><span class="o">::</span><span class="n">Real</span><span class="x">)</span><span class="o">::</span><span class="n">T</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> clip</span><span class="x">{</span><span class="n">T</span><span class="o">&lt;:</span><span class="kt">Real</span><span class="x">}(</span><span class="n">x</span><span class="o">::</span><span class="n">T</span><span class="x">,</span> <span class="n">lo</span><span class="o">::</span><span class="kt">Real</span><span class="x">,</span> <span class="n">hi</span><span class="o">::</span><span class="kt">Real</span><span class="x">)</span><span class="o">::</span><span class="n">T</span>
     <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">lo</span>
         <span class="k">return</span> <span class="n">lo</span>
     <span class="k">elseif</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">hi</span>
@@ -242,7 +242,7 @@ In this case, the annotation ensures that this method always returns a value of 
 Not only is that allowed, but the return type can be an arbitrary expression of argument values, type parameters, and values from outer scopes.
 For example, here is a variation that promotes its arguments:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> clip2</span><span class="x">(</span><span class="n">x</span><span class="o">::</span><span class="n">Real</span><span class="x">,</span> <span class="n">lo</span><span class="o">::</span><span class="n">Real</span><span class="x">,</span> <span class="n">hi</span><span class="o">::</span><span class="n">Real</span><span class="x">)</span><span class="o">::</span><span class="nb">promote_type</span><span class="x">(</span><span class="nb">typeof</span><span class="x">(</span><span class="n">x</span><span class="x">),</span> <span class="nb">typeof</span><span class="x">(</span><span class="n">lo</span><span class="x">),</span> <span class="nb">typeof</span><span class="x">(</span><span class="n">hi</span><span class="x">))</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="k">function</span><span class="nf"> clip2</span><span class="x">(</span><span class="n">x</span><span class="o">::</span><span class="kt">Real</span><span class="x">,</span> <span class="n">lo</span><span class="o">::</span><span class="kt">Real</span><span class="x">,</span> <span class="n">hi</span><span class="o">::</span><span class="kt">Real</span><span class="x">)</span><span class="o">::</span><span class="n">promote_type</span><span class="x">(</span><span class="n">typeof</span><span class="x">(</span><span class="n">x</span><span class="x">),</span> <span class="n">typeof</span><span class="x">(</span><span class="n">lo</span><span class="x">),</span> <span class="n">typeof</span><span class="x">(</span><span class="n">hi</span><span class="x">))</span>
     <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">lo</span>
         <span class="k">return</span> <span class="n">lo</span>
     <span class="k">elseif</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">hi</span>
@@ -277,7 +277,7 @@ This may seem a little bit uglier, but it’s more consistent than choosing an e
 This scalar function can be applied to vectors using vectorized call syntax without any further method definitions:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="n">randn</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
-<span class="mi">10</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">10</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="o">-</span><span class="mf">0.868996</span>
   <span class="mf">1.79301</span>
  <span class="o">-</span><span class="mf">0.309632</span>
@@ -290,12 +290,12 @@ This scalar function can be applied to vectors using vectorized call syntax with
   <span class="mf">0.864448</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">clip</span><span class="x">(</span><span class="n">v</span><span class="x">,</span> <span class="o">-</span><span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
-<span class="n">ERROR</span><span class="x">:</span> <span class="n">MethodError</span><span class="x">:</span> <span class="n">no</span> <span class="n">method</span> <span class="n">matching</span> <span class="n">clip</span><span class="x">(</span><span class="o">::</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span>
-<span class="n">Closest</span> <span class="n">candidates</span> <span class="n">are</span><span class="x">:</span>
-  <span class="n">clip</span><span class="x">{</span><span class="n">T</span><span class="o">&lt;:</span><span class="n">Real</span><span class="x">}(</span><span class="o">::</span><span class="n">T</span><span class="o">&lt;:</span><span class="n">Real</span><span class="x">,</span> <span class="o">::</span><span class="n">Real</span><span class="x">,</span> <span class="o">::</span><span class="n">Real</span><span class="x">)</span> <span class="n">at</span> <span class="n">REPL</span><span class="x">[</span><span class="mi">2</span><span class="x">]:</span><span class="mi">2</span>
+<span class="n">ERROR</span><span class="o">:</span> <span class="kt">MethodError</span><span class="o">:</span> <span class="n">no</span> <span class="n">method</span> <span class="n">matching</span> <span class="n">clip</span><span class="x">(</span><span class="o">::</span><span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">},</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">,</span> <span class="o">::</span><span class="kt">Int64</span><span class="x">)</span>
+<span class="n">Closest</span> <span class="n">candidates</span> <span class="n">are</span><span class="o">:</span>
+  <span class="n">clip</span><span class="x">{</span><span class="n">T</span><span class="o">&lt;:</span><span class="kt">Real</span><span class="x">}(</span><span class="o">::</span><span class="n">T</span><span class="o">&lt;:</span><span class="kt">Real</span><span class="x">,</span> <span class="o">::</span><span class="kt">Real</span><span class="x">,</span> <span class="o">::</span><span class="kt">Real</span><span class="x">)</span> <span class="n">at</span> <span class="n">REPL</span><span class="x">[</span><span class="mi">2</span><span class="x">]</span><span class="o">:</span><span class="mi">2</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="x">(</span><span class="n">v</span><span class="x">,</span> <span class="o">-</span><span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">)</span>
-<span class="mi">10</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">10</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="o">-</span><span class="mf">0.868996</span>
   <span class="mf">1.0</span>
  <span class="o">-</span><span class="mf">0.309632</span>
@@ -310,7 +310,7 @@ This scalar function can be applied to vectors using vectorized call syntax with
 <p>The second and third arguments don’t need to be scalars – as with dotted operators, they can be vectors as well, and the <code class="highlighter-rouge">clip</code> operation will be applied to each corresponding triple of values:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="x">(</span><span class="n">v</span><span class="x">,</span> <span class="n">repmat</span><span class="x">([</span><span class="o">-</span><span class="mi">1</span><span class="x">,</span><span class="mf">0.5</span><span class="x">],</span><span class="mi">5</span><span class="x">),</span> <span class="n">repmat</span><span class="x">([</span><span class="o">-</span><span class="mf">0.5</span><span class="x">,</span><span class="mi">1</span><span class="x">],</span><span class="mi">5</span><span class="x">))</span>
-<span class="mi">10</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">10</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="o">-</span><span class="mf">0.868996</span>
   <span class="mf">1.0</span>
  <span class="o">-</span><span class="mf">0.5</span>
@@ -330,20 +330,20 @@ Broadcasting allows dotted operations to easily do handy tricks like mean-center
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">3</span><span class="x">,</span><span class="mi">4</span><span class="x">);</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">B</span> <span class="o">=</span> <span class="n">A</span> <span class="o">.-</span> <span class="n">mean</span><span class="x">(</span><span class="n">A</span><span class="x">,</span><span class="mi">1</span><span class="x">)</span>
-<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
   <span class="mf">0.343976</span>   <span class="mf">0.427378</span>  <span class="o">-</span><span class="mf">0.503356</span>  <span class="o">-</span><span class="mf">0.00448691</span>
  <span class="o">-</span><span class="mf">0.210096</span>  <span class="o">-</span><span class="mf">0.531489</span>   <span class="mf">0.168928</span>  <span class="o">-</span><span class="mf">0.128212</span>
  <span class="o">-</span><span class="mf">0.13388</span>    <span class="mf">0.104111</span>   <span class="mf">0.334428</span>   <span class="mf">0.132699</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">(</span><span class="n">B</span><span class="x">,</span><span class="mi">1</span><span class="x">)</span>
-<span class="mi">1</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">1</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mf">0.0</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span>  <span class="mf">0.0</span></code></pre></figure>
 
 <p>The matrix <code class="highlighter-rouge">A</code> is 3×4 and <code class="highlighter-rouge">mean(A,1)</code> is 1×4 so the <code class="highlighter-rouge">.-</code> operator broadcasts the subtraction of each mean value along the corresponding column of A, thereby mean-centering each column.
 Combining this broadcasting behavior with vectorized call syntax lets us write some fairly fancy custom array operations very concisely:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="x">(</span><span class="n">B</span><span class="x">,</span> <span class="x">[</span><span class="o">-</span><span class="mf">0.3</span><span class="x">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="x">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="x">],</span> <span class="x">[</span><span class="mf">0.4</span><span class="x">,</span> <span class="mf">0.3</span><span class="x">,</span> <span class="mf">0.2</span><span class="x">,</span> <span class="mf">0.1</span><span class="x">]</span><span class="err">'</span><span class="x">)</span>
-<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
   <span class="mf">0.343976</span>   <span class="mf">0.3</span>       <span class="o">-</span><span class="mf">0.3</span>       <span class="o">-</span><span class="mf">0.00448691</span>
  <span class="o">-</span><span class="mf">0.2</span>       <span class="o">-</span><span class="mf">0.2</span>        <span class="mf">0.168928</span>  <span class="o">-</span><span class="mf">0.128212</span>
  <span class="o">-</span><span class="mf">0.1</span>        <span class="mf">0.104111</span>   <span class="mf">0.2</span>        <span class="mf">0.1</span></code></pre></figure>
@@ -351,7 +351,7 @@ Combining this broadcasting behavior with vectorized call syntax lets us write s
 <p>This expression clips each element of <code class="highlighter-rouge">B</code> with its own specific <code class="highlighter-rouge">(hi,lo)</code> pair from this matrix:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[(</span><span class="n">lo</span><span class="x">,</span><span class="n">hi</span><span class="x">)</span> <span class="k">for</span> <span class="n">lo</span><span class="o">=</span><span class="x">[</span><span class="o">-</span><span class="mf">0.3</span><span class="x">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="x">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="x">],</span> <span class="n">hi</span><span class="o">=</span><span class="x">[</span><span class="mf">0.4</span><span class="x">,</span> <span class="mf">0.3</span><span class="x">,</span> <span class="mf">0.2</span><span class="x">,</span> <span class="mf">0.1</span><span class="x">]]</span>
-<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="n">Tuple</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="kt">Float64</span><span class="x">},</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Tuple</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="kt">Float64</span><span class="x">},</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="x">(</span><span class="o">-</span><span class="mf">0.3</span><span class="x">,</span><span class="mf">0.4</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.3</span><span class="x">,</span><span class="mf">0.3</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.3</span><span class="x">,</span><span class="mf">0.2</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.3</span><span class="x">,</span><span class="mf">0.1</span><span class="x">)</span>
  <span class="x">(</span><span class="o">-</span><span class="mf">0.2</span><span class="x">,</span><span class="mf">0.4</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.2</span><span class="x">,</span><span class="mf">0.3</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.2</span><span class="x">,</span><span class="mf">0.2</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.2</span><span class="x">,</span><span class="mf">0.1</span><span class="x">)</span>
  <span class="x">(</span><span class="o">-</span><span class="mf">0.1</span><span class="x">,</span><span class="mf">0.4</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.1</span><span class="x">,</span><span class="mf">0.3</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.1</span><span class="x">,</span><span class="mf">0.2</span><span class="x">)</span>  <span class="x">(</span><span class="o">-</span><span class="mf">0.1</span><span class="x">,</span><span class="mf">0.1</span><span class="x">)</span></code></pre></figure>
@@ -379,25 +379,25 @@ In other words, we write this:</p>
 <p>This version of the computation avoids allocating any intermediate arrays and performs the entire vectorized computation all at once, directly into the result array.
 We can see this difference in memory usage and speed when we benchmark these expressions:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">BenchmarkTools</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">X</span><span class="x">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">1000</span><span class="x">,</span><span class="mi">1000</span><span class="x">),</span> <span class="n">rand</span><span class="x">(</span><span class="mi">1000</span><span class="x">,</span><span class="mi">1000</span><span class="x">);</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">max</span><span class="x">(</span><span class="n">abs</span><span class="x">(</span><span class="n">X</span><span class="x">),</span> <span class="n">abs</span><span class="x">(</span><span class="n">Y</span><span class="x">))</span>
-<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-  <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">22.89</span> <span class="n">mb</span>
-  <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">13.95</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">1.77</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">14.17</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">1.76</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">14.32</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">1.78</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">17.15</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">3.47</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+  <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">22.89</span> <span class="n">mb</span>
+  <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">13.95</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">1.77</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">14.17</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">1.76</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">14.32</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">1.78</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">17.15</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">3.47</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">max</span><span class="o">.</span><span class="x">(</span><span class="n">abs</span><span class="o">.</span><span class="x">(</span><span class="n">X</span><span class="x">),</span> <span class="n">abs</span><span class="o">.</span><span class="x">(</span><span class="n">Y</span><span class="x">))</span>
-<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-  <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">7.63</span> <span class="n">mb</span>
-  <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">2.84</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">2.98</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">3.27</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">18.26</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">5.96</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">65.68</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+  <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">7.63</span> <span class="n">mb</span>
+  <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">2.84</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">2.98</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">3.27</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">18.26</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">5.96</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">65.68</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="mf">22.89</span><span class="o">/</span><span class="mf">7.63</span><span class="x">,</span> <span class="mf">16.63</span><span class="o">/</span><span class="mf">3.84</span>
 <span class="x">(</span><span class="mf">3.0</span><span class="x">,</span><span class="mf">4.330729166666667</span><span class="x">)</span></code></pre></figure>
@@ -412,12 +412,12 @@ Even greater reduction in allocation can occur when we use the new <code class="
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">zeros</span><span class="x">(</span><span class="n">X</span><span class="x">);</span> <span class="c"># matrix of zeros similar to X</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">Z</span> <span class="o">.=</span> <span class="n">max</span><span class="o">.</span><span class="x">(</span><span class="n">abs</span><span class="o">.</span><span class="x">(</span><span class="n">X</span><span class="x">),</span> <span class="n">abs</span><span class="o">.</span><span class="x">(</span><span class="n">Y</span><span class="x">))</span>
-<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-  <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">96.00</span> <span class="n">bytes</span>
-  <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">1.76</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">1.82</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">1.89</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">4.24</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span></code></pre></figure>
+<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+  <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">96.00</span> <span class="n">bytes</span>
+  <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">1.76</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">1.82</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">1.89</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">4.24</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span></code></pre></figure>
 
 <p>With in-place vectorized assignment, we can fill the pre-allocated array, <code class="highlighter-rouge">Z</code>, without doing any allocation (the 96 bytes is an artifact), and do so 7.3 times faster than the old-style vectorized computation.
 This can be a big win in situations where we can reuse the same output array for multiple computations.</p>
@@ -438,8 +438,8 @@ This release rounds out the functionality of comprehensions with two additional 
 To demonstrate these features, consider making a dollar (100¢) using quarters (25¢), dimes (10¢), nickels (5¢) and pennies (1¢).
 We can generate an array of tuples of total values in each kind of coin by using a comprehension with nested <code class="highlighter-rouge">for</code> clauses:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">change</span> <span class="o">=</span> <span class="x">[(</span><span class="n">q</span><span class="x">,</span><span class="n">d</span><span class="x">,</span><span class="n">n</span><span class="x">,</span><span class="n">p</span><span class="x">)</span> <span class="k">for</span> <span class="n">q</span><span class="o">=</span><span class="mi">0</span><span class="x">:</span><span class="mi">25</span><span class="x">:</span><span class="mi">100</span> <span class="k">for</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="x">:</span><span class="mi">10</span><span class="x">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span> <span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="x">:</span><span class="mi">5</span><span class="x">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span> <span class="k">for</span> <span class="n">p</span><span class="o">=</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span><span class="o">-</span><span class="n">n</span><span class="x">]</span>
-<span class="mi">242</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="n">NTuple</span><span class="x">{</span><span class="mi">4</span><span class="x">,</span><span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}:</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">change</span> <span class="o">=</span> <span class="x">[(</span><span class="n">q</span><span class="x">,</span><span class="n">d</span><span class="x">,</span><span class="n">n</span><span class="x">,</span><span class="n">p</span><span class="x">)</span> <span class="k">for</span> <span class="n">q</span><span class="o">=</span><span class="mi">0</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">100</span> <span class="k">for</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="o">:</span><span class="mi">10</span><span class="o">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span> <span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="o">:</span><span class="mi">5</span><span class="o">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span> <span class="k">for</span> <span class="n">p</span><span class="o">=</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span><span class="o">-</span><span class="n">n</span><span class="x">]</span>
+<span class="mi">242</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">NTuple</span><span class="x">{</span><span class="mi">4</span><span class="x">,</span><span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="x">(</span><span class="mi">0</span><span class="x">,</span><span class="mi">0</span><span class="x">,</span><span class="mi">0</span><span class="x">,</span><span class="mi">100</span><span class="x">)</span>
  <span class="x">(</span><span class="mi">0</span><span class="x">,</span><span class="mi">0</span><span class="x">,</span><span class="mi">5</span><span class="x">,</span><span class="mi">95</span><span class="x">)</span>
  <span class="x">(</span><span class="mi">0</span><span class="x">,</span><span class="mi">0</span><span class="x">,</span><span class="mi">10</span><span class="x">,</span><span class="mi">90</span><span class="x">)</span>
@@ -476,8 +476,8 @@ So, there are 242 ways to make a dollar with common coins.
 But suppose we want to ensure that the value in pennies is less than the value in nickels, and so forth.
 By adding a filter clause, we can do this easily too:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[(</span><span class="n">q</span><span class="x">,</span><span class="n">d</span><span class="x">,</span><span class="n">n</span><span class="x">,</span><span class="n">p</span><span class="x">)</span> <span class="k">for</span> <span class="n">q</span><span class="o">=</span><span class="mi">0</span><span class="x">:</span><span class="mi">25</span><span class="x">:</span><span class="mi">100</span> <span class="k">for</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="x">:</span><span class="mi">10</span><span class="x">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span> <span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="x">:</span><span class="mi">5</span><span class="x">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span> <span class="k">for</span> <span class="n">p</span><span class="o">=</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span><span class="o">-</span><span class="n">n</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">q</span><span class="x">]</span>
-<span class="mi">4</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="n">NTuple</span><span class="x">{</span><span class="mi">4</span><span class="x">,</span><span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}:</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[(</span><span class="n">q</span><span class="x">,</span><span class="n">d</span><span class="x">,</span><span class="n">n</span><span class="x">,</span><span class="n">p</span><span class="x">)</span> <span class="k">for</span> <span class="n">q</span><span class="o">=</span><span class="mi">0</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">100</span> <span class="k">for</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="o">:</span><span class="mi">10</span><span class="o">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span> <span class="k">for</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="o">:</span><span class="mi">5</span><span class="o">:</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span> <span class="k">for</span> <span class="n">p</span><span class="o">=</span><span class="mi">100</span><span class="o">-</span><span class="n">q</span><span class="o">-</span><span class="n">d</span><span class="o">-</span><span class="n">n</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">q</span><span class="x">]</span>
+<span class="mi">4</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">NTuple</span><span class="x">{</span><span class="mi">4</span><span class="x">,</span><span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="x">(</span><span class="mi">50</span><span class="x">,</span><span class="mi">30</span><span class="x">,</span><span class="mi">15</span><span class="x">,</span><span class="mi">5</span><span class="x">)</span>
  <span class="x">(</span><span class="mi">50</span><span class="x">,</span><span class="mi">30</span><span class="x">,</span><span class="mi">20</span><span class="x">,</span><span class="mi">0</span><span class="x">)</span>
  <span class="x">(</span><span class="mi">50</span><span class="x">,</span><span class="mi">40</span><span class="x">,</span><span class="mi">10</span><span class="x">,</span><span class="mi">0</span><span class="x">)</span>
@@ -493,7 +493,7 @@ There are exactly four ways to make a dollar with strictly increasing value from
 <p>In the previous section we used an array comprehension to take the sum of each tuple, save the sums as an array, and then pass that array of sums to the <code class="highlighter-rouge">extrema</code> function to find the largest and smallest sum (they’re all 100):</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">extrema</span><span class="x">([</span><span class="n">sum</span><span class="x">(</span><span class="n">t</span><span class="x">)</span> <span class="k">for</span> <span class="n">t</span> <span class="k">in</span> <span class="n">change</span><span class="x">])</span>
-  <span class="mf">0.000072</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">8</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">2.203</span> <span class="n">KB</span><span class="x">)</span>
+  <span class="mf">0.000072</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">8</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">2.203</span> <span class="n">KB</span><span class="x">)</span>
 <span class="x">(</span><span class="mi">100</span><span class="x">,</span><span class="mi">100</span><span class="x">)</span></code></pre></figure>
 
 <p>Wrapping this in the <code class="highlighter-rouge">@time</code> macro shows that this expression allocates 2.2 KB of memory – mostly for the array of sums, which is thrown away after the computation.
@@ -505,7 +505,7 @@ In 0.5, if you simply omit the square brackets around an array comprehension, yo
 Since <code class="highlighter-rouge">extrema</code> works with arbitrary iterable objects – including generators – expressing an interleaved calculation using constant memory is now as simple as deleting <code class="highlighter-rouge">[</code> and <code class="highlighter-rouge">]</code>:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">extrema</span><span class="x">(</span><span class="n">sum</span><span class="x">(</span><span class="n">t</span><span class="x">)</span> <span class="k">for</span> <span class="n">t</span> <span class="k">in</span> <span class="n">change</span><span class="x">)</span>
-  <span class="mf">0.000066</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">6</span> <span class="n">allocations</span><span class="x">:</span> <span class="mi">208</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">0.000066</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">6</span> <span class="n">allocations</span><span class="o">:</span> <span class="mi">208</span> <span class="n">bytes</span><span class="x">)</span>
 <span class="x">(</span><span class="mi">100</span><span class="x">,</span><span class="mi">100</span><span class="x">)</span></code></pre></figure>
 
 <p>This avoids allocating a temporary array of sums entirely, instead computing the next tuple’s sum only when the <code class="highlighter-rouge">extrema</code> function is ready to accept a new value.
@@ -530,35 +530,35 @@ It displays itself as you would construct it from an array, but that’s merely 
 <p>Now, I’m a human (no blogbots here) and I find typing out even short sequences of perfect squares tedious and error prone – despite a math degree, I’m awful at arithmetic.
 It would be much easier to generate squares with an array comprehension:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">IntSet</span><span class="x">([</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">])</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">IntSet</span><span class="x">([</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">8</span><span class="x">])</span>
 <span class="n">IntSet</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="mi">4</span><span class="x">,</span> <span class="mi">9</span><span class="x">,</span> <span class="mi">16</span><span class="x">,</span> <span class="mi">25</span><span class="x">,</span> <span class="mi">36</span><span class="x">,</span> <span class="mi">49</span><span class="x">,</span> <span class="mi">64</span><span class="x">])</span></code></pre></figure>
 
 <p>This comprehension produces the same array of integers that I typed manually above.
 As before, creating this array object is unnecessary – it would be even better to generate the desired squares as they are inserted into the new <code class="highlighter-rouge">IntSet</code>.
 Which, of course, is precisely what generator expressions allow:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">IntSet</span><span class="x">(</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">)</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">IntSet</span><span class="x">(</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">8</span><span class="x">)</span>
 <span class="n">IntSet</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="mi">4</span><span class="x">,</span> <span class="mi">9</span><span class="x">,</span> <span class="mi">16</span><span class="x">,</span> <span class="mi">25</span><span class="x">,</span> <span class="mi">36</span><span class="x">,</span> <span class="mi">49</span><span class="x">,</span> <span class="mi">64</span><span class="x">])</span></code></pre></figure>
 
 <p>Using a generator here is just as clear, more concise, and significantly more efficient:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">BenchmarkTools</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">IntSet</span><span class="x">([</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">])</span>
-<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-  <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">320.00</span> <span class="n">bytes</span>
-  <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">163.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">199.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">245.18</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">12.95</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">5.36</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">92.47</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">IntSet</span><span class="x">([</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">8</span><span class="x">])</span>
+<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+  <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">320.00</span> <span class="n">bytes</span>
+  <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">163.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">199.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">245.18</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">12.95</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">5.36</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">92.47</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">IntSet</span><span class="x">(</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">8</span><span class="x">)</span>
-<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-  <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">160.00</span> <span class="n">bytes</span>
-  <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">114.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">139.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">165.74</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">11.48</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-  <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">4.82</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">93.20</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span></code></pre></figure>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@benchmark</span> <span class="n">IntSet</span><span class="x">(</span><span class="n">k</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">8</span><span class="x">)</span>
+<span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+  <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">160.00</span> <span class="n">bytes</span>
+  <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">114.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">139.00</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">165.74</span> <span class="n">ns</span> <span class="x">(</span><span class="mf">11.48</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+  <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">4.82</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">93.20</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span></code></pre></figure>
 
 <p>As you can see from this benchmark, the version with an array comprehension uses twice as much memory and is 50% slower than constructing the same <code class="highlighter-rouge">IntSet</code> using a generator expression.</p>
 
@@ -591,13 +591,13 @@ With much relief, we can now instead write:</p>
 
 <p>The <code class="highlighter-rouge">Dict</code> type is now constructed in exactly the same way:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">Dict</span><span class="x">(</span><span class="s">"foo"</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="x">,</span> <span class="s">"bar"</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="x">)</span>
-<span class="n">Dict</span><span class="x">{</span><span class="kt">String</span><span class="x">,</span><span class="kt">Int64</span><span class="x">}</span> <span class="n">with</span> <span class="mi">2</span> <span class="n">entries</span><span class="x">:</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="kt">Dict</span><span class="x">(</span><span class="s">"foo"</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="x">,</span> <span class="s">"bar"</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="x">)</span>
+<span class="kt">Dict</span><span class="x">{</span><span class="kt">String</span><span class="x">,</span><span class="kt">Int64</span><span class="x">}</span> <span class="n">with</span> <span class="mi">2</span> <span class="n">entries</span><span class="o">:</span>
   <span class="s">"bar"</span> <span class="o">=&gt;</span> <span class="mi">2</span>
   <span class="s">"foo"</span> <span class="o">=&gt;</span> <span class="mi">1</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Dict</span><span class="x">(</span><span class="s">"*"</span><span class="o">^</span><span class="n">k</span> <span class="o">=&gt;</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">10</span><span class="x">)</span>
-<span class="n">Dict</span><span class="x">{</span><span class="kt">String</span><span class="x">,</span><span class="kt">Int64</span><span class="x">}</span> <span class="n">with</span> <span class="mi">10</span> <span class="n">entries</span><span class="x">:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="kt">Dict</span><span class="x">(</span><span class="s">"*"</span><span class="o">^</span><span class="n">k</span> <span class="o">=&gt;</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="x">)</span>
+<span class="kt">Dict</span><span class="x">{</span><span class="kt">String</span><span class="x">,</span><span class="kt">Int64</span><span class="x">}</span> <span class="n">with</span> <span class="mi">10</span> <span class="n">entries</span><span class="o">:</span>
   <span class="s">"**********"</span> <span class="o">=&gt;</span> <span class="mi">10</span>
   <span class="s">"***"</span>        <span class="o">=&gt;</span> <span class="mi">3</span>
   <span class="s">"*******"</span>    <span class="o">=&gt;</span> <span class="mi">7</span>
@@ -640,59 +640,59 @@ For example, in <code class="highlighter-rouge">A[1,:]</code> the first slice is
 That is, when an array was sliced with multiple indices, the resulting array had the number of dimensions of the original array minus the number of trailing scalar slices.
 So when you sliced a column out of a matrix the result was a 1-dimensional vector, but when you sliced a row the result was a 2-dimensional row matrix:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">VERSION</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">VERSION</span>
 <span class="n">v</span><span class="s">"0.4.7"</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span> <span class="o">=</span> <span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">3</span><span class="x">,</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">]</span>
-<span class="mi">3</span><span class="n">x4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span> <span class="o">=</span> <span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">^</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">3</span><span class="x">,</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">4</span><span class="x">]</span>
+<span class="mi">3</span><span class="n">x4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">2</span>  <span class="mi">5</span>  <span class="mi">10</span>  <span class="mi">17</span>
  <span class="mi">3</span>  <span class="mi">6</span>  <span class="mi">11</span>  <span class="mi">18</span>
  <span class="mi">4</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">19</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[:,</span><span class="mi">1</span><span class="x">]</span> <span class="c"># vector</span>
-<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="o">:</span><span class="x">,</span><span class="mi">1</span><span class="x">]</span> <span class="c"># vector</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">2</span>
  <span class="mi">3</span>
  <span class="mi">4</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="mi">3</span><span class="x">,:]</span> <span class="c"># row matrix</span>
-<span class="mi">1</span><span class="n">x4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="mi">3</span><span class="x">,</span><span class="o">:</span><span class="x">]</span> <span class="c"># row matrix</span>
+<span class="mi">1</span><span class="n">x4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">4</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">19</span></code></pre></figure>
 
 <p>This rule is handy for linear algebra since row and column slices have distinct types and different orientations, but its complexity, asymmetry, and lack of generality make it less than ideal for arrays as general purpose containers.
 With more dimensions, the asymmetry of this behavior can be seen even in a single slice operation:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">VERSION</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">VERSION</span>
 <span class="n">v</span><span class="s">"0.4.7"</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span> <span class="o">=</span> <span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">^</span><span class="mi">2</span><span class="o">+</span><span class="n">k</span><span class="o">^</span><span class="mi">3</span> <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">3</span><span class="x">,</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">4</span><span class="x">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="x">:</span><span class="mi">2</span><span class="x">]</span>
-<span class="mi">3</span><span class="n">x4x2</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">3</span><span class="x">}:</span>
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">=</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span> <span class="o">=</span> <span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">^</span><span class="mi">2</span><span class="o">+</span><span class="n">k</span><span class="o">^</span><span class="mi">3</span> <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">3</span><span class="x">,</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">4</span><span class="x">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="x">]</span>
+<span class="mi">3</span><span class="n">x4x2</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">3</span><span class="x">}</span><span class="o">:</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">3</span>  <span class="mi">6</span>  <span class="mi">11</span>  <span class="mi">18</span>
  <span class="mi">4</span>  <span class="mi">7</span>  <span class="mi">12</span>  <span class="mi">19</span>
  <span class="mi">5</span>  <span class="mi">8</span>  <span class="mi">13</span>  <span class="mi">20</span>
 
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">=</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">10</span>  <span class="mi">13</span>  <span class="mi">18</span>  <span class="mi">25</span>
  <span class="mi">11</span>  <span class="mi">14</span>  <span class="mi">19</span>  <span class="mi">26</span>
  <span class="mi">12</span>  <span class="mi">15</span>  <span class="mi">20</span>  <span class="mi">27</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[</span><span class="mi">2</span><span class="x">,:,</span><span class="mi">2</span><span class="x">]</span>
-<span class="mi">1</span><span class="n">x4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span><span class="o">:</span><span class="x">,</span><span class="mi">2</span><span class="x">]</span>
+<span class="mi">1</span><span class="n">x4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">11</span>  <span class="mi">14</span>  <span class="mi">19</span>  <span class="mi">26</span></code></pre></figure>
 
 <p>The leading dimension of this slice is retained while the trailing dimension is discarded – even though both are scalar slices.
 The result array is neither 3-dimensional like the original, nor 1-dimensional like the collective indexes (0 + 1 + 0); instead, it’s 2-dimensional – apropos of nothing.
 Here, in another fairly similar slice, all dimensions are kept:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[:,</span><span class="mi">4</span><span class="x">,:]</span>
-<span class="mi">3</span><span class="n">x1x2</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">3</span><span class="x">}:</span>
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">=</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[</span><span class="o">:</span><span class="x">,</span><span class="mi">4</span><span class="x">,</span><span class="o">:</span><span class="x">]</span>
+<span class="mi">3</span><span class="n">x1x2</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">3</span><span class="x">}</span><span class="o">:</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">18</span>
  <span class="mi">19</span>
  <span class="mi">20</span>
 
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">=</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">25</span>
  <span class="mi">26</span>
  <span class="mi">27</span></code></pre></figure>
@@ -702,17 +702,17 @@ Here, in another fairly similar slice, all dimensions are kept:</p>
 In Julia 0.5, when an array is sliced, the dimension of the result is the sum of the dimensions of the slices, and the dimension sizes of the result are the concatenation of the sizes of the slices.
 Thus, row slices and column slices both produce vectors:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">VERSION</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">VERSION</span>
 <span class="n">v</span><span class="s">"0.5.0"</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[:,</span><span class="mi">1</span><span class="x">]</span> <span class="c"># vector: 1 + 0 = 1</span>
-<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="o">:</span><span class="x">,</span><span class="mi">1</span><span class="x">]</span> <span class="c"># vector: 1 + 0 = 1</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">2</span>
  <span class="mi">3</span>
  <span class="mi">4</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="mi">1</span><span class="x">,:]</span> <span class="c"># vector: 0 + 1 = 1</span>
-<span class="mi">4</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="mi">1</span><span class="x">,</span><span class="o">:</span><span class="x">]</span> <span class="c"># vector: 0 + 1 = 1</span>
+<span class="mi">4</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
   <span class="mi">2</span>
   <span class="mi">5</span>
  <span class="mi">10</span>
@@ -720,8 +720,8 @@ Thus, row slices and column slices both produce vectors:</p>
 
 <p>Similarly, slicing a 3-dimensional array with scalars in all but one dimension also produces a vector:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[</span><span class="mi">2</span><span class="x">,:,</span><span class="mi">2</span><span class="x">]</span> <span class="c"># vector: 0 + 1 + 0 = 1</span>
-<span class="mi">4</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[</span><span class="mi">2</span><span class="x">,</span><span class="o">:</span><span class="x">,</span><span class="mi">2</span><span class="x">]</span> <span class="c"># vector: 0 + 1 + 0 = 1</span>
+<span class="mi">4</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">11</span>
  <span class="mi">14</span>
  <span class="mi">19</span>
@@ -729,8 +729,8 @@ Thus, row slices and column slices both produce vectors:</p>
 
 <p>The only example from above that doesn’t produce a vector is the last one:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[:,</span><span class="mi">4</span><span class="x">,:]</span> <span class="c"># matrix: 1 + 0 + 1 = 2</span>
-<span class="mi">3</span><span class="n">×2</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">T</span><span class="x">[</span><span class="o">:</span><span class="x">,</span><span class="mi">4</span><span class="x">,</span><span class="o">:</span><span class="x">]</span> <span class="c"># matrix: 1 + 0 + 1 = 2</span>
+<span class="mi">3</span><span class="n">×2</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">18</span>  <span class="mi">25</span>
  <span class="mi">19</span>  <span class="mi">26</span>
  <span class="mi">20</span>  <span class="mi">27</span></code></pre></figure>
@@ -739,29 +739,29 @@ Thus, row slices and column slices both produce vectors:</p>
 The 0.5 slicing behavior naturally generalizes to higher dimensional slices:</p>
 
 <figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">I</span> <span class="o">=</span> <span class="x">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span><span class="x">;</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">2</span><span class="x">]</span>
-<span class="mi">2</span><span class="n">×3</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">2</span><span class="n">×3</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">1</span>  <span class="mi">2</span>  <span class="mi">1</span>
  <span class="mi">1</span>  <span class="mi">3</span>  <span class="mi">2</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">J</span> <span class="o">=</span> <span class="x">[</span><span class="mi">4</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">3</span><span class="x">]</span>
-<span class="mi">1</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">1</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">4</span>  <span class="mi">2</span>  <span class="mi">1</span>  <span class="mi">3</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="n">I</span><span class="x">,</span><span class="n">J</span><span class="x">]</span>
-<span class="mi">2</span><span class="n">×3×1×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">4</span><span class="x">}:</span>
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">=</span>
+<span class="mi">2</span><span class="n">×3×1×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">4</span><span class="x">}</span><span class="o">:</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">1</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">17</span>  <span class="mi">18</span>  <span class="mi">17</span>
  <span class="mi">17</span>  <span class="mi">19</span>  <span class="mi">18</span>
 
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">=</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">2</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">5</span>
  <span class="mi">5</span>  <span class="mi">7</span>  <span class="mi">6</span>
 
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">3</span><span class="x">]</span> <span class="o">=</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">3</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">2</span>  <span class="mi">3</span>  <span class="mi">2</span>
  <span class="mi">2</span>  <span class="mi">4</span>  <span class="mi">3</span>
 
-<span class="x">[:,</span> <span class="x">:,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">4</span><span class="x">]</span> <span class="o">=</span>
+<span class="x">[</span><span class="o">:</span><span class="x">,</span> <span class="o">:</span><span class="x">,</span> <span class="mi">1</span><span class="x">,</span> <span class="mi">4</span><span class="x">]</span> <span class="o">=</span>
  <span class="mi">10</span>  <span class="mi">11</span>  <span class="mi">10</span>
  <span class="mi">10</span>  <span class="mi">12</span>  <span class="mi">11</span></code></pre></figure>
 
@@ -775,8 +775,8 @@ The 0.5 slicing behavior naturally generalizes to higher dimensional slices:</p>
 It tends to primarily affect linear algebra code, and when code does break, it’s usually fairly clear what is broken and what needs to be done to fix it.
 When updating your code, if you need to keep a dimension that is dropped under the new indexing behavior, you can write <code class="highlighter-rouge">M[1:1,:]</code>:</p>
 
-<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="mi">1</span><span class="x">:</span><span class="mi">1</span><span class="x">,:]</span>
-<span class="mi">1</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<figure class="highlight"><pre><code class="language-julia" data-lang="julia"><span class="n">julia</span><span class="o">&gt;</span> <span class="n">M</span><span class="x">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">1</span><span class="x">,</span><span class="o">:</span><span class="x">]</span>
+<span class="mi">1</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mf">0.950951</span>  <span class="mf">0.713032</span>  <span class="mf">0.0835119</span>  <span class="mf">0.897018</span></code></pre></figure>
 
 <p>Since integer range construction can be eliminated by Julia’s compiler, writing this is free but has the effect of keeping a dimension which would otherwise be dropped under the new rules.

@@ -112,8 +112,8 @@
 
 <p>First we define the <code class="highlighter-rouge">Model</code> object. It is tempting to write it like this:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">struct</span> <span class="n">NaiveModel</span>
-    <span class="n">f</span><span class="o">::</span><span class="n">Function</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span><span class="nc"> NaiveModel</span>
+    <span class="n">f</span><span class="o">::</span><span class="kt">Function</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
@@ -145,7 +145,7 @@
 <p>Since <code class="highlighter-rouge">Function</code> is an abstract type, for performance we should <em>not</em> have a field of this type inside our object.
 Rather, we parametrise the type using the type of the function:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">struct</span> <span class="n">Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span><span class="nc"> Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
     <span class="n">f</span><span class="o">::</span><span class="n">F</span>
 <span class="k">end</span>
 
@@ -162,13 +162,13 @@ Rather, we parametrise the type using the type of the function:</p>
 
 <p>Let’s compare the performance:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">BenchmarkTools</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">m1</span><span class="x">(</span><span class="mi">10</span><span class="x">);</span>
-<span class="mf">41.482</span> <span class="n">ns</span> <span class="x">(</span><span class="mi">0</span> <span class="n">allocations</span><span class="x">:</span> <span class="mi">0</span> <span class="n">bytes</span><span class="x">)</span>
+<span class="mf">41.482</span> <span class="n">ns</span> <span class="x">(</span><span class="mi">0</span> <span class="n">allocations</span><span class="o">:</span> <span class="mi">0</span> <span class="n">bytes</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">m2</span><span class="x">(</span><span class="mi">10</span><span class="x">);</span>
-<span class="mf">20.212</span> <span class="n">ns</span> <span class="x">(</span><span class="mi">0</span> <span class="n">allocations</span><span class="x">:</span> <span class="mi">0</span> <span class="n">bytes</span><span class="x">)</span>
+<span class="mf">20.212</span> <span class="n">ns</span> <span class="x">(</span><span class="mi">0</span> <span class="n">allocations</span><span class="o">:</span> <span class="mi">0</span> <span class="n">bytes</span><span class="x">)</span>
 </code></pre></div></div>
 
 <p>Indeed we have removed some overhead in the second case.</p>
@@ -186,15 +186,15 @@ Rather, we parametrise the type using the type of the function:</p>
 
 <p>First, let’s create a function to manipulate our expression:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">:(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="kt">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="o">:</span><span class="x">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">ex</span> <span class="o">=</span> <span class="x">:(</span><span class="mi">2</span><span class="n">x</span><span class="x">);</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">ex</span> <span class="o">=</span> <span class="o">:</span><span class="x">(</span><span class="mi">2</span><span class="n">x</span><span class="x">);</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">make_function</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
-<span class="x">:(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">begin</span>  <span class="c"># In[12], line 2:</span>
+<span class="o">:</span><span class="x">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="k">begin</span>  <span class="c"># In[12], line 2:</span>
     <span class="mi">2</span><span class="n">x</span>
 <span class="k">end</span><span class="x">)</span>
 </code></pre></div></div>
@@ -205,20 +205,20 @@ anonymous function with the single argument <code class="highlighter-rouge">x</c
 
 <p>Now let’s define a function <code class="highlighter-rouge">make_model</code> that takes a function, wraps it, and passes it into a <code class="highlighter-rouge">Model</code> object:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">:(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="kt">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="o">:</span><span class="x">(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(:(</span><span class="mi">2</span><span class="n">x</span><span class="x">)))</span>
-<span class="x">:(</span><span class="n">Model</span><span class="x">((</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">begin</span>  <span class="c"># In[12], line 2:</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="o">:</span><span class="x">(</span><span class="mi">2</span><span class="n">x</span><span class="x">)))</span>
+<span class="o">:</span><span class="x">(</span><span class="n">Model</span><span class="x">((</span><span class="n">x</span><span class="o">-&gt;</span><span class="k">begin</span>  <span class="c"># In[12], line 2:</span>
             <span class="mi">2</span><span class="n">x</span>
         <span class="k">end</span><span class="x">)))</span>
 </code></pre></div></div>
 
 <p>If we evaluate this “by hand”, we see that it correctly creates a <code class="highlighter-rouge">Model</code> object:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m3</span> <span class="o">=</span> <span class="n">eval</span><span class="x">(</span><span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(:(</span><span class="mi">2</span><span class="n">x</span><span class="x">))))</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m3</span> <span class="o">=</span> <span class="n">eval</span><span class="x">(</span><span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="o">:</span><span class="x">(</span><span class="mi">2</span><span class="n">x</span><span class="x">))))</span>
 <span class="n">Model</span><span class="x">{</span><span class="c">##7#8}(#7)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">m3</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
@@ -236,29 +236,29 @@ It manipulates this expression object to create a new expression object, which i
 
 <p>Let’s start with the simplest possible macro:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">macro</span><span class="nf"> model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
     <span class="nd">@show</span> <span class="n">ex</span>
-    <span class="nd">@show</span> <span class="nb">typeof</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
-    <span class="k">return</span> <span class="n">nothing</span>
+    <span class="nd">@show</span> <span class="n">typeof</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+    <span class="k">return</span> <span class="nb">nothing</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
 <p>This just shows the argument that it was passed and exits, returning an empty expression.</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m4</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
-<span class="n">ex</span> <span class="o">=</span> <span class="x">:(</span><span class="mi">2</span><span class="n">x</span><span class="x">)</span>
-<span class="nb">typeof</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span> <span class="o">=</span> <span class="n">Expr</span>
+<span class="n">ex</span> <span class="o">=</span> <span class="o">:</span><span class="x">(</span><span class="mi">2</span><span class="n">x</span><span class="x">)</span>
+<span class="n">typeof</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span> <span class="o">=</span> <span class="kt">Expr</span>
 </code></pre></div></div>
 
 <p>We see that the Julia <code class="highlighter-rouge">Expr</code> object has been automatically created from the explicit code that we typed.</p>
 
 <p>Now we can plug in our previous functions to complete the macro’s functionality:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">macro</span><span class="nf"> model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
            <span class="k">return</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="n">ex</span><span class="x">))</span>
        <span class="k">end</span>
 
-<span class="nd">@model</span> <span class="x">(</span><span class="n">macro</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">method</span><span class="x">)</span>
+<span class="nd">@model</span> <span class="x">(</span><span class="k">macro</span><span class="nf"> with</span> <span class="mi">1</span> <span class="n">method</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">m5</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
 <span class="n">Model</span><span class="x">{</span><span class="c">##7#8}(#7)</span>
@@ -269,7 +269,7 @@ It manipulates this expression object to create a new expression object, which i
 
 <p>To check that the macro is doing what we think it is, we can use the <code class="highlighter-rouge">@macroexpand</code> command, which itself is a macro (as denoted by the initial <code class="highlighter-rouge">@</code>):</p>
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@macroexpand</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span>
-<span class="x">:((</span><span class="n">Main</span><span class="o">.</span><span class="n">Model</span><span class="x">)((</span><span class="c">#71#x-&gt;begin  # In[12], line 2:</span>
+<span class="o">:</span><span class="x">((</span><span class="n">Main</span><span class="o">.</span><span class="n">Model</span><span class="x">)((</span><span class="c">#71#x-&gt;begin  # In[12], line 2:</span>
                     <span class="mi">2</span><span class="c">#71#x</span>
                 <span class="k">end</span><span class="x">)))</span>
 </code></pre></div></div>
@@ -282,21 +282,21 @@ It manipulates this expression object to create a new expression object, which i
 
 <span class="k">export</span> <span class="n">Model</span><span class="x">,</span> <span class="nd">@model</span>
 
-<span class="n">struct</span> <span class="n">Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
+<span class="k">struct</span><span class="nc"> Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
     <span class="n">f</span><span class="o">::</span><span class="n">F</span>
 <span class="k">end</span>
 
 <span class="x">(</span><span class="n">m</span><span class="o">::</span><span class="n">Model</span><span class="x">)(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
 
-<span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">:(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="kt">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="o">:</span><span class="x">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
 <span class="k">end</span>
 
-<span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">:(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
+<span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="kt">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="o">:</span><span class="x">(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
 <span class="k">end</span>
 
-<span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">macro</span><span class="nf"> model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
     <span class="k">return</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="n">ex</span><span class="x">))</span>
 <span class="k">end</span>
 
@@ -305,7 +305,7 @@ It manipulates this expression object to create a new expression object, which i
 
 <p>Now we import the module and use the macro:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Models</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">Models</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">m6</span> <span class="o">=</span> <span class="nd">@model</span> <span class="mi">2</span><span class="n">x</span><span class="x">;</span>
 
@@ -321,8 +321,8 @@ It manipulates this expression object to create a new expression object, which i
 <span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">{</span><span class="c">##7#8}(#7)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">m7</span><span class="x">(</span><span class="mi">10</span><span class="x">)</span>
-<span class="n">UndefVarError</span><span class="x">:</span> <span class="n">a</span> <span class="n">not</span> <span class="n">defined</span>
-<span class="n">Stacktrace</span><span class="x">:</span>
+<span class="kt">UndefVarError</span><span class="o">:</span> <span class="n">a</span> <span class="n">not</span> <span class="n">defined</span>
+<span class="n">Stacktrace</span><span class="o">:</span>
  <span class="x">[</span><span class="mi">1</span><span class="x">]</span> <span class="c">#7 at ./In[1]:12 [inlined]</span>
  <span class="x">[</span><span class="mi">2</span><span class="x">]</span> <span class="x">(</span><span class="o">::</span><span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">{</span><span class="c">##7#8})(::Int64) at ./In[1]:9</span>
 </code></pre></div></div>
@@ -330,7 +330,7 @@ It manipulates this expression object to create a new expression object, which i
 <p>We see that it cannot find <code class="highlighter-rouge">a</code>. Let’s see what the macro is doing:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@macroexpand</span> <span class="nd">@model</span> <span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">x</span>
-<span class="x">:((</span><span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">)((</span><span class="c">#4#x-&gt;begin  # In[1], line 12:</span>
+<span class="o">:</span><span class="x">((</span><span class="n">Models</span><span class="o">.</span><span class="n">Model</span><span class="x">)((</span><span class="c">#4#x-&gt;begin  # In[1], line 12:</span>
                     <span class="mi">2</span> <span class="o">*</span> <span class="n">Models</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="c">#4#x</span>
                 <span class="k">end</span><span class="x">)))</span>
 </code></pre></div></div>
@@ -344,28 +344,28 @@ It manipulates this expression object to create a new expression object, which i
 
 <span class="k">export</span> <span class="n">Model</span><span class="x">,</span> <span class="nd">@model</span>
 
-<span class="n">struct</span> <span class="n">Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
+<span class="k">struct</span><span class="nc"> Model</span><span class="x">{</span><span class="n">F</span><span class="x">}</span>
     <span class="n">f</span><span class="o">::</span><span class="n">F</span>
 <span class="k">end</span>
 
 <span class="x">(</span><span class="n">m</span><span class="o">::</span><span class="n">Model</span><span class="x">)(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
 
-<span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">:(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">function</span><span class="nf"> make_function</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="kt">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="o">:</span><span class="x">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="o">$</span><span class="n">ex</span><span class="x">)</span>
 <span class="k">end</span>
 
-<span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="n">Expr</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">:(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
+<span class="k">function</span><span class="nf"> make_model</span><span class="x">(</span><span class="n">ex</span><span class="o">::</span><span class="kt">Expr</span><span class="x">)</span>
+    <span class="k">return</span> <span class="o">:</span><span class="x">(</span><span class="n">Model</span><span class="x">(</span><span class="o">$</span><span class="n">ex</span><span class="x">))</span>
 <span class="k">end</span>
 
-<span class="n">macro</span> <span class="n">model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+<span class="k">macro</span><span class="nf"> model</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
     <span class="k">return</span> <span class="n">make_model</span><span class="x">(</span><span class="n">make_function</span><span class="x">(</span><span class="n">esc</span><span class="x">(</span><span class="n">ex</span><span class="x">)))</span>
 <span class="k">end</span>
 
 <span class="k">end</span>
 </code></pre></div></div>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">Models2</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">Models2</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="x">;</span>
 

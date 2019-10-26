@@ -149,23 +149,23 @@ linebreaks: { automatic: true }
 
 <p>We implement the action of the matrices $A$ and $B$ matrix-free, using LinearMaps.jl:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">LinearMaps</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">LinearMaps</span>
 
 <span class="k">function</span><span class="nf"> myA</span><span class="o">!</span><span class="x">(</span><span class="n">y</span><span class="x">,</span> <span class="n">x</span><span class="x">)</span>
-  <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="x">:</span> <span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
     <span class="nd">@inbounds</span> <span class="n">y</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">=</span> <span class="n">sqrt</span><span class="x">(</span><span class="n">i</span><span class="x">)</span> <span class="o">*</span> <span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>
   <span class="k">end</span>
 <span class="k">end</span>
 
 <span class="k">function</span><span class="nf"> myB</span><span class="o">!</span><span class="x">(</span><span class="n">y</span><span class="x">,</span> <span class="n">x</span><span class="x">)</span>
-  <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="x">:</span> <span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
     <span class="nd">@inbounds</span> <span class="n">y</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">=</span> <span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">/</span> <span class="n">sqrt</span><span class="x">(</span><span class="n">i</span><span class="x">)</span>
   <span class="k">end</span>
 <span class="k">end</span>
 
 <span class="n">n</span> <span class="o">=</span> <span class="mi">100_000</span>
-<span class="n">A</span> <span class="o">=</span> <span class="n">LinearMap</span><span class="x">{</span><span class="kt">Complex128</span><span class="x">}(</span><span class="n">myA!</span><span class="x">,</span> <span class="n">n</span><span class="x">;</span> <span class="n">ismutating</span> <span class="o">=</span> <span class="n">true</span><span class="x">)</span>
-<span class="n">B</span> <span class="o">=</span> <span class="n">LinearMap</span><span class="x">{</span><span class="kt">Complex128</span><span class="x">}(</span><span class="n">myB!</span><span class="x">,</span> <span class="n">n</span><span class="x">;</span> <span class="n">ismutating</span> <span class="o">=</span> <span class="n">true</span><span class="x">)</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">LinearMap</span><span class="x">{</span><span class="n">Complex128</span><span class="x">}(</span><span class="n">myA!</span><span class="x">,</span> <span class="n">n</span><span class="x">;</span> <span class="n">ismutating</span> <span class="o">=</span> <span class="nb">true</span><span class="x">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">LinearMap</span><span class="x">{</span><span class="n">Complex128</span><span class="x">}(</span><span class="n">myB!</span><span class="x">,</span> <span class="n">n</span><span class="x">;</span> <span class="n">ismutating</span> <span class="o">=</span> <span class="nb">true</span><span class="x">)</span>
 </code></pre></div></div>
 
 <p>The order of the matrices is <code class="highlighter-rouge">100_000</code>. It turns out that if we target eigenvalues in the interior of the spectrum, iterative solvers used internally in Jacobi-Davidson might have trouble solving very indefinite systems.</p>
@@ -174,12 +174,12 @@ linebreaks: { automatic: true }
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="n">Base</span><span class="o">.</span><span class="n">LinAlg</span><span class="o">.</span><span class="n">A_ldiv_B!</span>
 
-<span class="n">struct</span> <span class="n">SuperPreconditioner</span><span class="x">{</span><span class="n">numT</span> <span class="o">&lt;:</span> <span class="n">Number</span><span class="x">}</span>
+<span class="k">struct</span><span class="nc"> SuperPreconditioner</span><span class="x">{</span><span class="n">numT</span> <span class="o">&lt;:</span> <span class="kt">Number</span><span class="x">}</span>
     <span class="n">target</span><span class="o">::</span><span class="n">numT</span>
 <span class="k">end</span>
 
 <span class="k">function</span><span class="nf"> A_ldiv_B</span><span class="o">!</span><span class="x">(</span><span class="n">p</span><span class="o">::</span><span class="n">SuperPreconditioner</span><span class="x">,</span> <span class="n">x</span><span class="x">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="x">:</span> <span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">length</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
         <span class="nd">@inbounds</span> <span class="n">x</span><span class="x">[</span><span class="n">i</span><span class="x">]</span> <span class="o">*=</span> <span class="n">sqrt</span><span class="x">(</span><span class="n">i</span><span class="x">)</span> <span class="o">/</span> <span class="x">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">p</span><span class="o">.</span><span class="n">target</span><span class="x">)</span>
     <span class="k">end</span>
 <span class="k">end</span>
@@ -187,7 +187,7 @@ linebreaks: { automatic: true }
 
 <p>Now we call Jacobi-Davidson with the <code class="highlighter-rouge">Near</code> target and pass the preconditioner. We use GMRES as the iterative solver, but we could have used BiCGStabl(l) as well.</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">JacobiDavidson</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">JacobiDavidson</span>
 
 <span class="n">τ</span> <span class="o">=</span> <span class="mf">50_000.1</span> <span class="o">+</span> <span class="mi">0</span><span class="nb">im</span>
 <span class="n">target</span> <span class="o">=</span> <span class="n">Near</span><span class="x">(</span><span class="n">τ</span><span class="x">)</span>
@@ -202,7 +202,7 @@ linebreaks: { automatic: true }
     <span class="n">min_dimension</span> <span class="o">=</span> <span class="mi">5</span><span class="x">,</span>
     <span class="n">max_dimension</span> <span class="o">=</span> <span class="mi">10</span><span class="x">,</span>
     <span class="n">max_iter</span> <span class="o">=</span> <span class="mi">200</span><span class="x">,</span>
-    <span class="n">verbose</span> <span class="o">=</span> <span class="n">true</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span>
 <span class="x">)</span>
 </code></pre></div></div>
 
@@ -236,7 +236,7 @@ linebreaks: { automatic: true }
 
 <p>The matrix $A$ has size $64^3 \times 64^3$. We want to solve the problem $Ax = b$ using for instance BiCGStab(2), but it turns out that convergence can get slow when the size of the problem grows. A quick benchmark shows it takes about 2.0 seconds to solve the problem to a reasonable tolerance:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span><span class="x">,</span> <span class="n">IterativeSolvers</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="k">using</span> <span class="n">BenchmarkTools</span><span class="x">,</span> <span class="n">IterativeSolvers</span>
 <span class="o">&gt;</span> <span class="n">my_x</span> <span class="o">=</span> <span class="nd">@btime</span> <span class="n">bicgstabl</span><span class="x">(</span><span class="o">$</span><span class="n">A</span><span class="x">,</span> <span class="o">$</span><span class="n">b</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">max_mv_products</span> <span class="o">=</span> <span class="mi">2000</span><span class="x">);</span>
 <span class="mf">2.051</span> <span class="n">s</span>
 <span class="o">&gt;</span> <span class="n">norm</span><span class="x">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="n">my_x</span><span class="x">)</span> <span class="o">/</span> <span class="n">norm</span><span class="x">(</span><span class="n">b</span><span class="x">)</span>
@@ -245,15 +245,15 @@ linebreaks: { automatic: true }
 
 <p>Now let’s construct the ILU factorization:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">using</span> <span class="n">ILU</span>
-<span class="o">&gt;</span> <span class="n">LU</span> <span class="o">=</span> <span class="n">crout_ilu</span><span class="x">(</span><span class="n">A</span><span class="x">,</span> <span class="n">τ</span> <span class="o">=</span> <span class="mf">0.1</span><span class="x">)</span>
-<span class="o">&gt;</span> <span class="n">nnz</span><span class="x">(</span><span class="n">LU</span><span class="x">)</span> <span class="o">/</span> <span class="n">nnz</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="k">using</span> <span class="n">ILU</span>
+<span class="o">&gt;</span> <span class="kt">LU</span> <span class="o">=</span> <span class="n">crout_ilu</span><span class="x">(</span><span class="n">A</span><span class="x">,</span> <span class="n">τ</span> <span class="o">=</span> <span class="mf">0.1</span><span class="x">)</span>
+<span class="o">&gt;</span> <span class="n">nnz</span><span class="x">(</span><span class="kt">LU</span><span class="x">)</span> <span class="o">/</span> <span class="n">nnz</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
 <span class="mf">2.1180353639352374</span>
 </code></pre></div></div>
 
 <p>Using the above drop tolerance $\tau$, our ILU factorization stores only about twice as many entries as the original matrix, which is reasonable. Let’s see what happens when we benchmark the solver again, now with ILU as a preconditioner:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">my_x</span> <span class="o">=</span> <span class="nd">@btime</span> <span class="n">bicgstabl</span><span class="x">(</span><span class="o">$</span><span class="n">A</span><span class="x">,</span> <span class="o">$</span><span class="n">b</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">Pl</span> <span class="o">=</span> <span class="o">$</span><span class="n">LU</span><span class="x">,</span> <span class="n">max_mv_products</span> <span class="o">=</span> <span class="mi">2000</span><span class="x">);</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">my_x</span> <span class="o">=</span> <span class="nd">@btime</span> <span class="n">bicgstabl</span><span class="x">(</span><span class="o">$</span><span class="n">A</span><span class="x">,</span> <span class="o">$</span><span class="n">b</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">Pl</span> <span class="o">=</span> <span class="o">$</span><span class="kt">LU</span><span class="x">,</span> <span class="n">max_mv_products</span> <span class="o">=</span> <span class="mi">2000</span><span class="x">);</span>
 <span class="mf">692.187</span> <span class="n">ms</span>
 <span class="o">&gt;</span> <span class="n">norm</span><span class="x">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="n">my_x</span><span class="x">)</span> <span class="o">/</span> <span class="n">norm</span><span class="x">(</span><span class="n">b</span><span class="x">)</span>
 <span class="mf">2.133397068536056e-9</span>
@@ -261,7 +261,7 @@ linebreaks: { automatic: true }
 
 <p>It solves the problem 66% faster to the same tolerance. There is of course a caveat, as constructing the preconditioner itself takes time as well:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">LU</span> <span class="o">=</span> <span class="nd">@btime</span> <span class="n">crout_ilu</span><span class="x">(</span><span class="o">$</span><span class="n">A</span><span class="x">,</span> <span class="n">τ</span> <span class="o">=</span> <span class="mf">0.1</span><span class="x">);</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="kt">LU</span> <span class="o">=</span> <span class="nd">@btime</span> <span class="n">crout_ilu</span><span class="x">(</span><span class="o">$</span><span class="n">A</span><span class="x">,</span> <span class="n">τ</span> <span class="o">=</span> <span class="mf">0.1</span><span class="x">);</span>
 <span class="mf">611.019</span> <span class="n">ms</span>
 </code></pre></div></div>
 

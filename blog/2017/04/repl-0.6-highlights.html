@@ -114,7 +114,7 @@ In this blog post, we look into some of these changes and customizations to the 
 <span class="n">f</span> <span class="x">(</span><span class="n">generic</span> <span class="k">function</span><span class="nf"> with</span> <span class="mi">1</span> <span class="n">method</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">f</span><span class="x">();</span>
-  <span class="mf">0.052948</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">25.05</span> <span class="n">k</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">8.769</span> <span class="n">MiB</span><span class="x">)</span>
+  <span class="mf">0.052948</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">25.05</span> <span class="n">k</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">8.769</span> <span class="n">MiB</span><span class="x">)</span>
 </code></pre></div></div>
 
 <p>If you wanted to try out this code in 0.5, you would typically copy the code into a text editor, remove the <code class="highlighter-rouge">julia&gt; </code> prompt, remove the output, and then finally have code that looked like:</p>
@@ -160,9 +160,9 @@ Furthermore, you can now customize stack frame function and line information pri
 
 <p>For example, setting</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">ENV</span><span class="x">[</span><span class="s">"JULIA_STACKFRAME_LINEINFO_COLOR"</span><span class="x">]</span> <span class="o">=</span> <span class="x">:</span><span class="n">cyan</span><span class="x">;</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">ENV</span><span class="x">[</span><span class="s">"JULIA_STACKFRAME_LINEINFO_COLOR"</span><span class="x">]</span> <span class="o">=</span> <span class="o">:</span><span class="n">cyan</span><span class="x">;</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">ENV</span><span class="x">[</span><span class="s">"JULIA_STACKFRAME_FUNCTION_COLOR"</span><span class="x">]</span> <span class="o">=</span> <span class="x">:</span><span class="n">yellow</span><span class="x">;</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nb">ENV</span><span class="x">[</span><span class="s">"JULIA_STACKFRAME_FUNCTION_COLOR"</span><span class="x">]</span> <span class="o">=</span> <span class="o">:</span><span class="n">yellow</span><span class="x">;</span>
 </code></pre></div></div>
 
 <p>and rerunning the example above yields</p>

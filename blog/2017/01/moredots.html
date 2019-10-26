@@ -620,7 +620,7 @@ example is to combine a row vector (or a 1×<em>n</em> array) and a column vecto
 (2d array):</p>
 
 <div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="x">]</span> <span class="o">.+</span> <span class="x">[</span><span class="mi">10</span><span class="x">,</span><span class="mi">20</span><span class="x">,</span><span class="mi">30</span><span class="x">]</span>
-<span class="mi">3</span><span class="n">×3</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">3</span><span class="n">×3</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">11</span>  <span class="mi">12</span>  <span class="mi">13</span>
  <span class="mi">21</span>  <span class="mi">22</span>  <span class="mi">23</span>
  <span class="mi">31</span>  <span class="mi">32</span>  <span class="mi">33</span>
@@ -647,7 +647,7 @@ to numeric data.  For example:</p>
 <div class="language-jl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="x">[</span><span class="s">"The QUICK Brown"</span><span class="x">,</span> <span class="s">"fox     jumped"</span><span class="x">,</span> <span class="s">"over the LAZY dog."</span><span class="x">];</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">.=</span> <span class="n">replace</span><span class="o">.</span><span class="x">(</span><span class="n">lowercase</span><span class="o">.</span><span class="x">(</span><span class="n">s</span><span class="x">),</span> <span class="n">r</span><span class="s">"\s+"</span><span class="x">,</span> <span class="s">"-"</span><span class="x">)</span>
-<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">String</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">String</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="s">"the-quick-brown"</span>   
  <span class="s">"fox-jumped"</span>        
  <span class="s">"over-the-lazy-dog."</span>

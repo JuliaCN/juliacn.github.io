@@ -154,7 +154,7 @@ linebreaks: { automatic: true }
 
 <p>$f = -6$</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">FEniCS</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">FEniCS</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="x">(</span><span class="mi">8</span><span class="x">,</span><span class="mi">8</span><span class="x">)</span> 
 <span class="n">V</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="x">(</span><span class="n">mesh</span><span class="x">,</span><span class="s">"P"</span><span class="x">,</span><span class="mi">1</span><span class="x">)</span>
 <span class="n">u_D</span> <span class="o">=</span> <span class="n">Expression</span><span class="x">(</span><span class="s">"1+x[0]*x[0]+2*x[1]*x[1]"</span><span class="x">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">2</span><span class="x">)</span>
@@ -164,7 +164,7 @@ linebreaks: { automatic: true }
 <span class="n">f</span> <span class="o">=</span> <span class="n">Constant</span><span class="x">(</span><span class="o">-</span><span class="mf">6.0</span><span class="x">)</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">dot</span><span class="x">(</span><span class="n">grad</span><span class="x">(</span><span class="n">u</span><span class="x">),</span><span class="n">grad</span><span class="x">(</span><span class="n">v</span><span class="x">))</span><span class="o">*</span><span class="n">dx</span>
 <span class="n">L</span> <span class="o">=</span> <span class="n">f</span><span class="o">*</span><span class="n">v</span><span class="o">*</span><span class="n">dx</span>
-<span class="n">U</span> <span class="o">=</span> <span class="n">FEniCS</span><span class="o">.</span><span class="n">Function</span><span class="x">(</span><span class="n">V</span><span class="x">)</span>
+<span class="n">U</span> <span class="o">=</span> <span class="n">FEniCS</span><span class="o">.</span><span class="kt">Function</span><span class="x">(</span><span class="n">V</span><span class="x">)</span>
 <span class="n">lvsolve</span><span class="x">(</span><span class="n">a</span><span class="x">,</span><span class="n">L</span><span class="x">,</span><span class="n">U</span><span class="x">,</span><span class="n">bc1</span><span class="x">)</span> <span class="c">#linear variational solver</span>
 <span class="n">errornorm</span><span class="x">(</span><span class="n">u_D</span><span class="x">,</span> <span class="n">U</span><span class="x">,</span> <span class="n">norm</span><span class="o">=</span><span class="s">"L2"</span><span class="x">)</span>
 <span class="n">get_array</span><span class="x">(</span><span class="n">L</span><span class="x">)</span> <span class="c">#this returns an array for the stiffness matrix</span>

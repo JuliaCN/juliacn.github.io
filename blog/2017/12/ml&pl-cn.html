@@ -119,10 +119,10 @@
   <span class="k">return</span> <span class="s2">`</span><span class="p">${</span><span class="nx">a</span><span class="p">}</span><span class="s2">+</span><span class="p">${</span><span class="nx">b</span><span class="p">}</span><span class="s2">`</span><span class="p">;</span>
 <span class="p">}</span>
 <span class="nx">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="nx">z</span> <span class="o">=</span> <span class="nx">add</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">)</span> <span class="c1">// 'x+y'</span>
-<span class="kr">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 3</span>
+<span class="nx">z</span> <span class="o">=</span> <span class="nx">add</span><span class="p">(</span><span class="dl">'</span><span class="s1">x</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">y</span><span class="dl">'</span><span class="p">)</span> <span class="c1">// 'x+y'</span>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 3</span>
 <span class="nx">x</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="kr">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 6</span></code></pre></figure>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">z</span><span class="p">)</span> <span class="c1">// 6</span></code></pre></figure>
 
 <p>这就是<em>元编程</em>——编写用于写代码的代码。这个例子里的元语言和目标语言是一致的（都是 JavaScript），但它们完全可以是两种不同的语言（如 C 语言预处理器之于 C 语言）。同理，元编程也可以通过某种数据结构（<a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a>）来实现，而不仅限于字符串层面的处理。对 TensorFlow 而言，Python 就是一个用来书写 TF 基于图的编程语言<sup id="fnref:ast"><a href="#fn:ast" class="footnote">3</a></sup>的元语言。如果您对此还有疑虑，那么请想一想，TensorFlow 在实现图的<a href="https://www.tensorflow.org/programmers_guide/variables">变量作用域</a>和<a href="https://www.tensorflow.org/api_docs/python/tf/cond">流程控制</a>这些编程结构时并没有采用 Python 语法，而是利用 API 来实现的。</p>
 

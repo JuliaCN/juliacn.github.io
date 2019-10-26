@@ -141,7 +141,7 @@ linebreaks: { automatic: true }
 
 <p>It can also be accessed via the unicode symbol (you can get it at the REPL or in a notebook via the TeX completion <code class="highlighter-rouge">\pi</code> followed by a tab)</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">π</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">π</span>
 </code></pre></div></div>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>π = 3.1415926535897...
@@ -149,7 +149,7 @@ linebreaks: { automatic: true }
 
 <p>You’ll notice that it doesn’t print like an ordinary floating point number: that’s because it isn’t one.</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">typeof</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">typeof</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span>
 </code></pre></div></div>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Irrational{:π}
@@ -188,7 +188,7 @@ linebreaks: { automatic: true }
 <p>In fact <code class="highlighter-rouge">BigFloat</code> (which uses the <a href="http://www.mpfr.org">MPFR</a> library) will compute π on demand to the current precision, which is set via <code class="highlighter-rouge">setprecision</code>. This provides an easy way to get its digits:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># to 1024 bits</span>
-<span class="n">setprecision</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span> <span class="mi">1024</span><span class="x">)</span> <span class="n">do</span> 
+<span class="n">setprecision</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span> <span class="mi">1024</span><span class="x">)</span> <span class="k">do</span> 
     <span class="kt">BigFloat</span><span class="x">(</span><span class="nb">pi</span><span class="x">)</span>
 <span class="k">end</span>
 </code></pre></div></div>
@@ -216,7 +216,7 @@ This is just a presentation issue, however – the internal binary representati
     <span class="n">Base</span><span class="o">.</span><span class="n">llvmcall</span><span class="x">(</span>
     <span class="s">""" %pi = call double asm "</span><span class="n">fldpi</span><span class="s">", "</span><span class="o">=</span><span class="x">{</span><span class="n">st</span><span class="x">}</span><span class="s">"()
         ret double %pi"""</span><span class="x">,</span> 
-    <span class="kt">Float64</span><span class="x">,</span> <span class="n">Tuple</span><span class="x">{})</span>
+    <span class="kt">Float64</span><span class="x">,</span> <span class="kt">Tuple</span><span class="x">{})</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
@@ -268,7 +268,7 @@ Source line: 2
 
 <p>This will demonstrate how to evaluate π using various Taylor series expansions via the <a href="https://github.com/JuliaDiff/TaylorSeries.jl">TaylorSeries.jl</a> package.</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">TaylorSeries</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">TaylorSeries</span>
 </code></pre></div></div>
 
 <h3 id="madhavas-formula">Madhava’s formula</h3>
@@ -281,7 +281,7 @@ Source line: 2
 <p>We obtain the Taylor series of order 37th, using <code class="highlighter-rouge">BigFloat</code>s:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">series1</span> <span class="o">=</span> <span class="mi">6</span><span class="n">atan</span><span class="x">(</span> <span class="n">Taylor1</span><span class="x">(</span><span class="kt">BigFloat</span><span class="x">,</span> <span class="mi">37</span><span class="x">)</span> <span class="x">)</span>
-<span class="nb">convert</span><span class="x">(</span><span class="n">Taylor1</span><span class="x">{</span><span class="n">Rational</span><span class="x">{</span><span class="kt">BigInt</span><span class="x">}},</span><span class="n">series1</span><span class="x">)</span>
+<span class="n">convert</span><span class="x">(</span><span class="n">Taylor1</span><span class="x">{</span><span class="kt">Rational</span><span class="x">{</span><span class="kt">BigInt</span><span class="x">}},</span><span class="n">series1</span><span class="x">)</span>
 </code></pre></div></div>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 6//1 t - 2//1 t³ + 6//5 t⁵ - 6//7 t⁷ + 2//3 t⁹ - 6//11 t¹¹ + 6//13 t¹³ - 2//5 t¹⁵ + 6//17 t¹⁷ - 6//19 t¹⁹ + 2//7 t²¹ - 6//23 t²³ + 6//25 t²⁵ - 2//9 t²⁷ + 6//29 t²⁹ - 6//31 t³¹ + 2//11 t³³ - 6//35 t³⁵ + 6//37 t³⁷ + 𝒪(t³⁸)
@@ -381,7 +381,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">,</span> <span class="n">T</span><span class="o">=</span><span class="kt">Float64</span><span class="x">)</span>
     <span class="n">total</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">T</span><span class="x">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">N</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">N</span>
         <span class="n">total</span> <span class="o">+=</span> <span class="n">one</span><span class="x">(</span><span class="n">T</span><span class="x">)</span> <span class="o">/</span> <span class="x">(</span><span class="n">i</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
     <span class="k">end</span>
     <span class="n">total</span>
@@ -389,7 +389,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <span class="k">function</span><span class="nf"> reverse_sum</span><span class="x">(</span><span class="n">N</span><span class="x">,</span> <span class="n">T</span><span class="o">=</span><span class="kt">Float64</span><span class="x">)</span>
     <span class="n">total</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">T</span><span class="x">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">N</span><span class="x">:</span><span class="o">-</span><span class="mi">1</span><span class="x">:</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">N</span><span class="o">:-</span><span class="mi">1</span><span class="o">:</span><span class="mi">1</span>
         <span class="n">total</span> <span class="o">+=</span> <span class="n">one</span><span class="x">(</span><span class="n">T</span><span class="x">)</span> <span class="o">/</span> <span class="x">(</span><span class="n">i</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
     <span class="k">end</span>
     <span class="n">total</span>
@@ -404,12 +404,12 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">^</span><span class="mi">6</span>
 
 <span class="n">lowerbound_S_N</span> <span class="o">=</span> 
-    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="n">do</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="k">do</span>
         <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
     <span class="k">end</span>
 
 <span class="n">upperbound_S_N</span> <span class="o">=</span> 
-    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="n">do</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="k">do</span>
         <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
     <span class="k">end</span>
 
@@ -424,13 +424,13 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">^</span><span class="mi">6</span>
 
 <span class="n">lower_π</span> <span class="o">=</span>
-    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="n">do</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="k">do</span>
         <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="x">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span>
         <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">lower_bound</span><span class="x">)</span>
     <span class="k">end</span>
 
 <span class="n">upper_π</span> <span class="o">=</span> 
-    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="n">do</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="k">do</span>
         <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">forward_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="n">N</span>
         <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">upper_bound</span><span class="x">)</span>
     <span class="k">end</span>
@@ -460,13 +460,13 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">^</span><span class="mi">6</span>
 
 <span class="n">lower_π</span> <span class="o">=</span>
-    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="n">do</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundDown</span><span class="x">)</span> <span class="k">do</span>
         <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">reverse_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="x">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span>
         <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">lower_bound</span><span class="x">)</span>
     <span class="k">end</span>
 
 <span class="n">upper_π</span> <span class="o">=</span> 
-    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="n">do</span>
+    <span class="n">setrounding</span><span class="x">(</span><span class="kt">Float64</span><span class="x">,</span> <span class="n">RoundUp</span><span class="x">)</span> <span class="k">do</span>
         <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">reverse_sum</span><span class="x">(</span><span class="n">N</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="n">N</span>
         <span class="n">sqrt</span><span class="x">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">upper_bound</span><span class="x">)</span>
     <span class="k">end</span>
@@ -495,10 +495,10 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <p>We repeat the calculation using <em>interval arithmetic</em>, provided by the <a href="https://github.com/dpsanders/ValidatedNumerics.jl">ValidatedNumerics.jl</a> package.</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">ValidatedNumerics</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">ValidatedNumerics</span>
 </code></pre></div></div>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">standard</span><span class="x">)</span>  <span class="c"># abbreviated display of intervals</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(</span><span class="o">:</span><span class="n">standard</span><span class="x">)</span>  <span class="c"># abbreviated display of intervals</span>
 </code></pre></div></div>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>6
@@ -515,7 +515,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <p>Here we used an abbreviated display for the interval. Let’s see the whole thing:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">full</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(</span><span class="o">:</span><span class="n">full</span><span class="x">)</span>
 <span class="n">π_interval</span>
 </code></pre></div></div>
 
@@ -534,7 +534,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <p>In this calculation, we used the fact that arithmetic operations of intervals with numbers automatically promote the numbers to an interval:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">full</span><span class="x">)</span>  <span class="c"># full interval display</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(</span><span class="o">:</span><span class="n">full</span><span class="x">)</span>  <span class="c"># full interval display</span>
 <span class="n">Interval</span><span class="x">(</span><span class="mi">0</span><span class="x">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">^</span><span class="mi">2</span>
 </code></pre></div></div>
 
@@ -543,7 +543,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <p>This is an interval containing the true real number $1/9$ (written <code class="highlighter-rouge">1//9</code> in Julia):</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span><span class="o">//</span><span class="mi">9</span> <span class="n">∈</span> <span class="nb">convert</span><span class="x">(</span><span class="n">Interval</span><span class="x">{</span><span class="kt">Float64</span><span class="x">},</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span><span class="o">//</span><span class="mi">9</span> <span class="n">∈</span> <span class="n">convert</span><span class="x">(</span><span class="n">Interval</span><span class="x">{</span><span class="kt">Float64</span><span class="x">},</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
 </code></pre></div></div>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>true
@@ -561,7 +561,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <p>Although the calculation above is simple, the derivation of the series itself is not. In this section, we will use a more natural way to calculate $\pi$, namely that the area of a circle of radius $r$ is $A(r) = \pi r^2$. We will calculate the area of one quadrant of a circle of radius $r=2$, which is equal to $\pi$:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">using</span> <span class="n">Plots</span><span class="x">;</span> <span class="n">gr</span><span class="x">();</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">Plots</span><span class="x">;</span> <span class="n">gr</span><span class="x">();</span>
 </code></pre></div></div>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">)</span> <span class="o">=</span> <span class="n">√</span><span class="x">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span>
@@ -570,7 +570,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>f (generic function with 1 method)
 </code></pre></div></div>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="x">:</span><span class="n">equal</span><span class="x">,</span> <span class="n">fill</span><span class="o">=</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="x">:</span><span class="n">orange</span><span class="x">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">aspect_ratio</span><span class="o">=:</span><span class="n">equal</span><span class="x">,</span> <span class="n">fill</span><span class="o">=</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="o">:</span><span class="n">orange</span><span class="x">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">)</span>
 </code></pre></div></div>
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -690,7 +690,7 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> make_intervals</span><span class="x">(</span><span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="x">)</span>
     <span class="n">xs</span> <span class="o">=</span> <span class="n">linspace</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="x">)</span>
-    <span class="k">return</span> <span class="x">[</span><span class="n">xs</span><span class="x">[</span><span class="n">i</span><span class="x">]</span><span class="o">..</span><span class="n">xs</span><span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="x">]</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">length</span><span class="x">(</span><span class="n">xs</span><span class="x">)</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span>
+    <span class="k">return</span> <span class="x">[</span><span class="n">xs</span><span class="x">[</span><span class="n">i</span><span class="x">]</span><span class="o">..</span><span class="n">xs</span><span class="x">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="x">]</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="x">(</span><span class="n">xs</span><span class="x">)</span><span class="o">-</span><span class="mi">1</span><span class="x">]</span>
 <span class="k">end</span>
 
 <span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">()</span>
@@ -727,12 +727,12 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">(</span><span class="mi">30</span><span class="x">)</span>
 
-<span class="n">p</span> <span class="o">=</span> <span class="n">plot</span><span class="x">(</span><span class="n">aspect_ratio</span><span class="o">=</span><span class="x">:</span><span class="n">equal</span><span class="x">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">plot</span><span class="x">(</span><span class="n">aspect_ratio</span><span class="o">=:</span><span class="n">equal</span><span class="x">)</span>
 <span class="k">for</span> <span class="n">X</span> <span class="k">in</span> <span class="n">intervals</span>
     <span class="n">Y</span> <span class="o">=</span> <span class="n">f</span><span class="x">(</span><span class="n">X</span><span class="x">)</span>
     
-    <span class="n">plot!</span><span class="x">(</span><span class="n">IntervalBox</span><span class="x">(</span><span class="n">X</span><span class="x">,</span> <span class="n">Interval</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">lo</span><span class="x">)),</span> <span class="n">c</span><span class="o">=</span><span class="x">:</span><span class="n">blue</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="x">)</span>
-    <span class="n">plot!</span><span class="x">(</span><span class="n">IntervalBox</span><span class="x">(</span><span class="n">X</span><span class="x">,</span> <span class="n">Interval</span><span class="x">(</span><span class="n">Y</span><span class="o">.</span><span class="n">lo</span><span class="x">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">hi</span><span class="x">)),</span> <span class="n">c</span><span class="o">=</span><span class="x">:</span><span class="n">red</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="x">)</span>
+    <span class="n">plot!</span><span class="x">(</span><span class="n">IntervalBox</span><span class="x">(</span><span class="n">X</span><span class="x">,</span> <span class="n">Interval</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">lo</span><span class="x">)),</span> <span class="n">c</span><span class="o">=:</span><span class="n">blue</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="x">)</span>
+    <span class="n">plot!</span><span class="x">(</span><span class="n">IntervalBox</span><span class="x">(</span><span class="n">X</span><span class="x">,</span> <span class="n">Interval</span><span class="x">(</span><span class="n">Y</span><span class="o">.</span><span class="n">lo</span><span class="x">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">hi</span><span class="x">)),</span> <span class="n">c</span><span class="o">=:</span><span class="n">red</span><span class="x">,</span> <span class="n">label</span><span class="o">=</span><span class="s">""</span><span class="x">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="x">)</span>
 <span class="k">end</span>
 
 <span class="n">plot!</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="mi">0</span><span class="x">,</span> <span class="mi">2</span><span class="x">)</span>
@@ -1252,10 +1252,10 @@ and $T_N := S - S_N = \sum_{n=N+1}^\infty \frac{1}{n^2}$ contains the rest (an i
 
 <p>As we increase the number of sub-intervals, the approximation gets better and better:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(:</span><span class="n">standard</span><span class="x">,</span> <span class="n">sigfigs</span><span class="o">=</span><span class="mi">5</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setdisplay</span><span class="x">(</span><span class="o">:</span><span class="n">standard</span><span class="x">,</span> <span class="n">sigfigs</span><span class="o">=</span><span class="mi">5</span><span class="x">)</span>
 
 <span class="n">println</span><span class="x">(</span><span class="s">"N </span><span class="se">\t</span><span class="s"> area interval </span><span class="se">\t</span><span class="s"> </span><span class="se">\t</span><span class="s"> diameter"</span><span class="x">)</span>
-<span class="k">for</span> <span class="n">N</span> <span class="k">in</span> <span class="mi">50</span><span class="x">:</span><span class="mi">50</span><span class="x">:</span><span class="mi">1000</span>
+<span class="k">for</span> <span class="n">N</span> <span class="k">in</span> <span class="mi">50</span><span class="o">:</span><span class="mi">50</span><span class="o">:</span><span class="mi">1000</span>
     <span class="n">intervals</span> <span class="o">=</span> <span class="n">make_intervals</span><span class="x">(</span><span class="n">N</span><span class="x">)</span>
     <span class="n">area</span> <span class="o">=</span> <span class="x">(</span><span class="mi">2</span><span class="o">/</span><span class="n">N</span><span class="x">)</span> <span class="o">*</span> <span class="n">sum</span><span class="x">(</span><span class="n">√</span><span class="x">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">X</span><span class="o">^</span><span class="mi">2</span><span class="x">)</span> <span class="k">for</span> <span class="n">X</span> <span class="k">in</span> <span class="n">intervals</span><span class="x">)</span>
             

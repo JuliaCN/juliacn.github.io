@@ -115,7 +115,7 @@
 <p>The column-indexing problem is <a href="http://www.johnmyleswhite.com/notebook/2015/11/28/why-julias-dataframes-are-still-slow/">well-documented</a>. To see the difficulty, consider the following function</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> f</span><span class="x">(</span><span class="n">df</span><span class="o">::</span><span class="n">DataFrame</span><span class="x">)</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">df</span><span class="x">[:</span><span class="n">A</span><span class="x">]</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">df</span><span class="x">[</span><span class="o">:</span><span class="n">A</span><span class="x">]</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">eachindex</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
         <span class="n">x</span> <span class="o">+=</span> <span class="n">A</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>
@@ -198,7 +198,7 @@
 
 <p>This produces a <code class="highlighter-rouge">Query{S}</code> object, where <code class="highlighter-rouge">S</code> is the type of the data source</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">typeof</span><span class="x">(</span><span class="n">q</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">typeof</span><span class="x">(</span><span class="n">q</span><span class="x">)</span>
 <span class="n">StructuredQueries</span><span class="o">.</span><span class="n">Query</span><span class="x">{</span><span class="n">Tables</span><span class="o">.</span><span class="n">Table</span><span class="x">}</span>
 </code></pre></div></div>
 
@@ -231,20 +231,20 @@
 <p><code class="highlighter-rouge">Query</code> objects represent the structure of a query composed of the three building blocks above. To see how, lets take a look at the internals of a <code class="highlighter-rouge">Query</code>:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">fieldnames</span><span class="x">(</span><span class="n">q</span><span class="x">)</span>
-<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="n">Symbol</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
- <span class="x">:</span><span class="n">source</span>
- <span class="x">:</span><span class="n">graph</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Symbol</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
+ <span class="o">:</span><span class="n">source</span>
+ <span class="o">:</span><span class="n">graph</span>
 </code></pre></div></div>
 
 <p>The first field, <code class="highlighter-rouge">:source</code>, just contains the data source specified in the query – in this case, the <code class="highlighter-rouge">Table</code> object that was bound to the name <code class="highlighter-rouge">iris</code> when the query was specified. The second field, <code class="highlighter-rouge">:graph</code> contains a(n admittedly not very interesting) graphical representation of the query structure:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">.</span><span class="n">graph</span>
 <span class="n">FilterNode</span>
-  <span class="n">arguments</span><span class="x">:</span>
+  <span class="n">arguments</span><span class="o">:</span>
       <span class="mi">1</span><span class="x">)</span>  <span class="n">sepal_length</span> <span class="o">&gt;</span> <span class="mf">5.0</span>
-  <span class="n">inputs</span><span class="x">:</span>
+  <span class="n">inputs</span><span class="o">:</span>
       <span class="mi">1</span><span class="x">)</span>  <span class="n">DataNode</span>
-            <span class="n">source</span><span class="x">:</span>  <span class="n">unset</span> <span class="n">source</span>
+            <span class="n">source</span><span class="o">:</span>  <span class="n">unset</span> <span class="n">source</span>
 </code></pre></div></div>
 
 <p>The <code class="highlighter-rouge">filter</code> verb from the original <code class="highlighter-rouge">qry</code> expression passed to <code class="highlighter-rouge">@query</code> is represented in the graph by a <code class="highlighter-rouge">FilterNode</code> object and that the data source is represented by a <code class="highlighter-rouge">DataNode</code> object. Both <code class="highlighter-rouge">FilterNode</code> and <code class="highlighter-rouge">DataNode</code> are leaf subtypes of the abstract <code class="highlighter-rouge">QueryNode</code> type. The <code class="highlighter-rouge">FilterNode</code> is connected to the <code class="highlighter-rouge">DataNode</code> via the <code class="highlighter-rouge">:input</code> field of the former. In general, these connections constitute directed acyclic graphs. We may refer to such graphs as <code class="highlighter-rouge">QueryNode</code> graphs or query graphs.</p>
@@ -273,35 +273,35 @@
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">.</span><span class="n">graph</span>
 <span class="n">SummarizeNode</span>
-  <span class="n">arguments</span><span class="x">:</span>
+  <span class="n">arguments</span><span class="o">:</span>
       <span class="mi">1</span><span class="x">)</span>  <span class="n">avg</span><span class="o">=</span><span class="n">mean</span><span class="x">(</span><span class="n">digamma</span><span class="x">(</span><span class="n">petal_width</span><span class="x">))</span>
-  <span class="n">inputs</span><span class="x">:</span>
+  <span class="n">inputs</span><span class="o">:</span>
       <span class="mi">1</span><span class="x">)</span>  <span class="n">GroupbyNode</span>
-            <span class="n">arguments</span><span class="x">:</span>
+            <span class="n">arguments</span><span class="o">:</span>
                 <span class="mi">1</span><span class="x">)</span>  <span class="n">species</span>
                 <span class="mi">2</span><span class="x">)</span>  <span class="n">log</span><span class="x">(</span><span class="n">petal_length</span><span class="x">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
-            <span class="n">inputs</span><span class="x">:</span>
+            <span class="n">inputs</span><span class="o">:</span>
                 <span class="mi">1</span><span class="x">)</span>  <span class="n">FilterNode</span>
-                      <span class="n">arguments</span><span class="x">:</span>
+                      <span class="n">arguments</span><span class="o">:</span>
                           <span class="mi">1</span><span class="x">)</span>  <span class="n">sepal_length</span> <span class="o">&gt;</span> <span class="mf">5.0</span>
-                      <span class="n">inputs</span><span class="x">:</span>
+                      <span class="n">inputs</span><span class="o">:</span>
                           <span class="mi">1</span><span class="x">)</span>  <span class="n">DataNode</span>
-                                <span class="n">source</span><span class="x">:</span>  <span class="n">unset</span> <span class="n">source</span>
+                                <span class="n">source</span><span class="o">:</span>  <span class="n">unset</span> <span class="n">source</span>
 
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">collect</span><span class="x">(</span><span class="n">q</span><span class="x">)</span>
 <span class="n">Grouped</span> <span class="n">Tables</span><span class="o">.</span><span class="n">Table</span>
-<span class="n">Groupings</span> <span class="n">by</span><span class="x">:</span>
+<span class="n">Groupings</span> <span class="n">by</span><span class="o">:</span>
     <span class="n">species</span>
-    <span class="n">log</span><span class="x">(</span><span class="n">petal_length</span><span class="x">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="x">(</span><span class="n">with</span> <span class="n">alias</span> <span class="x">:</span><span class="n">pred_1</span><span class="x">)</span>
+    <span class="n">log</span><span class="x">(</span><span class="n">petal_length</span><span class="x">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="x">(</span><span class="n">with</span> <span class="n">alias</span> <span class="o">:</span><span class="n">pred_1</span><span class="x">)</span>
 
-<span class="n">Source</span><span class="x">:</span> <span class="n">Tables</span><span class="o">.</span><span class="n">Table</span>
+<span class="n">Source</span><span class="o">:</span> <span class="n">Tables</span><span class="o">.</span><span class="n">Table</span>
 <span class="n">│</span> <span class="n">Row</span> <span class="n">│</span> <span class="n">species</span>      <span class="n">│</span> <span class="n">pred_1</span> <span class="n">│</span> <span class="n">avg</span>       <span class="n">│</span>
 <span class="n">├─────┼──────────────┼────────┼───────────┤</span>
-<span class="n">│</span> <span class="mi">1</span>   <span class="n">│</span> <span class="s">"virginica"</span>  <span class="n">│</span> <span class="n">true</span>   <span class="n">│</span> <span class="mf">0.428644</span>  <span class="n">│</span>
-<span class="n">│</span> <span class="mi">2</span>   <span class="n">│</span> <span class="s">"setosa"</span>     <span class="n">│</span> <span class="n">true</span>   <span class="n">│</span> <span class="o">-</span><span class="mf">3.17557</span>  <span class="n">│</span>
-<span class="n">│</span> <span class="mi">3</span>   <span class="n">│</span> <span class="s">"versicolor"</span> <span class="n">│</span> <span class="n">true</span>   <span class="n">│</span> <span class="o">-</span><span class="mf">0.136551</span> <span class="n">│</span>
-<span class="n">│</span> <span class="mi">4</span>   <span class="n">│</span> <span class="s">"setosa"</span>     <span class="n">│</span> <span class="n">false</span>  <span class="n">│</span> <span class="o">-</span><span class="mf">4.7391</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">1</span>   <span class="n">│</span> <span class="s">"virginica"</span>  <span class="n">│</span> <span class="nb">true</span>   <span class="n">│</span> <span class="mf">0.428644</span>  <span class="n">│</span>
+<span class="n">│</span> <span class="mi">2</span>   <span class="n">│</span> <span class="s">"setosa"</span>     <span class="n">│</span> <span class="nb">true</span>   <span class="n">│</span> <span class="o">-</span><span class="mf">3.17557</span>  <span class="n">│</span>
+<span class="n">│</span> <span class="mi">3</span>   <span class="n">│</span> <span class="s">"versicolor"</span> <span class="n">│</span> <span class="nb">true</span>   <span class="n">│</span> <span class="o">-</span><span class="mf">0.136551</span> <span class="n">│</span>
+<span class="n">│</span> <span class="mi">4</span>   <span class="n">│</span> <span class="s">"setosa"</span>     <span class="n">│</span> <span class="nb">false</span>  <span class="n">│</span> <span class="o">-</span><span class="mf">4.7391</span>   <span class="n">│</span>
 </code></pre></div></div>
 
 <p>We hope to include support for the other verbs in the near future.</p>
@@ -325,7 +325,7 @@
 
 <p>We saw above how there are three parts to a query structure: verbs, sources and query arguments. A <code class="highlighter-rouge">Query</code> object represents the verbs and query arguments together in the <code class="highlighter-rouge">QueryNode</code> graph and wraps the data source separately. This suggests that one ought to be able to generate query graphs using <code class="highlighter-rouge">@query</code> even if one does not specify a particular data source. One can do precisely this by using <em>dummy sources</em>, which are essentially placeholders that can be “filled in” with particular data sources later, when one calls <code class="highlighter-rouge">collect</code>. To indicate a source as a dummy source, simply prepend it with a <code class="highlighter-rouge">:</code>. For instance:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="nd">@query</span> <span class="n">select</span><span class="x">(:</span><span class="n">src</span><span class="x">,</span> <span class="n">twice_sepal_length</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sepal_length</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="nd">@query</span> <span class="n">select</span><span class="x">(</span><span class="o">:</span><span class="n">src</span><span class="x">,</span> <span class="n">twice_sepal_length</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sepal_length</span><span class="x">)</span>
 <span class="n">Query</span> <span class="n">with</span> <span class="n">dummy</span> <span class="n">source</span> <span class="n">src</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">collect</span><span class="x">(</span><span class="n">q</span><span class="x">,</span> <span class="n">src</span> <span class="o">=</span> <span class="n">iris</span><span class="x">)</span>
@@ -349,7 +349,7 @@
 <p>Whatever the name of the dummy source (minus the <code class="highlighter-rouge">:</code>) was in the query must be the key in the kwarg passed to <code class="highlighter-rouge">collect</code>. Otherwise, the method will fail:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">collect</span><span class="x">(</span><span class="n">q</span><span class="x">,</span> <span class="n">tbl</span> <span class="o">=</span> <span class="n">iris</span><span class="x">)</span>
-<span class="n">ERROR</span><span class="x">:</span> <span class="n">ArgumentError</span><span class="x">:</span> <span class="n">Undefined</span> <span class="n">source</span><span class="x">:</span> <span class="n">tbl</span><span class="o">.</span> <span class="n">Check</span> <span class="n">spelling</span> <span class="k">in</span> <span class="n">query</span><span class="o">.</span>
+<span class="n">ERROR</span><span class="o">:</span> <span class="kt">ArgumentError</span><span class="o">:</span> <span class="n">Undefined</span> <span class="n">source</span><span class="o">:</span> <span class="n">tbl</span><span class="o">.</span> <span class="n">Check</span> <span class="n">spelling</span> <span class="k">in</span> <span class="n">query</span><span class="o">.</span>
  <span class="k">in</span> <span class="c">#collect#5(::Array{Any,1}, ::Function, ::StructuredQueries.Query{Symbol}) at /Users/David/.julia/v0.6/StructuredQueries/src/query/collect.jl:23</span>
  <span class="k">in</span> <span class="x">(</span><span class="o">::</span><span class="n">Base</span><span class="o">.</span><span class="c">#kw##collect)(::Array{Any,1}, ::Base.#collect, ::StructuredQueries.Query{Symbol}) at ./&lt;missing&gt;:0</span>
 </code></pre></div></div>
@@ -363,7 +363,7 @@
 <p>Recall that the column-indexing problem consists in the inability of type inference to detect the return type of</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> f</span><span class="x">(</span><span class="n">df</span><span class="o">::</span><span class="n">DataFrame</span><span class="x">)</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">df</span><span class="x">[:</span><span class="n">A</span><span class="x">]</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">df</span><span class="x">[</span><span class="o">:</span><span class="n">A</span><span class="x">]</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">eachindex</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
         <span class="n">x</span> <span class="o">+=</span> <span class="n">A</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>
@@ -376,7 +376,7 @@
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f_inner</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">A</span><span class="x">))</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">length</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
         <span class="n">x</span> <span class="o">+=</span> <span class="n">A</span><span class="x">[</span><span class="n">i</span><span class="x">]</span>
     <span class="k">end</span>
     <span class="k">return</span> <span class="n">x</span>
@@ -388,7 +388,7 @@
 <p>This strategy of introducing a function barrier also works when one requires multiple columns. For instance, suppose I wanted to generate a new column <code class="highlighter-rouge">C</code> where <code class="highlighter-rouge">C[i] = g(A[i], B[i])</code>. The following solution is type-inferable since the type parameters of the zipped iterator <code class="highlighter-rouge">zip(A, B)</code> reflects the <code class="highlighter-rouge">eltype</code>s of <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code>:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> f</span><span class="x">(</span><span class="n">g</span><span class="x">,</span> <span class="n">df</span><span class="x">)</span>
-    <span class="n">A</span><span class="x">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">df</span><span class="x">[:</span><span class="n">A</span><span class="x">],</span> <span class="n">df</span><span class="x">[:</span><span class="n">B</span><span class="x">]</span>
+    <span class="n">A</span><span class="x">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">df</span><span class="x">[</span><span class="o">:</span><span class="n">A</span><span class="x">],</span> <span class="n">df</span><span class="x">[</span><span class="o">:</span><span class="n">B</span><span class="x">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">similar</span><span class="x">(</span><span class="n">A</span><span class="x">)</span>
     <span class="n">f_inner!</span><span class="x">(</span><span class="n">C</span><span class="x">,</span> <span class="n">g</span><span class="x">,</span> <span class="n">zip</span><span class="x">(</span><span class="n">A</span><span class="x">,</span> <span class="n">B</span><span class="x">))</span>
     <span class="k">return</span> <span class="n">DataFrame</span><span class="x">(</span><span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="x">)</span>
@@ -448,7 +448,7 @@
     <span class="k">if</span> <span class="n">hasvalue</span><span class="x">(</span><span class="n">x</span><span class="x">)</span>
         <span class="k">return</span> <span class="n">Nullable</span><span class="x">(</span><span class="n">f</span><span class="x">(</span><span class="n">x</span><span class="x">))</span>
     <span class="k">else</span>
-        <span class="n">U</span> <span class="o">=</span> <span class="n">Core</span><span class="o">.</span><span class="n">Inference</span><span class="o">.</span><span class="n">return_type</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="x">(</span><span class="nb">typeof</span><span class="x">(</span><span class="n">x</span><span class="x">),))</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="n">Core</span><span class="o">.</span><span class="n">Inference</span><span class="o">.</span><span class="n">return_type</span><span class="x">(</span><span class="n">f</span><span class="x">,</span> <span class="x">(</span><span class="n">typeof</span><span class="x">(</span><span class="n">x</span><span class="x">),))</span>
         <span class="k">return</span> <span class="n">Nullable</span><span class="x">{</span><span class="n">U</span><span class="x">}()</span>
     <span class="k">end</span>
 <span class="k">end</span>

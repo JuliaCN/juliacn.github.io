@@ -176,10 +176,10 @@ of useful methods are implemented. Values which can be either of type <code clas
 can simply be declared as <code class="highlighter-rouge">Union{Missing,T}</code>. For example, a vector holding either integers
 or missing values is of type <code class="highlighter-rouge">Array{Union{Missing,Int},1}</code>:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">]</span>
-<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}:</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">]</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Union</span><span class="x">{</span><span class="kt">Missing</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">},</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
  <span class="mi">1</span>
-  <span class="n">missing</span>
+  <span class="nb">missing</span>
 </code></pre></div></div>
 
 <p>An interesting property of this approach is that <code class="highlighter-rouge">Array{Union{Missing,T}}</code> behaves just
@@ -190,8 +190,8 @@ like a normal <code class="highlighter-rouge">Array{T}</code> as soon as missing
 values of type <code class="highlighter-rouge">T</code> and missing values gives an array with element type <code class="highlighter-rouge">Union{Missing,T}</code>
 rather than <code class="highlighter-rouge">Any</code><sup id="fnref:typejoin"><a href="#fn:typejoin" class="footnote">3</a></sup>:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="nb">promote_type</span><span class="x">(</span><span class="kt">Int</span><span class="x">,</span> <span class="n">Missing</span><span class="x">)</span>
-<span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">}</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">promote_type</span><span class="x">(</span><span class="kt">Int</span><span class="x">,</span> <span class="kt">Missing</span><span class="x">)</span>
+<span class="kt">Union</span><span class="x">{</span><span class="kt">Missing</span><span class="x">,</span> <span class="kt">Int64</span><span class="x">}</span>
 </code></pre></div></div>
 
 <p>These promotion rules are essential for performance, as we will see below.</p>
@@ -214,43 +214,43 @@ an error (except for a few special functions presented below). For convenience,
 standard operators and mathematical functions systematically propagate missing
 values:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">missing</span>
-<span class="n">missing</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">missing</span>
+<span class="nb">missing</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">missing</span><span class="o">^</span><span class="mi">2</span>
-<span class="n">missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="nb">missing</span><span class="o">^</span><span class="mi">2</span>
+<span class="nb">missing</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">cos</span><span class="x">(</span><span class="n">missing</span><span class="x">)</span>
-<span class="n">missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">cos</span><span class="x">(</span><span class="nb">missing</span><span class="x">)</span>
+<span class="nb">missing</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">round</span><span class="x">(</span><span class="n">missing</span><span class="x">)</span>
-<span class="n">missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">round</span><span class="x">(</span><span class="nb">missing</span><span class="x">)</span>
+<span class="nb">missing</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="s">"a"</span> <span class="o">*</span> <span class="n">missing</span>
-<span class="n">missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="s">"a"</span> <span class="o">*</span> <span class="nb">missing</span>
+<span class="nb">missing</span>
 </code></pre></div></div>
 
 <p>Reduction operations inherit the propagating behavior of basic operators:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">])</span>
-<span class="n">missing</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">])</span>
+<span class="nb">missing</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">])</span>
-<span class="n">missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">])</span>
+<span class="nb">missing</span>
 </code></pre></div></div>
 
 <p>On the other hand, indexing into a <code class="highlighter-rouge">Vector</code> with missing values is an error.
 Missing values are <em>not</em> silently skipped, which would be equivalent to assuming
 that they are <code class="highlighter-rouge">false</code>.</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="mi">3</span>
-<span class="mi">1</span><span class="x">:</span><span class="mi">3</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="mi">3</span>
+<span class="mi">1</span><span class="o">:</span><span class="mi">3</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[[</span><span class="n">true</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="n">false</span><span class="x">]]</span>
-<span class="n">ERROR</span><span class="x">:</span> <span class="n">ArgumentError</span><span class="x">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">check</span> <span class="n">bounds</span> <span class="k">for</span> <span class="n">indices</span> <span class="n">of</span> <span class="k">type</span><span class="nc"> Missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[[</span><span class="nb">true</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="nb">false</span><span class="x">]]</span>
+<span class="n">ERROR</span><span class="o">:</span> <span class="kt">ArgumentError</span><span class="o">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">check</span> <span class="n">bounds</span> <span class="k">for</span> <span class="n">indices</span> <span class="n">of</span> <span class="n">type</span> <span class="kt">Missing</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[[</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">]]</span>
-<span class="n">ERROR</span><span class="x">:</span> <span class="n">ArgumentError</span><span class="x">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">check</span> <span class="n">bounds</span> <span class="k">for</span> <span class="n">indices</span> <span class="n">of</span> <span class="k">type</span><span class="nc"> Missing</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[[</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">]]</span>
+<span class="n">ERROR</span><span class="o">:</span> <span class="kt">ArgumentError</span><span class="o">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">check</span> <span class="n">bounds</span> <span class="k">for</span> <span class="n">indices</span> <span class="n">of</span> <span class="n">type</span> <span class="kt">Missing</span>
 </code></pre></div></div>
 
 <p>Convenience functions are provided to get rid of missing values explicitly.
@@ -258,19 +258,19 @@ First, the <code class="highlighter-rouge">skipmissing</code> function returns a
 in the passed collection. It is particularly useful to ignore missing values when
 computing reductions. Call <code class="highlighter-rouge">collect</code> to obtain a vector with all non-missing values.</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
 <span class="mi">3</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">mean</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
 <span class="mf">1.5</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">collect</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
-<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">collect</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
 <span class="mi">1</span>
 <span class="mi">2</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[</span><span class="n">collect</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))]</span>
-<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">x</span><span class="x">[</span><span class="n">collect</span><span class="x">(</span><span class="n">skipmissing</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">]))]</span>
+<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
 <span class="mi">1</span>
 <span class="mi">2</span>
 </code></pre></div></div>
@@ -280,20 +280,20 @@ which as a special case allows replacing missing values with a particular value.
 Combined with the “dot” broadcasting syntax, it allows replacing all missing
 values in an array:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="x">(</span><span class="n">missing</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="x">(</span><span class="nb">missing</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
 <span class="mi">0</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="x">(</span><span class="n">missing</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="x">(</span><span class="nb">missing</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">0</span><span class="x">)</span>
 <span class="mi">0</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="o">.</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">],</span> <span class="mi">0</span><span class="x">)</span>
-<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="o">.</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">],</span> <span class="mi">0</span><span class="x">)</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
 <span class="mi">1</span>
 <span class="mi">0</span>
 <span class="mi">2</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="o">.</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="n">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">],</span> <span class="x">[</span><span class="mi">2</span><span class="x">,</span> <span class="mi">3</span><span class="x">,</span> <span class="n">missing</span><span class="x">])</span>
-<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}:</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">coalesce</span><span class="o">.</span><span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="nb">missing</span><span class="x">,</span> <span class="mi">2</span><span class="x">],</span> <span class="x">[</span><span class="mi">2</span><span class="x">,</span> <span class="mi">3</span><span class="x">,</span> <span class="nb">missing</span><span class="x">])</span>
+<span class="mi">3</span><span class="o">-</span><span class="n">element</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="mi">1</span><span class="x">}</span><span class="o">:</span>
 <span class="mi">1</span>
 <span class="mi">3</span>
 <span class="mi">2</span>
@@ -463,10 +463,10 @@ use bitmaps equivalent to <code class="highlighter-rouge">BitArray</code>.</p>
 processing arrays with missing values. For example, the following function is one of
 the most straightforward ways of computing the sum of non-missing values in an array:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> sum_nonmissing</span><span class="x">(</span><span class="n">X</span><span class="o">::</span><span class="n">AbstractArray</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> sum_nonmissing</span><span class="x">(</span><span class="n">X</span><span class="o">::</span><span class="kt">AbstractArray</span><span class="x">)</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">zero</span><span class="x">(</span><span class="n">eltype</span><span class="x">(</span><span class="n">X</span><span class="x">))</span>
     <span class="nd">@inbounds</span> <span class="nd">@simd</span> <span class="k">for</span> <span class="n">x</span> <span class="k">in</span> <span class="n">X</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">!==</span> <span class="n">missing</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!==</span> <span class="nb">missing</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="n">x</span>
         <span class="k">end</span>
     <span class="k">end</span>
@@ -485,20 +485,20 @@ same time for all three arrays (on an Intel Skylake CPU with AVX2 instructions e
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">X1</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="kt">Int32</span><span class="x">,</span> <span class="mi">10_000_000</span><span class="x">);</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">X2</span> <span class="o">=</span> <span class="n">Vector</span><span class="x">{</span><span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Int32</span><span class="x">}}(</span><span class="n">X1</span><span class="x">);</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">X2</span> <span class="o">=</span> <span class="kt">Vector</span><span class="x">{</span><span class="kt">Union</span><span class="x">{</span><span class="kt">Missing</span><span class="x">,</span> <span class="kt">Int32</span><span class="x">}}(</span><span class="n">X1</span><span class="x">);</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">X3</span> <span class="o">=</span> <span class="n">ifelse</span><span class="o">.</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="n">length</span><span class="x">(</span><span class="n">X2</span><span class="x">))</span> <span class="o">.&lt;</span> <span class="mf">0.9</span><span class="x">,</span> <span class="n">X2</span><span class="x">,</span> <span class="n">missing</span><span class="x">);</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">X3</span> <span class="o">=</span> <span class="n">ifelse</span><span class="o">.</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="n">length</span><span class="x">(</span><span class="n">X2</span><span class="x">))</span> <span class="o">.&lt;</span> <span class="mf">0.9</span><span class="x">,</span> <span class="n">X2</span><span class="x">,</span> <span class="nb">missing</span><span class="x">);</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">BenchmarkTools</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">X1</span><span class="x">);</span>
-  <span class="mf">2.738</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">2.738</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="o">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">X2</span><span class="x">);</span>
-  <span class="mf">3.216</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">3.216</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="o">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">X3</span><span class="x">);</span>
-  <span class="mf">3.214</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">3.214</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="o">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
 </code></pre></div></div>
 
 <p>As a reference point, R’s <code class="highlighter-rouge">sum(x, na.rm=TRUE)</code> function, which is implemented in C,
@@ -518,18 +518,18 @@ for numeric computing:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y1</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">10_000_000</span><span class="x">);</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y2</span> <span class="o">=</span> <span class="n">Vector</span><span class="x">{</span><span class="n">Union</span><span class="x">{</span><span class="n">Missing</span><span class="x">,</span> <span class="kt">Float64</span><span class="x">}}(</span><span class="n">Y1</span><span class="x">);</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y2</span> <span class="o">=</span> <span class="kt">Vector</span><span class="x">{</span><span class="kt">Union</span><span class="x">{</span><span class="kt">Missing</span><span class="x">,</span> <span class="kt">Float64</span><span class="x">}}(</span><span class="n">Y1</span><span class="x">);</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y3</span> <span class="o">=</span> <span class="n">ifelse</span><span class="o">.</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="n">length</span><span class="x">(</span><span class="n">Y2</span><span class="x">))</span> <span class="o">.&lt;</span> <span class="mf">0.9</span><span class="x">,</span> <span class="n">Y2</span><span class="x">,</span> <span class="n">missing</span><span class="x">);</span>
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">Y3</span> <span class="o">=</span> <span class="n">ifelse</span><span class="o">.</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="n">length</span><span class="x">(</span><span class="n">Y2</span><span class="x">))</span> <span class="o">.&lt;</span> <span class="mf">0.9</span><span class="x">,</span> <span class="n">Y2</span><span class="x">,</span> <span class="nb">missing</span><span class="x">);</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">Y1</span><span class="x">);</span>
-  <span class="mf">5.733</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">5.733</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="o">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">Y2</span><span class="x">);</span>
-  <span class="mf">13.854</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">13.854</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="o">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@btime</span> <span class="n">sum_nonmissing</span><span class="x">(</span><span class="n">Y3</span><span class="x">);</span>
-  <span class="mf">17.780</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="x">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
+  <span class="mf">17.780</span> <span class="n">ms</span> <span class="x">(</span><span class="mi">1</span> <span class="n">allocation</span><span class="o">:</span> <span class="mi">16</span> <span class="n">bytes</span><span class="x">)</span>
 </code></pre></div></div>
 
 <p>However, this is nothing to be ashamed of, as Julia is still faster than R:

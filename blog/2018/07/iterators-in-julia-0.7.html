@@ -130,7 +130,7 @@ A good way to demonstrate how these work together is to show the transformation 
 
 <p>A simple example is a range iterator which yields every nth element up to some number of elements:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">struct</span> <span class="n">EveryNth</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">struct</span><span class="nc"> EveryNth</span>
            <span class="n">n</span><span class="o">::</span><span class="kt">Int</span>
            <span class="n">start</span><span class="o">::</span><span class="kt">Int</span>
            <span class="n">length</span><span class="o">::</span><span class="kt">Int</span>
@@ -202,7 +202,7 @@ Instead, we could use the <code class="highlighter-rouge">IteratorSize</code> an
 The <code class="highlighter-rouge">while</code> loop above would now be written as:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iter_result</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">iterable</span><span class="x">)</span>
-<span class="k">while</span> <span class="n">iter_result</span> <span class="o">!==</span> <span class="n">nothing</span>
+<span class="k">while</span> <span class="n">iter_result</span> <span class="o">!==</span> <span class="nb">nothing</span>
     <span class="x">(</span><span class="n">element</span><span class="x">,</span> <span class="n">state</span><span class="x">)</span> <span class="o">=</span> <span class="n">iter_result</span>
     <span class="c"># body</span>
     <span class="n">iter_result</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">iterable</span><span class="x">,</span> <span class="n">state</span><span class="x">)</span>
@@ -215,7 +215,7 @@ The second is called repeatedly to iterate, like <code class="highlighter-rouge"
 
 <p>The <code class="highlighter-rouge">EveryNth</code> example now looks like this:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">struct</span> <span class="n">EveryNth</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">struct</span><span class="nc"> EveryNth</span>
            <span class="n">n</span><span class="o">::</span><span class="kt">Int</span>
            <span class="n">start</span><span class="o">::</span><span class="kt">Int</span>
            <span class="n">length</span><span class="o">::</span><span class="kt">Int</span>
@@ -225,7 +225,7 @@ The second is called repeatedly to iterate, like <code class="highlighter-rouge"
            <span class="n">element</span><span class="x">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">state</span>
 
            <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="n">iter</span><span class="o">.</span><span class="n">length</span>
-               <span class="k">return</span> <span class="n">nothing</span>
+               <span class="k">return</span> <span class="nb">nothing</span>
            <span class="k">end</span>
 
            <span class="k">return</span> <span class="x">(</span><span class="n">element</span><span class="x">,</span> <span class="x">(</span><span class="n">element</span> <span class="o">+</span> <span class="n">iter</span><span class="o">.</span><span class="n">n</span><span class="x">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="x">))</span>
@@ -241,7 +241,7 @@ The second is called repeatedly to iterate, like <code class="highlighter-rouge"
 <p>This is already less code than the old interface required, but we can reduce it further using another new <a href="https://github.com/JuliaLang/julia/pull/23337">feature</a> of Julia 0.7.</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> Base</span><span class="o">.</span><span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">EveryNth</span><span class="x">,</span> <span class="x">(</span><span class="n">el</span><span class="x">,</span> <span class="n">i</span><span class="x">)</span><span class="o">=</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">start</span><span class="x">,</span> <span class="mi">0</span><span class="x">))</span>
-	<span class="k">return</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">it</span><span class="o">.</span><span class="n">length</span> <span class="o">?</span> <span class="n">nothing</span> <span class="x">:</span> <span class="x">(</span><span class="n">el</span><span class="x">,</span> <span class="x">(</span><span class="n">el</span> <span class="o">+</span> <span class="n">it</span><span class="o">.</span><span class="n">n</span><span class="x">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="x">))</span>
+	<span class="k">return</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">it</span><span class="o">.</span><span class="n">length</span> <span class="o">?</span> <span class="nb">nothing</span> <span class="o">:</span> <span class="x">(</span><span class="n">el</span><span class="x">,</span> <span class="x">(</span><span class="n">el</span> <span class="o">+</span> <span class="n">it</span><span class="o">.</span><span class="n">n</span><span class="x">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="x">))</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
@@ -270,10 +270,10 @@ Many of the useful patterns apply specifically to this situation.</p>
 If the call to <code class="highlighter-rouge">iterate</code> doesn’t return <code class="highlighter-rouge">nothing</code>, we want to apply some operations before returning.
 This pattern was common and simple enough to justify a macro which in IterTools I’ve called <code class="highlighter-rouge">@ifsomething</code><sup id="fnref:macroname"><a href="#fn:macroname" class="footnote">2</a></sup>:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">macro</span> <span class="n">ifsomething</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
-    <span class="n">quote</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">macro</span><span class="nf"> ifsomething</span><span class="x">(</span><span class="n">ex</span><span class="x">)</span>
+    <span class="k">quote</span>
         <span class="n">result</span> <span class="o">=</span> <span class="o">$</span><span class="x">(</span><span class="n">esc</span><span class="x">(</span><span class="n">ex</span><span class="x">))</span>
-        <span class="n">result</span> <span class="o">===</span> <span class="n">nothing</span> <span class="o">&amp;&amp;</span> <span class="k">return</span> <span class="n">nothing</span>
+        <span class="n">result</span> <span class="o">===</span> <span class="nb">nothing</span> <span class="o">&amp;&amp;</span> <span class="k">return</span> <span class="nb">nothing</span>
         <span class="n">result</span>
     <span class="k">end</span>
 <span class="k">end</span>
@@ -284,8 +284,8 @@ This code:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">wrapped</span><span class="x">,</span> <span class="n">wrapped_state</span><span class="x">)</span>
 
-<span class="k">if</span> <span class="n">iter</span> <span class="o">===</span> <span class="n">nothing</span>
-    <span class="k">return</span> <span class="n">nothing</span>
+<span class="k">if</span> <span class="n">iter</span> <span class="o">===</span> <span class="nb">nothing</span>
+    <span class="k">return</span> <span class="nb">nothing</span>
 <span class="k">end</span>
 
 <span class="n">val</span><span class="x">,</span> <span class="n">wrapped_state</span> <span class="o">=</span> <span class="n">iter</span>
@@ -310,9 +310,9 @@ In this case it’s helpful to use “slurping” and “splatting”<sup id="fn
 Its implementation of the <code class="highlighter-rouge">iterate</code> function looks like this:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">TakeNth</span><span class="x">,</span> <span class="n">state</span><span class="o">...</span><span class="x">)</span>
-    <span class="n">xs_iter</span> <span class="o">=</span> <span class="n">nothing</span>
+    <span class="n">xs_iter</span> <span class="o">=</span> <span class="nb">nothing</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="x">:</span><span class="n">it</span><span class="o">.</span><span class="n">interval</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="n">it</span><span class="o">.</span><span class="n">interval</span>
         <span class="n">xs_iter</span> <span class="o">=</span> <span class="nd">@ifsomething</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">state</span><span class="o">...</span><span class="x">)</span>
         <span class="n">state</span> <span class="o">=</span> <span class="n">Base</span><span class="o">.</span><span class="n">tail</span><span class="x">(</span><span class="n">xs_iter</span><span class="x">)</span>
     <span class="k">end</span>
@@ -335,11 +335,11 @@ For the <code class="highlighter-rouge">TakeStrict</code> iterator from <a href=
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">TakeStrict</span><span class="x">,</span> <span class="n">state</span><span class="o">=</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">n</span><span class="x">,))</span>
     <span class="n">n</span><span class="x">,</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="n">first</span><span class="x">(</span><span class="n">state</span><span class="x">),</span> <span class="n">Base</span><span class="o">.</span><span class="n">tail</span><span class="x">(</span><span class="n">state</span><span class="x">)</span>
-    <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="k">return</span> <span class="n">nothing</span>
+    <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="k">return</span> <span class="nb">nothing</span>
     <span class="n">xs_iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="o">...</span><span class="x">)</span>
 
-    <span class="k">if</span> <span class="n">xs_iter</span> <span class="o">===</span> <span class="n">nothing</span>
-        <span class="nb">throw</span><span class="x">(</span><span class="n">ArgumentError</span><span class="x">(</span><span class="s">"In takestrict(xs, n), xs had fewer than n items to take."</span><span class="x">))</span>
+    <span class="k">if</span> <span class="n">xs_iter</span> <span class="o">===</span> <span class="nb">nothing</span>
+        <span class="n">throw</span><span class="x">(</span><span class="kt">ArgumentError</span><span class="x">(</span><span class="s">"In takestrict(xs, n), xs had fewer than n items to take."</span><span class="x">))</span>
     <span class="k">end</span>
 
     <span class="n">v</span><span class="x">,</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="n">xs_iter</span>
@@ -383,14 +383,14 @@ Something that immediately jumps out about the <a href="https://github.com/Julia
 In the new interface this requires just one call instead of two:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">s</span><span class="x">)</span>
-<span class="n">iter</span> <span class="o">===</span> <span class="n">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
+<span class="n">iter</span> <span class="o">===</span> <span class="nb">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
 <span class="x">(</span><span class="n">x</span><span class="x">,</span> <span class="n">s</span><span class="x">)</span> <span class="o">=</span> <span class="n">iter</span>
 </code></pre></div></div>
 
 <p>Then this pattern can be applied by rote wherever it appears.
 Applying this and writing two <code class="highlighter-rouge">iterate</code> methods results in this<sup id="fnref:respell"><a href="#fn:respell" class="footnote">4</a></sup>:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">},</span> <span class="n">state</span><span class="x">)</span> <span class="n">where</span> <span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">},</span> <span class="n">state</span><span class="x">)</span> <span class="k">where</span> <span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}</span>
     <span class="x">(</span><span class="n">xs_state</span><span class="x">,</span> <span class="n">result</span><span class="x">)</span> <span class="o">=</span> <span class="n">state</span>
     <span class="c"># this @ifsomething call handles the 0.6 situation</span>
     <span class="c"># where `done` is always called before `next`</span>
@@ -398,31 +398,31 @@ Applying this and writing two <code class="highlighter-rouge">iterate</code> met
 
     <span class="n">p</span> <span class="o">=</span> <span class="n">similar</span><span class="x">(</span><span class="n">result</span><span class="x">)</span>
     <span class="n">overlap</span> <span class="o">=</span> <span class="n">max</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">N</span> <span class="o">-</span> <span class="n">it</span><span class="o">.</span><span class="n">step</span><span class="x">)</span>
-    <span class="n">p</span><span class="x">[</span><span class="mi">1</span><span class="x">:</span><span class="n">overlap</span><span class="x">]</span> <span class="o">.=</span> <span class="n">result</span><span class="x">[</span><span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">.+</span> <span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="n">overlap</span><span class="x">)]</span>
+    <span class="n">p</span><span class="x">[</span><span class="mi">1</span><span class="o">:</span><span class="n">overlap</span><span class="x">]</span> <span class="o">.=</span> <span class="n">result</span><span class="x">[</span><span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">.+</span> <span class="x">(</span><span class="mi">1</span><span class="o">:</span><span class="n">overlap</span><span class="x">)]</span>
 
     <span class="c"># when step &gt; n, skip over some elements</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">max</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">-</span> <span class="n">N</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">max</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">-</span> <span class="n">N</span><span class="x">)</span>
         <span class="n">xs_iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="x">)</span>
-        <span class="n">xs_iter</span> <span class="o">===</span> <span class="n">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
+        <span class="n">xs_iter</span> <span class="o">===</span> <span class="nb">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
         <span class="n">_</span><span class="x">,</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="n">xs_iter</span>
     <span class="k">end</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="x">(</span><span class="n">overlap</span> <span class="o">+</span> <span class="mi">1</span><span class="x">):(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="x">(</span><span class="n">overlap</span> <span class="o">+</span> <span class="mi">1</span><span class="x">)</span><span class="o">:</span><span class="x">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="x">)</span>
         <span class="n">xs_iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="x">)</span>
-        <span class="n">xs_iter</span> <span class="o">===</span> <span class="n">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
+        <span class="n">xs_iter</span> <span class="o">===</span> <span class="nb">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
 
         <span class="n">p</span><span class="x">[</span><span class="n">i</span><span class="x">],</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="n">xs_iter</span>
     <span class="k">end</span>
 
-    <span class="k">return</span> <span class="x">(</span><span class="nb">tuple</span><span class="x">(</span><span class="n">result</span><span class="o">...</span><span class="x">),</span> <span class="x">(</span><span class="n">xs_state</span><span class="x">,</span> <span class="n">p</span><span class="x">))</span>
+    <span class="k">return</span> <span class="x">(</span><span class="n">tuple</span><span class="x">(</span><span class="n">result</span><span class="o">...</span><span class="x">),</span> <span class="x">(</span><span class="n">xs_state</span><span class="x">,</span> <span class="n">p</span><span class="x">))</span>
 <span class="k">end</span>
 
-<span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">})</span> <span class="n">where</span> <span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">Vector</span><span class="x">{</span><span class="n">eltype</span><span class="x">(</span><span class="n">I</span><span class="x">)}(</span><span class="n">undef</span><span class="x">,</span> <span class="n">N</span><span class="x">)</span>
+<span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">})</span> <span class="k">where</span> <span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="kt">Vector</span><span class="x">{</span><span class="n">eltype</span><span class="x">(</span><span class="n">I</span><span class="x">)}(</span><span class="nb">undef</span><span class="x">,</span> <span class="n">N</span><span class="x">)</span>
 
     <span class="n">result</span><span class="x">[</span><span class="mi">1</span><span class="x">],</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="nd">@ifsomething</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">)</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">2</span><span class="x">:(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">2</span><span class="o">:</span><span class="x">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="x">)</span>
         <span class="n">result</span><span class="x">[</span><span class="n">i</span><span class="x">],</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="nd">@ifsomething</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="x">)</span>
     <span class="k">end</span>
 
@@ -439,13 +439,13 @@ We can’t<sup id="fnref:cantorwont"><a href="#fn:cantorwont" class="footnote">5
 Luckily, we can add <code class="highlighter-rouge">nothing</code> as a sentinel and Julia will compile the check away.
 Making this change results in the version which appears in IterTool 1.0:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">},</span> <span class="n">state</span><span class="o">=</span><span class="n">nothing</span><span class="x">)</span> <span class="n">where</span> <span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="o">===</span> <span class="n">nothing</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">Vector</span><span class="x">{</span><span class="n">eltype</span><span class="x">(</span><span class="n">I</span><span class="x">)}(</span><span class="n">undef</span><span class="x">,</span> <span class="n">N</span><span class="x">)</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function</span><span class="nf"> iterate</span><span class="x">(</span><span class="n">it</span><span class="o">::</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">},</span> <span class="n">state</span><span class="o">=</span><span class="nb">nothing</span><span class="x">)</span> <span class="k">where</span> <span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="o">===</span> <span class="nb">nothing</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kt">Vector</span><span class="x">{</span><span class="n">eltype</span><span class="x">(</span><span class="n">I</span><span class="x">)}(</span><span class="nb">undef</span><span class="x">,</span> <span class="n">N</span><span class="x">)</span>
 
         <span class="n">result</span><span class="x">[</span><span class="mi">1</span><span class="x">],</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="nd">@ifsomething</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">)</span>
 
-        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">2</span><span class="x">:</span><span class="n">N</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">2</span><span class="o">:</span><span class="n">N</span>
             <span class="n">result</span><span class="x">[</span><span class="n">i</span><span class="x">],</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="nd">@ifsomething</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="x">)</span>
         <span class="k">end</span>
     <span class="k">else</span>
@@ -455,23 +455,23 @@ Making this change results in the version which appears in IterTool 1.0:</p>
 
     <span class="n">p</span> <span class="o">=</span> <span class="n">similar</span><span class="x">(</span><span class="n">result</span><span class="x">)</span>
     <span class="n">overlap</span> <span class="o">=</span> <span class="n">max</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">N</span> <span class="o">-</span> <span class="n">it</span><span class="o">.</span><span class="n">step</span><span class="x">)</span>
-    <span class="n">p</span><span class="x">[</span><span class="mi">1</span><span class="x">:</span><span class="n">overlap</span><span class="x">]</span> <span class="o">.=</span> <span class="n">result</span><span class="x">[</span><span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">.+</span> <span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="n">overlap</span><span class="x">)]</span>
+    <span class="n">p</span><span class="x">[</span><span class="mi">1</span><span class="o">:</span><span class="n">overlap</span><span class="x">]</span> <span class="o">.=</span> <span class="n">result</span><span class="x">[</span><span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">.+</span> <span class="x">(</span><span class="mi">1</span><span class="o">:</span><span class="n">overlap</span><span class="x">)]</span>
 
     <span class="c"># when step &gt; n, skip over some elements</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="x">:</span><span class="n">max</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">-</span> <span class="n">N</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">max</span><span class="x">(</span><span class="mi">0</span><span class="x">,</span> <span class="n">it</span><span class="o">.</span><span class="n">step</span> <span class="o">-</span> <span class="n">N</span><span class="x">)</span>
         <span class="n">xs_iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="x">)</span>
-        <span class="n">xs_iter</span> <span class="o">===</span> <span class="n">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
+        <span class="n">xs_iter</span> <span class="o">===</span> <span class="nb">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
         <span class="n">_</span><span class="x">,</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="n">xs_iter</span>
     <span class="k">end</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="x">(</span><span class="n">overlap</span> <span class="o">+</span> <span class="mi">1</span><span class="x">):(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="x">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="x">(</span><span class="n">overlap</span> <span class="o">+</span> <span class="mi">1</span><span class="x">)</span><span class="o">:</span><span class="x">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="x">)</span>
         <span class="n">xs_iter</span> <span class="o">=</span> <span class="n">iterate</span><span class="x">(</span><span class="n">it</span><span class="o">.</span><span class="n">xs</span><span class="x">,</span> <span class="n">xs_state</span><span class="x">)</span>
-        <span class="n">xs_iter</span> <span class="o">===</span> <span class="n">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
+        <span class="n">xs_iter</span> <span class="o">===</span> <span class="nb">nothing</span> <span class="o">&amp;&amp;</span> <span class="n">break</span>
 
         <span class="n">p</span><span class="x">[</span><span class="n">i</span><span class="x">],</span> <span class="n">xs_state</span> <span class="o">=</span> <span class="n">xs_iter</span>
     <span class="k">end</span>
 
-    <span class="k">return</span> <span class="x">(</span><span class="nb">tuple</span><span class="x">(</span><span class="n">result</span><span class="o">...</span><span class="x">)</span><span class="o">::</span><span class="n">eltype</span><span class="x">(</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}),</span> <span class="x">(</span><span class="n">xs_state</span><span class="x">,</span> <span class="n">p</span><span class="x">))</span>
+    <span class="k">return</span> <span class="x">(</span><span class="n">tuple</span><span class="x">(</span><span class="n">result</span><span class="o">...</span><span class="x">)</span><span class="o">::</span><span class="n">eltype</span><span class="x">(</span><span class="n">Partition</span><span class="x">{</span><span class="n">I</span><span class="x">,</span> <span class="n">N</span><span class="x">}),</span> <span class="x">(</span><span class="n">xs_state</span><span class="x">,</span> <span class="n">p</span><span class="x">))</span>
 <span class="k">end</span>
 </code></pre></div></div>
 

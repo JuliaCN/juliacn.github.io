@@ -118,7 +118,7 @@ result. I imagine this as “extruding” the vector across the columns of the o
 and spreading the division by 10 across the entire result:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="x">([</span><span class="mi">1</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="mi">3</span><span class="x">]</span> <span class="o">.+</span> <span class="x">[</span><span class="mi">10</span> <span class="mi">20</span> <span class="mi">30</span> <span class="mi">40</span><span class="x">])</span> <span class="o">./</span> <span class="mi">10</span>
-<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mf">1.1</span>  <span class="mf">2.1</span>  <span class="mf">3.1</span>  <span class="mf">4.1</span>
  <span class="mf">1.2</span>  <span class="mf">2.2</span>  <span class="mf">3.2</span>  <span class="mf">4.2</span>
  <span class="mf">1.3</span>  <span class="mf">2.3</span>  <span class="mf">3.3</span>  <span class="mf">4.3</span>
@@ -144,37 +144,37 @@ libraries alone, this means:</p>
 yielding huge performance gains — often two orders of magnitude or more! For an easy
 example, I’ll just use random data with a simple <code class="highlighter-rouge">A</code> and not <code class="highlighter-rouge">B</code> predicate:</p>
 
-    <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">BenchmarkTools</span><span class="x">,</span> <span class="n">Random</span>
+    <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">BenchmarkTools</span><span class="x">,</span> <span class="n">Random</span>
          <span class="n">srand</span><span class="x">(</span><span class="mi">0</span><span class="x">)</span>
          <span class="n">A</span> <span class="o">=</span> <span class="n">bitrand</span><span class="x">(</span><span class="mi">10</span><span class="o">^</span><span class="mi">6</span><span class="x">)</span>
          <span class="n">B</span> <span class="o">=</span> <span class="n">bitrand</span><span class="x">(</span><span class="mi">10</span><span class="o">^</span><span class="mi">6</span><span class="x">)</span>
          <span class="nd">@benchmark</span> <span class="o">$</span><span class="n">A</span> <span class="o">.&amp;</span> <span class="o">.!$</span><span class="n">B</span>
-  <span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-    <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">122.23</span> <span class="n">KiB</span>
-    <span class="n">allocs</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mi">3</span>
+  <span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+    <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">122.23</span> <span class="n">KiB</span>
+    <span class="n">allocs</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mi">3</span>
     <span class="o">--------------</span>
-    <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">7.891</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-    <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">13.152</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-    <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">17.826</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">9.62</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-    <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">591.497</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">95.73</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">7.891</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">13.152</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">17.826</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">9.62</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">591.497</span> <span class="n">μs</span> <span class="x">(</span><span class="mf">95.73</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
     <span class="o">--------------</span>
-    <span class="n">samples</span><span class="x">:</span>          <span class="mi">10000</span>
-    <span class="n">evals</span><span class="o">/</span><span class="n">sample</span><span class="x">:</span>     <span class="mi">1</span>
+    <span class="n">samples</span><span class="o">:</span>          <span class="mi">10000</span>
+    <span class="n">evals</span><span class="o">/</span><span class="n">sample</span><span class="o">:</span>     <span class="mi">1</span>
 </code></pre></div>    </div>
 
     <p>Compare this to previously on 0.6:</p>
 
-    <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="x">:</span>
-    <span class="n">memory</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mf">126.45</span> <span class="n">KiB</span>
-    <span class="n">allocs</span> <span class="n">estimate</span><span class="x">:</span>  <span class="mi">6</span>
+    <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">BenchmarkTools</span><span class="o">.</span><span class="n">Trial</span><span class="o">:</span>
+    <span class="n">memory</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mf">126.45</span> <span class="n">KiB</span>
+    <span class="n">allocs</span> <span class="n">estimate</span><span class="o">:</span>  <span class="mi">6</span>
     <span class="o">--------------</span>
-    <span class="n">minimum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">3.615</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-    <span class="n">median</span> <span class="n">time</span><span class="x">:</span>      <span class="mf">3.741</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-    <span class="n">mean</span> <span class="n">time</span><span class="x">:</span>        <span class="mf">3.764</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.18</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
-    <span class="n">maximum</span> <span class="n">time</span><span class="x">:</span>     <span class="mf">7.744</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">50.18</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">minimum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">3.615</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">median</span> <span class="n">time</span><span class="o">:</span>      <span class="mf">3.741</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.00</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">mean</span> <span class="n">time</span><span class="o">:</span>        <span class="mf">3.764</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">0.18</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
+    <span class="n">maximum</span> <span class="n">time</span><span class="o">:</span>     <span class="mf">7.744</span> <span class="n">ms</span> <span class="x">(</span><span class="mf">50.18</span><span class="o">%</span> <span class="n">GC</span><span class="x">)</span>
     <span class="o">--------------</span>
-    <span class="n">samples</span><span class="x">:</span>          <span class="mi">1328</span>
-    <span class="n">evals</span><span class="o">/</span><span class="n">sample</span><span class="x">:</span>     <span class="mi">1</span>
+    <span class="n">samples</span><span class="o">:</span>          <span class="mi">1328</span>
+    <span class="n">evals</span><span class="o">/</span><span class="n">sample</span><span class="o">:</span>     <span class="mi">1</span>
 </code></pre></div>    </div>
 
     <p>That’s upwards of a <strong>450x performance gain</strong>.</p>
@@ -196,27 +196,27 @@ ranges can now identify these cases and fully support broadcasting in an efficie
 sparse arrays as the result of a broadcasted operation. They’ll now either maintain an
 appropriate structure or return a dense array. For example:</p>
 
-    <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="n">LinearAlgebra</span>
-         <span class="n">d</span> <span class="o">=</span> <span class="n">Diagonal</span><span class="x">(</span><span class="mi">1</span><span class="x">:</span><span class="mi">3</span><span class="x">)</span>
-  <span class="mi">3</span><span class="n">×3</span> <span class="n">Diagonal</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="n">UnitRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">}}:</span>
+    <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">LinearAlgebra</span>
+         <span class="n">d</span> <span class="o">=</span> <span class="kt">Diagonal</span><span class="x">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">3</span><span class="x">)</span>
+  <span class="mi">3</span><span class="n">×3</span> <span class="kt">Diagonal</span><span class="x">{</span><span class="kt">Int64</span><span class="x">,</span><span class="kt">UnitRange</span><span class="x">{</span><span class="kt">Int64</span><span class="x">}}</span><span class="o">:</span>
    <span class="mi">1</span>  <span class="n">⋅</span>  <span class="n">⋅</span>
    <span class="n">⋅</span>  <span class="mi">2</span>  <span class="n">⋅</span>
    <span class="n">⋅</span>  <span class="n">⋅</span>  <span class="mi">3</span>
 
   <span class="n">julia</span><span class="o">&gt;</span> <span class="n">d</span> <span class="o">./</span> <span class="mi">10</span>
-  <span class="mi">3</span><span class="n">×3</span> <span class="n">Diagonal</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}:</span>
+  <span class="mi">3</span><span class="n">×3</span> <span class="kt">Diagonal</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">1</span><span class="x">}}</span><span class="o">:</span>
    <span class="mf">0.1</span>   <span class="n">⋅</span>    <span class="n">⋅</span>
     <span class="n">⋅</span>   <span class="mf">0.2</span>   <span class="n">⋅</span>
     <span class="n">⋅</span>    <span class="n">⋅</span>   <span class="mf">0.3</span>
 
-  <span class="n">julia</span><span class="o">&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">d</span> <span class="o">.+</span> <span class="n">LowerTriangular</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="x">))</span>
-  <span class="mi">3</span><span class="n">×3</span> <span class="n">LowerTriangular</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}}:</span>
+  <span class="n">julia</span><span class="o">&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">d</span> <span class="o">.+</span> <span class="kt">LowerTriangular</span><span class="x">(</span><span class="n">rand</span><span class="x">(</span><span class="mi">3</span><span class="x">,</span><span class="mi">3</span><span class="x">))</span>
+  <span class="mi">3</span><span class="n">×3</span> <span class="kt">LowerTriangular</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}}</span><span class="o">:</span>
    <span class="mf">1.5446</span>     <span class="n">⋅</span>         <span class="n">⋅</span>
    <span class="mf">0.529211</span>  <span class="mf">2.26095</span>    <span class="n">⋅</span>
    <span class="mf">0.533674</span>  <span class="mf">0.373702</span>  <span class="mf">3.88408</span>
 
   <span class="n">julia</span><span class="o">&gt;</span> <span class="n">t</span> <span class="o">.+</span> <span class="mi">100</span>
-  <span class="mi">3</span><span class="n">×3</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+  <span class="mi">3</span><span class="n">×3</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
    <span class="mf">101.327</span>  <span class="mf">100.0</span>    <span class="mf">100.0</span>
    <span class="mf">100.85</span>   <span class="mf">102.138</span>  <span class="mf">100.0</span>
    <span class="mf">100.575</span>  <span class="mf">100.129</span>  <span class="mf">103.839</span>
@@ -233,19 +233,19 @@ it did surprise folks timing an in-place broadcast like <code class="highlighter
   <span class="n">julia</span><span class="o">&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">1000</span><span class="x">);</span>
 
   <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">y</span> <span class="o">.*=</span> <span class="mi">2</span><span class="x">;</span>
-    <span class="mf">0.032775</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">17.43</span> <span class="n">k</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">947.671</span> <span class="n">KiB</span><span class="x">)</span>
+    <span class="mf">0.032775</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">17.43</span> <span class="n">k</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">947.671</span> <span class="n">KiB</span><span class="x">)</span>
 
   <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">y</span> <span class="o">.*=</span> <span class="mi">2</span><span class="x">;</span>
-    <span class="mf">0.020790</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">4.27</span> <span class="n">k</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">233.457</span> <span class="n">KiB</span><span class="x">)</span>
+    <span class="mf">0.020790</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">4.27</span> <span class="n">k</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">233.457</span> <span class="n">KiB</span><span class="x">)</span>
 
   <span class="c"># Now on Julia 0.7:</span>
   <span class="n">julia</span><span class="o">&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">rand</span><span class="x">(</span><span class="mi">1000</span><span class="x">);</span>
 
   <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">y</span> <span class="o">.*=</span> <span class="mi">2</span><span class="x">;</span>
-    <span class="mf">0.060494</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">90.41</span> <span class="n">k</span> <span class="n">allocations</span><span class="x">:</span> <span class="mf">5.529</span> <span class="n">MiB</span><span class="x">)</span>
+    <span class="mf">0.060494</span> <span class="n">seconds</span> <span class="x">(</span><span class="mf">90.41</span> <span class="n">k</span> <span class="n">allocations</span><span class="o">:</span> <span class="mf">5.529</span> <span class="n">MiB</span><span class="x">)</span>
 
   <span class="n">julia</span><span class="o">&gt;</span> <span class="nd">@time</span> <span class="n">y</span> <span class="o">.*=</span> <span class="mi">2</span><span class="x">;</span>
-    <span class="mf">0.000020</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">6</span> <span class="n">allocations</span><span class="x">:</span> <span class="mi">208</span> <span class="n">bytes</span><span class="x">)</span>
+    <span class="mf">0.000020</span> <span class="n">seconds</span> <span class="x">(</span><span class="mi">6</span> <span class="n">allocations</span><span class="o">:</span> <span class="mi">208</span> <span class="n">bytes</span><span class="x">)</span>
 </code></pre></div>    </div>
   </li>
 </ul>
@@ -258,10 +258,10 @@ it did surprise folks timing an in-place broadcast like <code class="highlighter
 simpler terms the expression <code class="highlighter-rouge">([1, 2, 3] .+ [10 20 30 40]) ./ 10</code> is effectively a syntax
 transformation for:</p>
 
-<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="n">using</span> <span class="o">.</span><span class="n">Broadcast</span><span class="x">:</span> <span class="n">materialize</span><span class="x">,</span> <span class="n">broadcasted</span>
+<div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="o">.</span><span class="n">Broadcast</span><span class="o">:</span> <span class="n">materialize</span><span class="x">,</span> <span class="n">broadcasted</span>
        <span class="n">bc</span> <span class="o">=</span> <span class="n">broadcasted</span><span class="x">(</span><span class="o">/</span><span class="x">,</span> <span class="n">broadcasted</span><span class="x">(</span><span class="o">+</span><span class="x">,</span> <span class="x">[</span><span class="mi">1</span><span class="x">,</span> <span class="mi">2</span><span class="x">,</span> <span class="mi">3</span><span class="x">],</span> <span class="x">[</span><span class="mi">10</span> <span class="mi">20</span> <span class="mi">30</span> <span class="mi">40</span><span class="x">]),</span> <span class="mi">10</span><span class="x">)</span>
        <span class="n">materialize</span><span class="x">(</span><span class="n">bc</span><span class="x">)</span>
-<span class="mi">3</span><span class="n">×4</span> <span class="n">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}:</span>
+<span class="mi">3</span><span class="n">×4</span> <span class="kt">Array</span><span class="x">{</span><span class="kt">Float64</span><span class="x">,</span><span class="mi">2</span><span class="x">}</span><span class="o">:</span>
  <span class="mf">1.1</span>  <span class="mf">2.1</span>  <span class="mf">3.1</span>  <span class="mf">4.1</span>
  <span class="mf">1.2</span>  <span class="mf">2.2</span>  <span class="mf">3.2</span>  <span class="mf">4.2</span>
  <span class="mf">1.3</span>  <span class="mf">2.3</span>  <span class="mf">3.3</span>  <span class="mf">4.3</span>

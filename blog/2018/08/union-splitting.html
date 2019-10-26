@@ -132,7 +132,7 @@ The computations involved in type intersection, while very well optimized, are n
 <p>In Julia 0.7 and 1.0, the compiler does something quite different: it automatically (without any effort on your part) compiles the block above to something that schematically looks like this:</p>
 
 <div class="language-julia highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">ret1</span> <span class="o">=</span> <span class="n">function1</span><span class="x">(</span><span class="n">args</span><span class="o">...</span><span class="x">)</span>    <span class="c"># ret1 isa Union{A,B}</span>
-    <span class="k">if</span> <span class="n">ret1</span> <span class="nb">isa</span> <span class="n">A</span>
+    <span class="k">if</span> <span class="n">ret1</span> <span class="k">isa</span> <span class="n">A</span>
         <span class="n">ret2</span> <span class="o">=</span> <span class="n">function2_specialized_for_A</span><span class="x">(</span><span class="n">ret1</span><span class="x">,</span> <span class="o">...</span><span class="x">)</span>
         <span class="n">ret3</span> <span class="o">=</span> <span class="n">function3_specialized_for_A</span><span class="x">(</span><span class="n">ret1</span><span class="x">,</span> <span class="n">ret2</span><span class="x">,</span> <span class="o">...</span><span class="x">)</span>
         <span class="o">...</span>
