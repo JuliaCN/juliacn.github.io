@@ -3,7 +3,7 @@
 <head>
   {{insert meta.html}}
   {{insert head_scripts.html}}
-  <title>The Julia Programming Language</title>
+  <title>Julia 中文社区</title>
 	<link rel="icon" href="/assets/infra/julia.ico">
 </head>
 
@@ -29,16 +29,16 @@
   <div class="container">
     <div class="jumbotron page-heading">
       <h1 class="main-heading">
-        The Julia Language
+        Julia 中文社区
       </h1>
       <h2 class="secondary-heading">
-        A fresh approach to technical computing.
+        社区驱动，致力于 Julia 编程语言中文支持的开源组织
       </h2>
 
       <p>
-      <a class="btn btn-success btn-lg" href="/downloads/" role="button">Download v{{stable_release}}</a>
+      <a class="btn btn-success btn-lg" href="/downloads/" role="button">下载 v{{stable_release}}</a>
       &nbsp;
-      <a class="btn btn-primary btn-lg" href="https://docs.julialang.org" role="button">Documentation</a>
+      <a class="btn btn-primary btn-lg" href="https://docs.julialang.org" role="button">文档</a>
       <span class="btn float-md-right">
         <a class="github-button" href="https://github.com/JuliaLang/julia" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star JuliaLang/julia on GitHub">Star</a>
       </span>
@@ -54,7 +54,7 @@
       <div class="col-lg-4 col-md-3 language-features "><hr/></div>
       <div class="col-lg-4 col-md-6 language-features section-heading">
         <h2 class="lead secondary-heading">
-          Julia in a Nutshell
+          简而言之, Julia 就是
         </h2>
       </div>
       <div class="col-lg-4 col-md-3 language-features"><hr/></div>
@@ -65,35 +65,35 @@
     <div class="row">
       <!-- 1 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>Julia is fast!</h3>
-        <p>Julia was designed from the beginning for <a href="/benchmarks/">high performance</a>.
-        Julia programs compile to efficient native code for <a href="/downloads/#support_tiers">multiple platforms</a> via LLVM.</p>
+        <h3>快!</h3>
+        <p>Julia 一开始就是为<a href="/benchmarks/">高性能</a>而设计的。
+        Julia 程序通过 LLVM 编译成高效的 <a href="/downloads/#support_tiers">多平台</a> 机器码。</p>
       </div>
       <!-- 2 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>Dynamic</h3>
-        <p>Julia is <a href="https://docs.julialang.org/en/v1/manual/types/">dynamically typed</a>, feels like a scripting language, and has good support for <a href="https://docs.julialang.org/en/v1/stdlib/REPL/">interactive</a> use.</p>
+        <h3>动态</h3>
+        <p>Julia 是 <a href="https://docs.julialang.org/en/v1/manual/types/">动态类型的</a>, 使用起来像脚本语言，同时有很好的 <a href="https://docs.julialang.org/en/v1/stdlib/REPL/">交互</a> 体验。</p>
       </div>
       <!-- 3 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>Optionally typed</h3>
-        <p>Julia has a <a href="https://docs.julialang.org/en/v1/manual/types/">rich language of descriptive datatypes</a>, and type declarations can be used to clarify and solidify programs.</p>
+        <h3>可选类型</h3>
+        <p>Julia 有丰富的<a href="https://docs.julialang.org/en/v1/manual/types/">数据类型描述语言</a>, 类型声明可以使程序更清晰可靠。</p>
       </div>
       <!-- 4 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>General</h3>
-        <p>Julia uses <a href="https://docs.julialang.org/en/v1/manual/methods/">multiple dispatch</a> as a paradigm, making it easy to express many object-oriented and <a href="https://docs.julialang.org/en/v1/manual/metaprogramming/">functional</a> programming patterns.
-        It provides <a href="https://docs.julialang.org/en/v1/manual/networking-and-streams/">asynchronous I/O</a>, <a href="https://github.com/JuliaDebug/Debugger.jl">debugging</a>, <a href="https://docs.julialang.org/en/v1/stdlib/Logging/">logging</a>, <a href="https://docs.julialang.org/en/v1/manual/profile/">profiling</a>, a <a href="https://docs.julialang.org/en/v1/stdlib/Pkg/index.html">package manager</a>, and more.</p>
+        <h3>通用</h3>
+        <p>Julia 使用 <a href="https://docs.julialang.org/en/v1/manual/methods/">多分派</a> 范式, 很容易表达面向对象和 <a href="https://docs.julialang.org/en/v1/manual/metaprogramming/">函数式</a> 编程模式。
+        同时提供了 <a href="https://docs.julialang.org/en/v1/manual/networking-and-streams/">异步 I/O</a>, <a href="https://github.com/JuliaDebug/Debugger.jl">调试</a>, <a href="https://docs.julialang.org/en/v1/stdlib/Logging/">日志</a>, <a href="https://docs.julialang.org/en/v1/manual/profile/">性能分析</a>, <a href="https://docs.julialang.org/en/v1/stdlib/Pkg/index.html">包管理</a>等工具。</p>
       </div>
       <!-- 5 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>Easy to use</h3>
-        <p>Julia has high-level syntax, making it an accessible language for programmers from any background or experience level. <a href="https://github.com/JuliaLang/Microbenchmarks/blob/master/perf.jl">Browse the Julia microbenchmarks</a> to get a feel for the language.</p>
+        <h3>易用</h3>
+        <p>Julia 拥有高阶的语法， 这让具有不同编程语言背景和经验的程序员都能使用它。<a href="https://github.com/JuliaLang/Microbenchmarks/blob/master/perf.jl">查看 Julia 的微基准</a> 来感受这门语言吧。</p>
       </div>
       <!-- 6 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>Open source</h3>
-        <p>Julia is provided under the <a href="https://github.com/JuliaLang/julia/blob/master/LICENSE.md">MIT license</a>, free for everyone to use. All <a href="https://github.com/JuliaLang/julia">source code</a> is publicly viewable on GitHub.</p>
+        <h3>开源</h3>
+        <p>Julia 采用 <a href="https://github.com/JuliaLang/julia/blob/master/LICENSE.md">MIT 许可证</a>, 每个人都可以免费使用. 所有 <a href="https://github.com/JuliaLang/julia">源码</a> 都可以在Github上公开查阅。</p>
       </div>
     </div>
 
@@ -101,8 +101,8 @@
 
       <div class="row">
         <div class="col-12" style="text-align: center">
-          <a class="btn btn-sm btn-outline-primary" href="/learning/code-examples/">See Julia Code Examples</a>
-          <a class="btn btn-sm btn-outline-primary" href="/learning/tryjulia">Try Julia In Your Browser</a>
+          <a class="btn btn-sm btn-outline-primary" href="/learning/code-examples/">查看 Julia 代码实例</a>
+          <a class="btn btn-sm btn-outline-primary" href="/learning/tryjulia">在浏览器中体验 Juila</a>
         </div>
       </div>
   </div>
