@@ -2,7 +2,7 @@
 @def generate_rss = true
 @def website_title = "JuliaLang - The Julia programming language"
 @def website_descr = "Official website for the Julia programming language."
-@def website_url = "https://julialang.org"
+@def website_url = "https://cn.julialang.org"
 
 <!-- NOTE: don't change what's below -->
 @def div_content = "container main" <!-- instead of franklin-content -->
