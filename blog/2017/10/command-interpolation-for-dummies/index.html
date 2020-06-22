@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=utf-8 > <meta name=viewport  content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv=x-ua-compatible  content="ie=edge"> <meta name=author  content="Jeff Bezanson, Stefan Karpinski, Viral Shah, Alan Edelman, et al."> <meta name=description  content="The official website for the Julia Language. Julia is a language that is fast, dynamic, easy to use, and open source. Click here to learn more."> <meta property="og:title" content="The Julia Language"> <meta property="og:image" content="/assets/images/julia-open-graph.png"> <meta property="og:description" content="Official website for the Julia programming language"> <link rel=stylesheet  href="/libs/bootstrap/bootstrap.min.css"> <link rel=stylesheet  href="/css/app.css"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/fonts.css"> <link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel=stylesheet > <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel=stylesheet > <script async defer src="/libs/buttons.js"></script> <!-- --> <script type="application/javascript"> var doNotTrack = false; if (!doNotTrack) { window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date; ga('create', 'UA-28835595-1', 'auto'); ga('send', 'pageview'); } </script> <script async src='https://www.google-analytics.com/analytics.js'></script> <link rel=icon  href="/assets/infra/julia.ico"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <title>Command interpolation for dummies</title> <style> .container ul li p {margin-bottom: 0;} </style> <style> .main { font-family: Georgia; } .main pre { margin-left: auto; margin-right: auto; } .main { width: 100%; font-size: 100%; } .main code { font-size: 90%; } .main pre code { font-size: 90%; } @media (min-width: 940px) { .main { width: 800px; } .container.blog-title { width: 800px;} } </style> <div class="container py-3 py-lg-0"> <nav class="navbar navbar-expand-lg navbar-light bg-light" id=main-menu > <a class=navbar-brand  href="/"> <img src="/assets/infra/logo_cn.png" alt="JuliaLang Logo"> </a> <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type=button  data-toggle=collapse  data-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav mx-auto"> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/downloads/">下载</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="https://docs.julialang.org">文档</a> <li class="nav-item active flex-md-fill text-md-center"> <a class=nav-link  href="/blog/">博客</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/community/">社区</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/learning/">学习</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/research/">研究</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/jsoc/">JSoC</a> </ul> <span class=navbar-right > <a class=github-button  href="https://github.com/sponsors/julialang" data-icon=octicon-heart  data-size=large  aria-label="Sponsor @julialang on GitHub">赞助</a> </span> </div> </nav> </div> <br><br> <div class="container blog-title"> <h1>Command interpolation for dummies <a type="application/rss+xml" href="https://julialang.org/feed.xml"> <i class="fa fa-rss-square rss-icon"></i> </a> </h1> <h3> <span style="font-weight: lighter;"> 5 October 2017 </span> | <span style="font-weight: bold;"></span> <span style="font-weight: bold;"> 😄 </span> </h3> </div> <a href="https://github.com/JuliaLang/www.julialang.org/blob/master/blog/2017/10/command-interpolation-for-dummies.md" title="Edit this page on GitHub" class=edit-float > </a> <div class="container main"><p>I&#39;ve never been a big user of the command line. One could even say I actively avoided it&#33; Heck, I haven&#39;t even written a program using command line arguments, since it always felt a bit like resurrecting a dinosaur - and we all know how that ends.</p> <p>This carefully honed ignorance just came in handy when discussing how to improve the learning curve for Julia&#39;s shell interface.</p> <p>Turns out it was designed by people born in the command line, making it confusing to use for someone like me. Now enlightened of how things work, I want to share my newly acquired knowledge&#33;</p> <p>Let&#39;s start with the basics and my first mental model. You can run a command like this:</p> <pre><code class="julia hljs">julia&gt; run(<span class=hljs-string >`julia -e &#x27;println(&quot;hello world&quot;)&#x27;`</span>);
+<!doctype html> <html lang=en > <meta charset=utf-8 > <meta name=viewport  content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv=x-ua-compatible  content="ie=edge"> <meta name=author  content="Julia 中文社区的全体成员"> <meta name=description  content="Julia 中文社区的主页。Julia 中文社区是一个社区驱动、致力于 Julia 编程语言中文支持的开源组织。"> <meta name=keywords  content="Julia 中文, Julia 语言, Julia 中文社区, Julia 编程语言"> <meta name=robots  content="index, follow"> <meta property="og:title" content="Julia 中文社区"> <meta property="og:image" content="/assets/infra/logo_cn.png"> <meta property="og:description" content="社区驱动，致力于 Julia 编程语言中文支持的开源组织"> <link rel=stylesheet  href="/libs/bootstrap/bootstrap.min.css"> <link rel=stylesheet  href="/css/app.css"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/fonts.css"> <link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i" rel=stylesheet > <link href="https://libs.cdnjs.net/font-awesome/4.7.0/css/font-awesome.min.css" rel=stylesheet > <script async defer src="/libs/buttons.js"></script> <!-- --> <script type="application/javascript"> var doNotTrack = false; if (!doNotTrack) { window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date; ga('create', 'UA-28835595-9', 'auto'); ga('send', 'pageview'); } </script> <script async src='https://www.google-analytics.com/analytics.js'></script> <link rel=icon  href="/assets/infra/julia.ico"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <title>Command interpolation for dummies</title> <style> .container ul li p {margin-bottom: 0;} </style> <style> .main { font-family: Georgia; } .main pre { margin-left: auto; margin-right: auto; } .main { width: 100%; font-size: 100%; } .main code { font-size: 90%; } .main pre code { font-size: 90%; } @media (min-width: 940px) { .main { width: 800px; } .container.blog-title { width: 800px;} } </style> <div class="container py-3 py-lg-0"> <nav class="navbar navbar-expand-lg navbar-light bg-light" id=main-menu > <a class=navbar-brand  href="/"> <img src="/assets/infra/logo_cn.png" alt="JuliaLang Logo"> </a> <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type=button  data-toggle=collapse  data-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav mx-auto"> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/downloads/">下载</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="https://docs.juliacn.com/">文档</a> <li class="nav-item active flex-md-fill text-md-center"> <a class=nav-link  href="/blog/">博客</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/community/">社区</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/learning/">学习</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/research/">研究</a> <li class="nav-item flex-md-fill text-md-center"> <a class=nav-link  href="/jsoc/">JSoC</a> </ul> <span class=navbar-right > <a class=github-button  href="https://github.com/sponsors/julialang" data-icon=octicon-heart  data-size=large  aria-label="Sponsor @julialang on GitHub">赞助 JuliaLang 组织</a> </span> </div> </nav> </div> <br><br> <div class="container blog-title"> <h1>Command interpolation for dummies <a type="application/rss+xml" href="https://julialang.org/feed.xml"> <i class="fa fa-rss-square rss-icon"></i> </a> </h1> <h3> <span style="font-weight: lighter;"> 5 October 2017 </span> | <span style="font-weight: bold;"></span> <span style="font-weight: bold;"> 😄 </span> </h3> </div> <a href="https://github.com/JuliaLang/www.julialang.org/blob/master/blog/2017/10/command-interpolation-for-dummies.md" title="Edit this page on GitHub" class=edit-float > </a> <div class="container main"><p>I&#39;ve never been a big user of the command line. One could even say I actively avoided it&#33; Heck, I haven&#39;t even written a program using command line arguments, since it always felt a bit like resurrecting a dinosaur - and we all know how that ends.</p> <p>This carefully honed ignorance just came in handy when discussing how to improve the learning curve for Julia&#39;s shell interface.</p> <p>Turns out it was designed by people born in the command line, making it confusing to use for someone like me. Now enlightened of how things work, I want to share my newly acquired knowledge&#33;</p> <p>Let&#39;s start with the basics and my first mental model. You can run a command like this:</p> <pre><code class="julia hljs">julia&gt; run(<span class=hljs-string >`julia -e &#x27;println(&quot;hello world&quot;)&#x27;`</span>);
 hello world</code></pre> <p>Since this looks exactly like what I would type into the terminal, I inferred that this is the general rule: Just make it look like a command and it will run like a command&#33;</p> <p>But this falls apart as soon as we start interpolating into the command. Let&#39;s consider the following:</p> <pre><code class="julia hljs">julia&gt; flag1 = <span class=hljs-string >&quot;-e &#x27;println(\&quot;hello world\&quot;)&#x27;&quot;</span>;
 
 julia&gt; flag2 = <span class=hljs-string >&quot;println(\&quot;hello world\&quot;)&quot;</span>;
@@ -45,54 +45,54 @@ some thing</code></pre> <p>If this all makes sense to you, welcome to the group 
   <div class=container >
     <div class="row footrow">
       <ul>
-        <li><a href="/project">About</a>
-        <li><a href="/about/help">Get Help</a>
-        <li><a href="/community/#julia_github_groups">Domains</a>
-        <li><a href="/blog/2019/02/julia-entities/">Governance</a>
-        <li><a href="/research/#publications">Publications</a>
-        <li><a href="/research/#sponsors">Sponsors</a>
+        <li><a href="/project">关于我们</a>
+        <li><a href="/about/help">寻求帮助</a>
+        <li><a href="/community/#julia_github_groups">特定领域的 Github 组织</a>
+        <li><a href="/blog/2019/02/julia-entities/">管理者</a>
+        <li><a href="/research/#publications">出版物</a>
+        <li><a href="/research/#sponsors">赞助者</a>
       </ul>
       <ul>
-        <li><a href="/downloads/">Downloads</a>
-        <li><a href="/downloads/">All Releases</a>
-        <li><a href="https://github.com/JuliaLang/julia">Source Code</a>
-        <li><a href="/downloads/#current_stable_release">Current Stable Release</a>
-        <li><a href="/downloads/#long_term_support_release">Longterm Support Release</a>
-        <li><a href="/downloads/platform/#platform_specific_instructions_for_unofficial_binaries">Unofficial Binaries</a>
+        <li><a href="/downloads/">下载</a>
+        <li><a href="/downloads/">所有版本</a>
+        <li><a href="https://github.com/JuliaLang/julia">源代码</a>
+        <li><a href="/downloads/#current_stable_release">最新稳定版（Stable）</a>
+        <li><a href="/downloads/#long_term_support_release">长期支持版本（LTS）</a>
+        <li><a href="/downloads/platform/#platform_specific_instructions_for_unofficial_binaries">非官方编译版本</a>
       </ul>
       <ul>
-        <li><a href="https://docs.julialang.org/en/v1/">Documentation</a>
-        <li><a href="https://www.youtube.com/user/JuliaLanguage">Video Talks</a>
-        <li><a href="/learning/getting-started/">Beginners Guide</a>
-        <li><a href="https://docs.julialang.org/en/v1/manual/faq/">FAQ</a>
-        <li><a href="/learning/#books">Julia Books</a>
+        <li><a href="https://docs.juliacn.com/latest/">文档</a>
+        <li><a href="https://docs.julialang.org/en/v1/">英文文档</a>
+        <li><a href="/learning/getting-started/">初学者指南</a>
+        <li><a href="https://docs.juliacn.com/latest/manual/faq/">常见问题（FAQ）</a>
+        <li><a href="/learning/#books">书籍</a>
       </ul>
       <ul>
-        <li><a href="/community/">Community</a>
-        <li><a href="/community/#2019_julia_user_and_developer_survey">User/Developer Survey</a>
-        <li><a href="/diversity/">Diversity</a>
-        <li><a href="/community/#official_channels">Official Channels</a>
-        <li><a href="/community/standards/">Code of Conduct</a>
-        <li><a href="/community/#events">Events</a>
-        <li><a href="https://shop.spreadshirt.com/numfocus/official+julia+logo?idea=5bca3ad9f93764414a5de55f">Shop Merchandise</a>
+        <li><a href="/community/">社区</a>
+        <li><a href="/community/#2019_julia_user_and_developer_survey">用户/开发者调查</a>
+        <li><a href="/diversity/">多元化</a>
+        <li><a href="/community/#official_channels">官方频道</a>
+        <li><a href="/community/standards/">行为准则（CoC）</a>
+        <li><a href="/community/#events">活动</a>
+        <li><a href="https://shop.spreadshirt.com/numfocus/official+julia+logo?idea=5bca3ad9f93764414a5de55f">周边商店（SpreadShirt）</a>
       </ul>
       <ul>
-        <li><a href="https://github.com/JuliaLang/julia/blob/master/CONTRIBUTING.md">Contributing</a>
-        <li><a href="https://github.com/JuliaLang/julia/issues">Issue Tracker</a>
-        <li><a href="https://github.com/JuliaLang/julia/security/policy">Report a Security Issue</a>
-        <li><a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+language%3AJulia+label%3A%22help+wanted%22">Help Wanted Issues</a>
-        <li><a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+language%3AJulia+label%3A%22good+first+issue%22+">Good First Issue</a>
-        <li><a href="https://docs.julialang.org/en/v1/devdocs/reflection/">Dev Docs</a>
+        <li><a href="https://github.com/JuliaLang/julia/blob/master/CONTRIBUTING.md">贡献指南</a>
+        <li><a href="https://github.com/JuliaLang/julia/issues">问题追踪器</a>
+        <li><a href="https://github.com/JuliaLang/julia/security/policy">报告安全问题</a>
+        <li><a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+language%3AJulia+label%3A%22help+wanted%22">需要帮助的问题</a>
+        <li><a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+language%3AJulia+label%3A%22good+first+issue%22+">适宜新手做贡献的问题</a>
+        <li><a href="https://docs.juliacn.com/latest/devdocs/reflection/">开发者文档</a>
       </ul>
     </div>
     <div id=footer-bottom  class=row >
       <div class="col-md-10 py-2">
-        <p>Website built with <a href="https://franklinjl.org">Franklin.jl</a> - a native Julia package for building websites. We thank <a href="https://www.fastly.com">Fastly</a> for their generous infrastructure support.</p>
-        <p>©2020 JuliaLang.org <a href="https://github.com/JuliaLang/www.julialang.org/graphs/contributors">contributors</a>. The content on this website is made available under the <a href="https://github.com/JuliaLang/www.julialang.org/blob/master/LICENSE.md">MIT license</a>.
+        <p>网站基于 <a href="https://franklinjl.org">Franklin.jl</a> 构建 —— 用于构建网站的纯 Julia 包。感谢 <a href="https://www.fastly.com">Fastly</a> 慷慨的基础设施支持。</p>
+        <p>©2020 JuliaLang.org <a href="https://github.com/JuliaLang/www.julialang.org/graphs/contributors">英文贡献者</a>、<a href="https://github.com/JuliaCN/juliacn.github.io/graphs/contributors">中文贡献者</a>。本站内容基于 <a href="https://github.com/JuliaLang/www.julialang.org/blob/master/LICENSE.md">MIT 协议</a> 分发。
       </div>
       <div class="col-md-2 py-2">
         <span class=float-sm-right >
-          <a class=github-button  href="https://github.com/sponsors/julialang" data-icon=octicon-heart  data-size=large  aria-label="Sponsor @julialang on GitHub">Sponsor</a>
+          <a class=github-button  href="https://github.com/sponsors/julialang" data-icon=octicon-heart  data-size=large  aria-label="Sponsor @julialang on GitHub">赞助 JuliaLang 组织</a>
         </span>
       </div>
     </div>
