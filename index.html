@@ -196,15 +196,25 @@
                   并行和异构计算
                 </h4>
                 <p>
-                Julia is designed for parallelism, and provides built-in primitives for parallel computing at every level:
-                <b><a href = "https://docs.julialang.org/en/v1/base/simd-types/"> instruction level parallelism</a></b>,
-                <b><a href = "https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1">multi-threading</a></b> and
-                <b><a href = "https://docs.julialang.org/en/v1/manual/parallel-computing/">distributed computing</a></b>.
-                The <a href="https://github.com/jeff-regier/Celeste.jl">Celeste.jl </a> project <a href = "https://arxiv.org/pdf/1801.10277.pdf" title = "PDF paper on Cataloging the Visible Universe through Bayesian Inference at Petascale hosted on arxiv.org"> achieved 1.5 PetaFLOP/s</a> on the <a href="https://cs.lbl.gov/news-media/news/2016/celeste-enhancements-create-new-opportunities-in-sky-surveys/">Cori supercomputer at NERSC</a> using 650,000 cores.
+                  Julia 是为并行设计的，它为每一层的并行计算提供了内置的原语：
+                    <b><a href = "https://docs.julialang.org/en/v1/base/simd-types/">指令级并行</a></b>、
+                    <b><a href = "https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1">多线程</a></b>
+                    和 <b><a href = "https://docs.julialang.org/en/v1/manual/parallel-computing/">分布式计算</a></b>。
+                  <a href="https://github.com/jeff-regier/Celeste.jl">Celeste.jl</a> 项目在
+                  <a href="https://cs.lbl.gov/news-media/news/2016/celeste-enhancements-create-new-opportunities-in-sky-surveys/">
+                    NERSC 的 Cori 超级计算机</a> 上
+                    <a href="https://arxiv.org/pdf/1801.10277.pdf"
+                      title="PDF paper on Cataloging the Visible Universe through Bayesian Inference at Petascale hosted on arxiv.org">
+                      实现了 1.5 PetaFLOP/s</a> 的计算能力。
                 </p>
                 <p>
-                The Julia compiler can also generate native code for <a href="https://juliagpu.org">GPUs</a>. Packages such as <a href="https://github.com/JuliaParallel/DistributedArrays.jl">DistributedArrays.jl</a> and <a href="https://github.com/JuliaParallel/Dagger.jl">Dagger.jl</a> provide higher levels of abstraction for parallelism.
-		Distributed Linear Algebra is provided by packages like <a href="https://github.com/JuliaParallel/Elemental.jl">Elemental.jl</a> and <a href="https://github.com/JuliaLinearAlgebra/TSVD.jl">TSVD.jl</a>.
+                  Julia 编译器还可以为 <a href="https://juliagpu.org">GPU</a> 生成本地代码。
+                  像 <a href="https://github.com/JuliaParallel/DistributedArrays.jl">DistributedArrays.jl</a>
+                  和 <a href="https://github.com/JuliaParallel/Dagger.jl">Dagger.jl</a> 这样的包为并行性提供了更高级别的抽象。
+                  分布式线性代数是由类似
+                    <a href="https://github.com/JuliaParallel/Elemental.jl">Elemental.jl</a>
+                    和 <a href="https://github.com/JuliaLinearAlgebra/TSVD.jl">TSVD.jl</a>
+                  的包提供的。
                 </p>
               </div>
             </div>
@@ -222,19 +232,22 @@
                     可伸缩的机器学习
                 </h4>
                 <p>
-                  Julia provides powerful tools for deep learning
-                  (<a href = "https://github.com/FluxML/Flux.jl">Flux.jl</a> and
-                  <a href = "https://github.com/denizyuret/Knet.jl">Knet.jl</a>),
-                  <a href = "https://juliaml.github.io"> machine learning </a> and AI. Julia’s mathematical syntax makes it an ideal way to express algorithms just as they are written in papers, build trainable models with
-                  <a href = "https://www.juliadiff.org">automatic differentiation</a>,
-                  <a href = "https://github.com/JuliaGPU/CuArrays.jl">GPU acceleration</a> and support for terabytes of data with <a href="https://juliadb.org">JuliaDB</a>.
+                  Julia 为深度学习
+                  (<a href="https://github.com/FluxML/Flux.jl">Flux.jl</a>
+                    和 <a href="https://github.com/denizyuret/Knet.jl">Knet.jl</a>)、
+                  <a href="https://juliaml.github.io">机器学习</a>和人工智能。提供了强大的工具。      
+                  Julia 的数学语法使其成为一种理想的表达算法的方式，就像在论文中写的那样，
+                  构建具有
+                    <a href="https://www.juliadiff.org">自动微分</a>、
+                    <a href="https://github.com/JuliaGPU/CuArrays.jl">GPU 加速</a>
+                    和支持处理 <a href="https://juliadb.org">TB 级数据</a>的可训练模型。
                 </p>
                 <p>
-                  Julia's rich machine learning and statistics ecosystem includes capabilities for
-                  <a href = "https://github.com/JuliaStats/GLM.jl">generalized linear models</a>,
-                  <a href = "https://github.com/bensadeghi/DecisionTree.jl">decision trees</a>, and <a href = "https://github.com/JuliaStats/Clustering.jl">clustering</a>. You can also find packages for
-                  <a href = "https://github.com/sisl/BayesNets.jl">Bayesian Networks</a> and
-                  <a href = "https://github.com/TuringLang/Turing.jl">Markov Chain Monte Carlo</a>.
+                  Julia 丰富的机器学习和统计生态系统包括：
+                    <a href="https://github.com/JuliaStats/GLM.jl">广义线性模型（GLM）</a>、
+                    <a href="https://github.com/bensadeghi/DecisionTree.jl">决策树</a>
+                    和 <a href="https://github.com/JuliaStats/Clustering.jl">聚类</a>。
+                  您还可以找到<a href="https://github.com/sisl/BayesNets.jl">贝叶斯网络</a>和<a href="https://github.com/TuringLang/Turing.jl">蒙特卡洛马尔可夫</a>的包。
                 </p>
               </div>
             </div>
@@ -246,14 +259,36 @@
           <h3 class="tab-title">Scientific Computing</h3>
           <div class="row">
             <div class="col-lg-12">
-              <img src="/assets/infra/lorenz.gif" class="pb-2 ecosystem-image" style="width: 400px;" alt="Lorenz Attractor visualization" />
+              <img src="/assets/infra/lorenz.gif" class="pb-2 ecosystem-image" style="width: 400px;height: 280px;object-fit: none;" 
+              alt="Lorenz Attractor visualization" />
               <div class="container">
                 <h4>
                   丰富的科学计算生态系统
                 </h4>
-                <p>Julia is designed from the ground up to be very good at numerical and scientific computing.
-                This can be seen in the abundance of scientific tooling written in Julia, such as the state-of-the-art differential equations ecosystem <a href = "https://sciml.ai/">(DifferentialEquations.jl)</a>, optimization tools (<a href = "https://github.com/JuliaOpt/JuMP.jl">JuMP.jl</a> and <a href = "https://github.com/JuliaNLSolvers/Optim.jl">Optim.jl</a>), iterative linear solvers <a href = "https://github.com/JuliaMath/IterativeSolvers.jl">(IterativeSolvers.jl)</a>, a robust framework for Fourier transforms <a href = "https://github.com/JuliaMath/AbstractFFTs.jl">(AbstractFFTs.jl)</a>, a general purpose quantum simulation framework <a href = "https://github.com/QuantumBFS/Yao.jl">(Yao.jl)</a>, and many more, that can drive all your simulations.</p>
-                <p>Julia also offers a number of domain-specific ecosystems, such as in biology <a href = "https://github.com/BioJulia"> (BioJulia)</a>, operations research <a href = "http://www.juliaopt.org/"> (JuliaOpt)</a>, image processing <a href = "https://juliaimages.github.io/latest/">(JuliaImages)</a>, quantum physics (<a href = "https://github.com/QuantumBFS">QuantumBFS</a>, <a href = "https://github.com/qojulia/QuantumOptics.jl">QuantumOptics</a>), nonlinear dynamics <a href = "https://github.com/JuliaDynamics"> (JuliaDynamics)</a>, quantitative economics <a href = "https://github.com/QuantEcon">(QuantEcon)</a>, astronomy <a href = "https://juliaastro.github.io"> (JuliaAstro)</a> and ecology <a href = "https://github.com/EcoJulia">(EcoJulia)</a>. With a set of highly enthusiastic developers and maintainers from various parts of the scientific community, this ecosystem will only continue to get bigger and bigger. </p>
+                <p>
+                  Julia 天生就擅长数值和科学计算。
+                  这一点可以从用 Julia 写的大量科学工具中看出。
+                  例如：最先进的微分方程生态系统（<a href="https://sciml.ai/">DifferentialEquations.jl</a>）、
+                  优化工具（<a href="https://github.com/JuliaOpt/JuMP.jl">JuMP.jl</a>
+                    和 <a href="https://github.com/JuliaNLSolvers/Optim.jl">Optim.jl</a>）、
+                  迭代线性求解器（<a href="https://github.com/JuliaMath/IterativeSolvers.jl">IterativeSolvers.jl</a>）、
+                  健壮的傅立叶变换框架（<a href="https://github.com/JuliaMath/AbstractFFTs.jl">AbstractFFTs.jl</a>）、
+                  通用的量子模拟框架（<a href="https://github.com/QuantumBFS/Yao.jl">Yao.jl</a>）等工具。
+                  它们可以满足驱动你所有的模拟需求。
+                </p>
+                <p>
+                  茱莉亚还提供了一些特定领域的软件生态，
+                  比如生物学（<a href="https://github.com/BioJulia">BioJulia</a>）、
+                    运筹学（<a href="http://www.juliaopt.org/">JuliaOpt</a>）、
+                    图像处理（<a href="https://juliaimages.github.io/latest/">JuliaImages</a>）、
+                    量子物理学（<a href="https://github.com/QuantumBFS">QuantumBFS</a>、
+                      <a href="https://github.com/qojulia/QuantumOptics.jl">QuantumOptics</a>）、
+                    非线性动力学（<a href="https://github.com/JuliaDynamics">JuliaDynamics</a>）、
+                    计量经济学（<a href="https://github.com/QuantEcon">QuantEcon</a>）、
+                    天文学（<a href="https://juliaastro.github.io">JuliaAstro</a>）
+                    和生态学（<a href="https://github.com/EcoJulia">EcoJulia</a>）。
+                  有了一群来自各个科学社区、高度热情的开发人员和维护人员，这个生态系统只会越来越大。
+                </p>
               </div>
             </div>
           </div>
@@ -267,9 +302,23 @@
               <img src="/assets/infra/onlinestats.gif" class="pb-2 ecosystem-image" style="width: 400px;" alt="Visualization of weighted data changing as more data is plotted" />
               <div class="container">
                 <h4>交互式的处理你的数据</h4>
-                <p>The Julia data ecosystem lets you load multidimensional datasets quickly, perform aggregations, joins and preprocessing operations in parallel, and save them to disk in efficient formats. You can also perform online computations on streaming data with <a href = "https://github.com/joshday/OnlineStats.jl">OnlineStats.jl</a>. Whether you're looking for the convenient and familiar <a href = "https://juliadata.github.io/DataFrames.jl/stable/">DataFrames</a>, or a new approach with <a href = "https://juliadb.org">JuliaDB</a>, Julia provides you a rich variety of tools.
-                The <a href = "https://www.queryverse.org/">Queryverse</a> provides query, file IO and visualization functionality. In addition to working with tabular data, the <a href = "https://juliagraphs.github.io">JuliaGraphs</a> packages make it easy to work with combinatorial data.</p>
-                <p>Julia can work with almost all databases using <a href = "https://github.com/JuliaDatabases/JDBC.jl">JDBC.jl</a> and <a href = "https://github.com/JuliaDatabases/ODBC.jl">ODBC.jl</a> drivers. In addition, it also integrates with the Hadoop ecosystem using <a href = "https://github.com/dfdx/Spark.jl">Spark.jl</a>, <a href = "https://github.com/JuliaParallel/HDFS.jl">HDFS.jl</a>, and <a href = "https://github.com/JuliaDatabases/Hive.jl"> Hive.jl</a>.</p>
+                <p>
+                  Julia 的数据生态允许快速地加载多维数据集，并行执行聚合、连接和预处理操作，并以高效格式将它们保存到磁盘。
+                  您还可以使用 <a href="https://github.com/joshday/OnlineStats.jl">OnlineStats.jl</a> 对流数据执行在线计算。
+                  无论您是在寻找方便和熟悉的 <a href="https://juliadata.github.io/DataFrames.jl/stable/">DataFrames</a>，
+                  还是使用 <a href="https://juliadb.org">JuliaDB</a> 的一种新方法，Julia 都提供了丰富的工具。
+                  <a href="https://www.queryverse.org/">Queryverse</a> 提供查询、文件 IO 和可视化功能。
+                  除了表格数据处理外，<a href="https://juliagraphs.github.io">JuliaGraphs</a> 包还使处理组合数据变得更加容易。
+                </p>
+                <p>
+                  Julia 可以通过 <a href="https://github.com/JuliaDatabases/JDBC.jl">JDBC.jl</a> 和
+                  <a href="https://github.com/JuliaDatabases/ODBC.jl">ODBC.jl</a> 驱动处理几乎所有的数据库。
+                  此外，它还通过
+                    <a href="https://github.com/dfdx/Spark.jl">Spark.jl</a>、
+                    <a href="https://github.com/JuliaParallel/HDFS.jl">HDFS.jl</a>
+                    和 <a href="https://github.com/JuliaDatabases/Hive.jl"> Hive.jl</a>
+                  与 Spark 和 Hadoop 的软件生态集成在一起。
+                </p>
               </div>
             </div>
           </div>
