@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="zh-CN">
+<head prefix="og: http://ogp.me/ns#">
   {{insert meta.html}}
   {{insert head_scripts.html}}
   <title>Julia 中文社区</title>
@@ -38,9 +38,9 @@
       <p>
       <a class="btn btn-success btn-lg" href="/downloads/" role="button">下载 v{{stable_release}}</a>
       &nbsp;
-      <a class="btn btn-primary btn-lg" href="https://docs.julialang.org" role="button">文档</a>
+      <a class="btn btn-primary btn-lg" href="https://docs.juliacn.com/" role="button">中文文档</a>
       <span class="btn float-md-right">
-        <a class="github-button" href="https://github.com/JuliaLang/julia" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star JuliaLang/julia on GitHub">Star</a>
+        <a class="github-button" href="https://github.com/JuliaLang/julia" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star JuliaLang/julia on GitHub">为 Julia 点赞</a>
       </span>
       </p>
     </div>
@@ -54,7 +54,7 @@
       <div class="col-lg-4 col-md-3 language-features "><hr/></div>
       <div class="col-lg-4 col-md-6 language-features section-heading">
         <h2 class="lead secondary-heading">
-          简而言之, Julia 就是
+          简而言之，Julia 就是
         </h2>
       </div>
       <div class="col-lg-4 col-md-3 language-features"><hr/></div>
@@ -65,35 +65,35 @@
     <div class="row">
       <!-- 1 -->
       <div class="col-lg-4 col-md-6 feature">
-        <h3>快!</h3>
+        <h3>快！</h3>
         <p>Julia 一开始就是为<a href="/benchmarks/">高性能</a>而设计的。
         Julia 程序通过 LLVM 编译成高效的 <a href="/downloads/#support_tiers">多平台</a> 机器码。</p>
       </div>
       <!-- 2 -->
       <div class="col-lg-4 col-md-6 feature">
         <h3>动态</h3>
-        <p>Julia 是 <a href="https://docs.julialang.org/en/v1/manual/types/">动态类型的</a>, 使用起来像脚本语言，同时有很好的 <a href="https://docs.julialang.org/en/v1/stdlib/REPL/">交互</a> 体验。</p>
+        <p>Julia 是<a href="https://docs.juliacn.com/latest/manual/types/">动态类型的</a>，使用起来像脚本语言，同时有很好的<a href="https://docs.juliacn.com/latest/stdlib/REPL/">交互</a>体验。</p>
       </div>
       <!-- 3 -->
       <div class="col-lg-4 col-md-6 feature">
         <h3>可选类型</h3>
-        <p>Julia 有丰富的<a href="https://docs.julialang.org/en/v1/manual/types/">数据类型描述语言</a>, 类型声明可以使程序更清晰可靠。</p>
+        <p>Julia 有丰富的<a href="https://docs.juliacn.com/latest/manual/types/">数据类型描述语言</a>，标注类型声明可以使程序更清晰可靠。</p>
       </div>
       <!-- 4 -->
       <div class="col-lg-4 col-md-6 feature">
         <h3>通用</h3>
-        <p>Julia 使用 <a href="https://docs.julialang.org/en/v1/manual/methods/">多分派</a> 范式, 很容易表达面向对象和 <a href="https://docs.julialang.org/en/v1/manual/metaprogramming/">函数式</a> 编程模式。
-        同时提供了 <a href="https://docs.julialang.org/en/v1/manual/networking-and-streams/">异步 I/O</a>, <a href="https://github.com/JuliaDebug/Debugger.jl">调试</a>, <a href="https://docs.julialang.org/en/v1/stdlib/Logging/">日志</a>, <a href="https://docs.julialang.org/en/v1/manual/profile/">性能分析</a>, <a href="https://docs.julialang.org/en/v1/stdlib/Pkg/index.html">包管理</a>等工具。</p>
+        <p>Julia 使用<a href="https://docs.juliacn.com/latest/manual/methods/">多分派</a>范式，很容易表达面向对象和<a href="https://docs.juliacn.com/latest/manual/metaprogramming/">函数式</a>编程模式。
+        同时提供了<a href="https://docs.juliacn.com/latest/manual/networking-and-streams/">异步 I/O</a>、<a href="https://github.com/JuliaDebug/Debugger.jl">调试</a>、<a href="https://docs.juliacn.com/latest/stdlib/Logging/">日志</a>、<a href="https://docs.juliacn.com/latest/manual/profile/">性能分析</a>、<a href="https://docs.juliacn.com/latest/stdlib/Pkg/index.html">包管理</a>等工具。</p>
       </div>
       <!-- 5 -->
       <div class="col-lg-4 col-md-6 feature">
         <h3>易用</h3>
-        <p>Julia 拥有高阶的语法， 这让具有不同编程语言背景和经验的程序员都能使用它。<a href="https://github.com/JuliaLang/Microbenchmarks/blob/master/perf.jl">查看 Julia 的微基准</a> 来感受这门语言吧。</p>
+        <p>Julia 拥有高阶的语法，这让具有不同编程语言背景和经验的程序员都能使用它。<a href="https://github.com/JuliaLang/Microbenchmarks/blob/master/perf.jl">查看 Julia 的微基准</a>来感受这门语言吧。</p>
       </div>
       <!-- 6 -->
       <div class="col-lg-4 col-md-6 feature">
         <h3>开源</h3>
-        <p>Julia 采用 <a href="https://github.com/JuliaLang/julia/blob/master/LICENSE.md">MIT 许可证</a>, 每个人都可以免费使用. 所有 <a href="https://github.com/JuliaLang/julia">源码</a> 都可以在Github上公开查阅。</p>
+        <p>Julia 采用 <a href="https://github.com/JuliaLang/julia/blob/master/LICENSE.md">MIT 许可证</a>，每个人都可以免费使用。所有<a href="https://github.com/JuliaLang/julia">源代码</a>都可以在 Github 上公开查阅。</p>
       </div>
     </div>
 
@@ -120,7 +120,7 @@
       <div class="row">
         <div class="col-lg-4 col-md-3 ecosystem"><hr/></div>
         <div class="col-lg-4 col-md-6 ecosystem section-heading">
-          <h2 class="lead secondary-heading">Ecosystem</h2>
+          <h2 class="lead secondary-heading">语言生态</h2>
         </div>
         <div class="col-lg-4 col-md-3 ecosystem"><hr/></div>
       </div>
@@ -131,27 +131,27 @@
         <ul class="nav nav-tabs nav-justified" id="ecosystem-tab" role="tablist">
           <!-- Tab 1 -->
           <li class="nav-item">
-            <a class="nav-link active" id="viz-tab" data-toggle="tab" href="#tab-viz" role="tab" aria-controls="viz" aria-selected="true">Visualization</a>
+            <a class="nav-link active" id="viz-tab" data-toggle="tab" href="#tab-viz" role="tab" aria-controls="viz" aria-selected="true">可视化</a>
           </li>
           <!-- Tab 2 -->
           <li class="nav-item">
-            <a class="nav-link" id="general-tab" data-toggle="tab" href="#tab-general" role="tab" aria-controls="general" aria-selected="false">General Purpose</a>
+            <a class="nav-link" id="general-tab" data-toggle="tab" href="#tab-general" role="tab" aria-controls="general" aria-selected="false">通用编程</a>
           </li>
           <!-- Tab 3 -->
           <li class="nav-item">
-            <a class="nav-link" id="ds-tab" data-toggle="tab" href="#tab-ds" role="tab" aria-controls="ds" aria-selected="false">Data Science</a>
+            <a class="nav-link" id="ds-tab" data-toggle="tab" href="#tab-ds" role="tab" aria-controls="ds" aria-selected="false">数据科学</a>
           </li>
           <!-- Tab 4 -->
           <li class="nav-item">
-            <a class="nav-link" id="math-tab" data-toggle="tab" href="#tab-math" role="tab" aria-controls="math" aria-selected="false">Machine Learning</a>
+            <a class="nav-link" id="math-tab" data-toggle="tab" href="#tab-math" role="tab" aria-controls="math" aria-selected="false">机器学习</a>
           </li>
           <!-- Tab 5 -->
           <li class="nav-item">
-            <a class="nav-link" id="sci-tab" data-toggle="tab" href="#tab-sci" role="tab" aria-controls="sci" aria-selected="false">Scientific Domains</a>
+            <a class="nav-link" id="sci-tab" data-toggle="tab" href="#tab-sci" role="tab" aria-controls="sci" aria-selected="false">科学计算</a>
           </li>
           <!-- Tab 6 -->
           <li class="nav-item">
-            <a class="nav-link" id="computing-tab" data-toggle="tab" href="#tab-computing" role="tab" aria-controls="computing" aria-selected="false">Parallel Computing</a>
+            <a class="nav-link" id="computing-tab" data-toggle="tab" href="#tab-computing" role="tab" aria-controls="computing" aria-selected="false">并行计算</a>
           </li>
         </ul>
       </div>
@@ -160,20 +160,27 @@
       <div class="tab-content" id="ecosystem-tab-content">
         <div class="tab-pane" id="tab-general" role="tabpanel" aria-labelledby="general-tab">
           <h3 class="tab-title">General Computing</h3>
-          <img src="/assets/infra/minesweeper.png" class="pb-2 ecosystem-image" style="width: 400px; height: 280px" alt="minesweeper gameover" />
+          <img src="/assets/infra/minesweeper.png" class="pb-2 ecosystem-image" style="width: 400px;height: 280px;object-fit: cover;" alt="minesweeper gameover" />
           <div class="container-fluid">
-            <h4>Build, Deploy or Embed Your Code</h4>
+            <h4>构建、部署或者嵌入你的代码</h4>
             <p>
-              Julia lets you <a href="https://github.com/JuliaGizmos/WebIO.jl">write UIs</a>, <a href="https://github.com/JuliaLang/PackageCompiler.jl">statically compile</a> your code, or even deploy it on a <a href="https://github.com/JuliaWeb/HTTP.jl">webserver</a>. It also has powerful shell-like capabilities for <a href="https://docs.julialang.org/en/v1/manual/running-external-programs/">managing other processes</a>. It provides Lisp-like macros and other <a href="https://docs.julialang.org/en/v1/manual/metaprogramming/">metaprogramming</a> facilities.
+              Julia 允许你<a href="https://github.com/JuliaGizmos/WebIO.jl">编写 UI</a>、
+              <a href="https://github.com/JuliaLang/PackageCompiler.jl">静态编译</a>代码，
+              甚至将代码部署到<a href="https://github.com/JuliaWeb/HTTP.jl"> Web 服务器</a>上。
+              它还具有类似 shell 能<a href="https://docs.juliacn.com/latest/manual/running-external-programs/">管理其他进程</a>
+              的强大能力。它也提供类似 Lisp 的宏和其他<a href="https://docs.juliacn.com/latest/manual/metaprogramming/">元编程</a>工具。
             </p>
             <p>
-              Julia has foreign function interfaces for
-                <a href = "https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/">C/Fortran</a>,
-                <a href = "https://github.com/Keno/Cxx.jl">C++</a>,
-                <a href = "https://github.com/JuliaPy/PyCall.jl">Python</a>,
-                <a href = "https://github.com/JuliaInterop/RCall.jl">R</a>,
-                <a href = "https://github.com/JuliaInterop/JavaCall.jl">Java</a>,
-              and many other languages. Julia can also be embedded in other programs through its <a href="https://docs.julialang.org/en/v1/manual/embedding/">embedding API</a>. Specifically, Python programs can call Julia using <a href="https://github.com/JuliaPy/pyjulia">PyJulia</a>. R programs can do the same with <a href="https://cran.r-project.org/web/packages/JuliaCall/index.html">R's JuliaCall</a>, which is demonstrated by <a href="https://rpubs.com/dmbates/377897">calling MixedModels.jl from R</a>.
+              Julia 提供了许多语言的接口（FFI）：
+              <a href = "https://docs.juliacn.com/latest/manual/calling-c-and-fortran-code/">C/Fortran</a>、
+              <a href = "https://github.com/Keno/Cxx.jl">C++</a>、
+              <a href = "https://github.com/JuliaPy/PyCall.jl">Python</a>、
+              <a href = "https://github.com/JuliaInterop/RCall.jl">R</a>、
+              <a href = "https://github.com/JuliaInterop/JavaCall.jl">Java</a> 等。
+              Julia 也能通过它的<a href="https://docs.juliacn.com/latest/manual/embedding/">嵌入式 API </a>嵌入其他程序。
+              举例来说：Python 程序可以通过 <a href="https://github.com/JuliaPy/pyjulia">PyJulia</a> 包来调用 Julia。
+              R 编写的程序可以使用 <a href="https://cran.r-project.org/web/packages/JuliaCall/index.html">R 中的 JuliaCall</a>，
+              这种做法已经由 <a href="https://rpubs.com/dmbates/377897">在 R 中调用 MixedModels.jl </a>这篇文章实践过了。
             </p>
           </div>
         </div>
@@ -186,18 +193,28 @@
               <img src="/assets/infra/parallel-prefix.png" class="pb-2 ecosystem-image" style="width: 400px; height: 280px" alt="parallel prefix graphical result" />
               <div class="container-fluid">
                 <h4>
-                  Parallel and Heterogeneous Computing
+                  并行和异构计算
                 </h4>
                 <p>
-                Julia is designed for parallelism, and provides built-in primitives for parallel computing at every level:
-                <b><a href = "https://docs.julialang.org/en/v1/base/simd-types/"> instruction level parallelism</a></b>,
-                <b><a href = "https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1">multi-threading</a></b> and
-                <b><a href = "https://docs.julialang.org/en/v1/manual/parallel-computing/">distributed computing</a></b>.
-                The <a href="https://github.com/jeff-regier/Celeste.jl">Celeste.jl </a> project <a href = "https://arxiv.org/pdf/1801.10277.pdf" title = "PDF paper on Cataloging the Visible Universe through Bayesian Inference at Petascale hosted on arxiv.org"> achieved 1.5 PetaFLOP/s</a> on the <a href="https://cs.lbl.gov/news-media/news/2016/celeste-enhancements-create-new-opportunities-in-sky-surveys/">Cori supercomputer at NERSC</a> using 650,000 cores.
+                  Julia 是为并行设计的，它为每一层的并行计算提供了内置的原语：
+                    <b><a href = "https://docs.juliacn.com/latest/base/simd-types/">指令级并行</a></b>、
+                    <b><a href = "https://docs.juliacn.com/latest/manual/parallel-computing/#Multi-Threading-(Experimental)-1">多线程</a></b>
+                    和 <b><a href = "https://docs.juliacn.com/latest/manual/parallel-computing/">分布式计算</a></b>。
+                  <a href="https://github.com/jeff-regier/Celeste.jl">Celeste.jl</a> 项目在
+                  <a href="https://cs.lbl.gov/news-media/news/2016/celeste-enhancements-create-new-opportunities-in-sky-surveys/">
+                    NERSC 的 Cori 超级计算机</a> 上
+                    <a href="https://arxiv.org/pdf/1801.10277.pdf"
+                      title="PDF paper on Cataloging the Visible Universe through Bayesian Inference at Petascale hosted on arxiv.org">
+                      实现了 1.5 PetaFLOP/s</a> 的计算能力。
                 </p>
                 <p>
-                The Julia compiler can also generate native code for <a href="https://juliagpu.org">GPUs</a>. Packages such as <a href="https://github.com/JuliaParallel/DistributedArrays.jl">DistributedArrays.jl</a> and <a href="https://github.com/JuliaParallel/Dagger.jl">Dagger.jl</a> provide higher levels of abstraction for parallelism.
-		Distributed Linear Algebra is provided by packages like <a href="https://github.com/JuliaParallel/Elemental.jl">Elemental.jl</a> and <a href="https://github.com/JuliaLinearAlgebra/TSVD.jl">TSVD.jl</a>.
+                  Julia 编译器还可以为 <a href="https://juliagpu.org">GPU</a> 生成本地代码。
+                  像 <a href="https://github.com/JuliaParallel/DistributedArrays.jl">DistributedArrays.jl</a>
+                  和 <a href="https://github.com/JuliaParallel/Dagger.jl">Dagger.jl</a> 这样的包为并行性提供了更高级别的抽象。
+                  分布式线性代数是由类似
+                    <a href="https://github.com/JuliaParallel/Elemental.jl">Elemental.jl</a>
+                    和 <a href="https://github.com/JuliaLinearAlgebra/TSVD.jl">TSVD.jl</a>
+                  的包提供的。
                 </p>
               </div>
             </div>
@@ -209,25 +226,28 @@
           <h3 class="tab-title">Machine Learning</h3>
           <div class="row">
             <div class="col-lg-12">
-              <img src="/assets/infra/cartpole.gif" class="pb-2 ecosystem-image" style="width: 400px; height: 267px" alt="cartpole reinforcement learning problem visualization" />
+              <img src="/assets/infra/cartpole.gif" class="pb-2 ecosystem-image" style="width: 400px" alt="cartpole reinforcement learning problem visualization" />
               <div class="container">
                 <h4>
-                  Scalable Machine Learning
+                    可伸缩的机器学习
                 </h4>
                 <p>
-                  Julia provides powerful tools for deep learning
-                  (<a href = "https://github.com/FluxML/Flux.jl">Flux.jl</a> and
-                  <a href = "https://github.com/denizyuret/Knet.jl">Knet.jl</a>),
-                  <a href = "https://juliaml.github.io"> machine learning </a> and AI. Julia’s mathematical syntax makes it an ideal way to express algorithms just as they are written in papers, build trainable models with
-                  <a href = "https://www.juliadiff.org">automatic differentiation</a>,
-                  <a href = "https://github.com/JuliaGPU/CuArrays.jl">GPU acceleration</a> and support for terabytes of data with <a href="https://juliadb.org">JuliaDB</a>.
+                  Julia 为深度学习
+                  (<a href="https://github.com/FluxML/Flux.jl">Flux.jl</a>
+                    和 <a href="https://github.com/denizyuret/Knet.jl">Knet.jl</a>)、
+                  <a href="https://juliaml.github.io">机器学习</a>和人工智能。提供了强大的工具。      
+                  Julia 的数学语法使其成为一种理想的表达算法的方式，就像在论文中写的那样，
+                  构建具有
+                    <a href="https://www.juliadiff.org">自动微分</a>、
+                    <a href="https://github.com/JuliaGPU/CuArrays.jl">GPU 加速</a>
+                    和支持处理 <a href="https://juliadb.org">TB 级数据</a>的可训练模型。
                 </p>
                 <p>
-                  Julia's rich machine learning and statistics ecosystem includes capabilities for
-                  <a href = "https://github.com/JuliaStats/GLM.jl">generalized linear models</a>,
-                  <a href = "https://github.com/bensadeghi/DecisionTree.jl">decision trees</a>, and <a href = "https://github.com/JuliaStats/Clustering.jl">clustering</a>. You can also find packages for
-                  <a href = "https://github.com/sisl/BayesNets.jl">Bayesian Networks</a> and
-                  <a href = "https://github.com/TuringLang/Turing.jl">Markov Chain Monte Carlo</a>.
+                  Julia 丰富的机器学习和统计生态系统包括：
+                    <a href="https://github.com/JuliaStats/GLM.jl">广义线性模型（GLM）</a>、
+                    <a href="https://github.com/bensadeghi/DecisionTree.jl">决策树</a>
+                    和 <a href="https://github.com/JuliaStats/Clustering.jl">聚类</a>。
+                  您还可以找到<a href="https://github.com/sisl/BayesNets.jl">贝叶斯网络</a>和<a href="https://github.com/TuringLang/Turing.jl">蒙特卡洛马尔可夫</a>的包。
                 </p>
               </div>
             </div>
@@ -239,14 +259,36 @@
           <h3 class="tab-title">Scientific Computing</h3>
           <div class="row">
             <div class="col-lg-12">
-              <img src="/assets/infra/lorenz.gif" class="pb-2 ecosystem-image" style="width: 400px;" alt="Lorenz Attractor visualization" />
+              <img src="/assets/infra/lorenz.gif" class="pb-2 ecosystem-image" style="width: 400px;height: 280px;object-fit: none;" 
+              alt="Lorenz Attractor visualization" />
               <div class="container">
                 <h4>
-                  Rich Ecosystem for Scientific Computing
+                  丰富的科学计算生态系统
                 </h4>
-                <p>Julia is designed from the ground up to be very good at numerical and scientific computing.
-                This can be seen in the abundance of scientific tooling written in Julia, such as the state-of-the-art differential equations ecosystem <a href = "https://sciml.ai/">(DifferentialEquations.jl)</a>, optimization tools (<a href = "https://github.com/JuliaOpt/JuMP.jl">JuMP.jl</a> and <a href = "https://github.com/JuliaNLSolvers/Optim.jl">Optim.jl</a>), iterative linear solvers <a href = "https://github.com/JuliaMath/IterativeSolvers.jl">(IterativeSolvers.jl)</a>, a robust framework for Fourier transforms <a href = "https://github.com/JuliaMath/AbstractFFTs.jl">(AbstractFFTs.jl)</a>, a general purpose quantum simulation framework <a href = "https://github.com/QuantumBFS/Yao.jl">(Yao.jl)</a>, and many more, that can drive all your simulations.</p>
-                <p>Julia also offers a number of domain-specific ecosystems, such as in biology <a href = "https://github.com/BioJulia"> (BioJulia)</a>, operations research <a href = "http://www.juliaopt.org/"> (JuliaOpt)</a>, image processing <a href = "https://juliaimages.github.io/latest/">(JuliaImages)</a>, quantum physics (<a href = "https://github.com/QuantumBFS">QuantumBFS</a>, <a href = "https://github.com/qojulia/QuantumOptics.jl">QuantumOptics</a>), nonlinear dynamics <a href = "https://github.com/JuliaDynamics"> (JuliaDynamics)</a>, quantitative economics <a href = "https://github.com/QuantEcon">(QuantEcon)</a>, astronomy <a href = "https://juliaastro.github.io"> (JuliaAstro)</a> and ecology <a href = "https://github.com/EcoJulia">(EcoJulia)</a>. With a set of highly enthusiastic developers and maintainers from various parts of the scientific community, this ecosystem will only continue to get bigger and bigger. </p>
+                <p>
+                  Julia 天生就擅长数值和科学计算。
+                  这一点可以从用 Julia 写的大量科学工具中看出。
+                  例如：最先进的微分方程生态系统（<a href="https://sciml.ai/">DifferentialEquations.jl</a>）、
+                  优化工具（<a href="https://github.com/JuliaOpt/JuMP.jl">JuMP.jl</a>
+                    和 <a href="https://github.com/JuliaNLSolvers/Optim.jl">Optim.jl</a>）、
+                  迭代线性求解器（<a href="https://github.com/JuliaMath/IterativeSolvers.jl">IterativeSolvers.jl</a>）、
+                  健壮的傅立叶变换框架（<a href="https://github.com/JuliaMath/AbstractFFTs.jl">AbstractFFTs.jl</a>）、
+                  通用的量子模拟框架（<a href="https://github.com/QuantumBFS/Yao.jl">Yao.jl</a>）等工具。
+                  它们可以满足驱动你所有的模拟需求。
+                </p>
+                <p>
+                  茱莉亚还提供了一些特定领域的软件生态，
+                  比如生物学（<a href="https://github.com/BioJulia">BioJulia</a>）、
+                    运筹学（<a href="http://www.juliaopt.org/">JuliaOpt</a>）、
+                    图像处理（<a href="https://juliaimages.github.io/latest/">JuliaImages</a>）、
+                    量子物理学（<a href="https://github.com/QuantumBFS">QuantumBFS</a>、
+                      <a href="https://github.com/qojulia/QuantumOptics.jl">QuantumOptics</a>）、
+                    非线性动力学（<a href="https://github.com/JuliaDynamics">JuliaDynamics</a>）、
+                    计量经济学（<a href="https://github.com/QuantEcon">QuantEcon</a>）、
+                    天文学（<a href="https://juliaastro.github.io">JuliaAstro</a>）
+                    和生态学（<a href="https://github.com/EcoJulia">EcoJulia</a>）。
+                  有了一群来自各个科学社区、高度热情的开发人员和维护人员，这个生态系统只会越来越大。
+                </p>
               </div>
             </div>
           </div>
@@ -259,10 +301,24 @@
             <div class="col-lg-12">
               <img src="/assets/infra/onlinestats.gif" class="pb-2 ecosystem-image" style="width: 400px;" alt="Visualization of weighted data changing as more data is plotted" />
               <div class="container">
-                <h4>Interact with your Data</h4>
-                <p>The Julia data ecosystem lets you load multidimensional datasets quickly, perform aggregations, joins and preprocessing operations in parallel, and save them to disk in efficient formats. You can also perform online computations on streaming data with <a href = "https://github.com/joshday/OnlineStats.jl">OnlineStats.jl</a>. Whether you're looking for the convenient and familiar <a href = "https://juliadata.github.io/DataFrames.jl/stable/">DataFrames</a>, or a new approach with <a href = "https://juliadb.org">JuliaDB</a>, Julia provides you a rich variety of tools.
-                The <a href = "https://www.queryverse.org/">Queryverse</a> provides query, file IO and visualization functionality. In addition to working with tabular data, the <a href = "https://juliagraphs.github.io">JuliaGraphs</a> packages make it easy to work with combinatorial data.</p>
-                <p>Julia can work with almost all databases using <a href = "https://github.com/JuliaDatabases/JDBC.jl">JDBC.jl</a> and <a href = "https://github.com/JuliaDatabases/ODBC.jl">ODBC.jl</a> drivers. In addition, it also integrates with the Hadoop ecosystem using <a href = "https://github.com/dfdx/Spark.jl">Spark.jl</a>, <a href = "https://github.com/JuliaParallel/HDFS.jl">HDFS.jl</a>, and <a href = "https://github.com/JuliaDatabases/Hive.jl"> Hive.jl</a>.</p>
+                <h4>交互式的处理你的数据</h4>
+                <p>
+                  Julia 的数据生态允许快速地加载多维数据集，并行执行聚合、连接和预处理操作，并以高效格式将它们保存到磁盘。
+                  您还可以使用 <a href="https://github.com/joshday/OnlineStats.jl">OnlineStats.jl</a> 对流数据执行在线计算。
+                  无论您是在寻找方便和熟悉的 <a href="https://juliadata.github.io/DataFrames.jl/stable/">DataFrames</a>，
+                  还是使用 <a href="https://juliadb.org">JuliaDB</a> 的一种新方法，Julia 都提供了丰富的工具。
+                  <a href="https://www.queryverse.org/">Queryverse</a> 提供查询、文件 IO 和可视化功能。
+                  除了表格数据处理外，<a href="https://juliagraphs.github.io">JuliaGraphs</a> 包还使处理组合数据变得更加容易。
+                </p>
+                <p>
+                  Julia 可以通过 <a href="https://github.com/JuliaDatabases/JDBC.jl">JDBC.jl</a> 和
+                  <a href="https://github.com/JuliaDatabases/ODBC.jl">ODBC.jl</a> 驱动处理几乎所有的数据库。
+                  此外，它还通过
+                    <a href="https://github.com/dfdx/Spark.jl">Spark.jl</a>、
+                    <a href="https://github.com/JuliaParallel/HDFS.jl">HDFS.jl</a>
+                    和 <a href="https://github.com/JuliaDatabases/Hive.jl"> Hive.jl</a>
+                  与 Spark 和 Hadoop 的软件生态集成在一起。
+                </p>
               </div>
             </div>
           </div>
@@ -275,45 +331,30 @@
             <div class="col-lg-12">
               <div class="container">
                 <img src="/assets/infra/waves.gif" class="pb-2 ecosystem-image" style="width: 400px;" alt="Visualization of waves in 3D, as a heatmap, and on the x y axis" />
-                <h4>Data Visualization and Plotting</h4>
-                <p>Data visualization has a complicated history. Plotting software makes trade-offs between features and simplicity, speed and beauty, and a static and dynamic interface. Some packages make a display and never change it, while others make updates in real-time.</p>
-                <p><a href="https://github.com/JuliaPlots/Plots.jl">Plots.jl</a> is a visualization interface and toolset. It provides a common API across various <a href="https://docs.juliaplots.org/latest/backends/">backends</a>, like <a href="https://github.com/jheinen/GR.jl">GR.jl</a>, <a href="https://github.com/JuliaPy/PyPlot.jl">PyPlot.jl</a>, and <a href="https://github.com/sglyon/PlotlyJS.jl">PlotlyJS.jl</a>. Users who prefer a more grammar of graphics style API might like the pure Julia <a href="https://github.com/GiovineItalia/Gadfly.jl">Gadfly.jl</a> plotting package. <a href="https://github.com/fredo-dedup/VegaLite.jl">VegaLite.jl</a> provides the <a href="https://vega.github.io/vega-lite/">Vega-Lite</a> grammar of interactive graphics interface as a Julia package. For those who do not wish to leave the comfort of the terminal, there is also <a href="https://docs.juliaplots.org/latest/backends/">UnicodePlots.jl</a>.</p>
-              </div>
-            </div>
-          </div>
-
-
-          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Lorenz Attractor in Julia</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-<pre><code class="julia">
-function fill_twos!(a)
-  for i=1:length(a)
-    a[i] = 2
-  end
-end
-
-function fast_strange_twos(n)
-  a = Array(randbool() ? Int64 : Float64, n)
-  fill_twos!(a)
-  return a
-end
-</code></pre>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+                <h4>数据可视化与绘图</h4>
+                <p>
+                  数据可视化有着复杂的历史。
+                  各种绘图软件都在不同方面做着取舍：功能与简洁性、速度与美观、静态与动态界面。
+                  一些包在显示图像后就不再更新图象，另一些则选择实时更新。
+                </p>
+                <p>
+                  <a href="https://github.com/JuliaPlots/Plots.jl">Plots.jl</a> 是一个数据可视化接口和工具集。
+                  它通过不同的<a href="https://docs.juliaplots.org/latest/backends/">后端</a>提供统一的 API 接口，
+                  例如：
+                    <a href="https://github.com/jheinen/GR.jl">GR.jl</a>、
+                    <a href="https://github.com/JuliaPy/PyPlot.jl">PyPlot.jl</a>
+                    和 <a href="https://github.com/sglyon/PlotlyJS.jl">PlotlyJS.jl</a>。
+                  喜欢图形风格 API 语法的用户可能会喜欢纯 Julia 实现的 <a href="https://github.com/GiovineItalia/Gadfly.jl">Gadfly.jl</a>。
+                  <a href="https://github.com/fredo-dedup/VegaLite.jl">VegaLite.jl</a> 包在 Julia 中提供了类
+                  <a href="https://vega.github.io/vega-lite/">Vega-Lite</a> 的交互式图形接口语法。
+                  对于那些不希望离开终端的人，还有 <a href="https://docs.juliaplots.org/latest/backends/">UnicodePlots.jl</a>
+                    包可供选择。
+                </p>
               </div>
             </div>
           </div>
         </div>
+
       </div>
 
       <br><br>
@@ -380,8 +421,8 @@ end
 
     <div class="row">
       <div class="col-12 text-center">
-        <a class="btn btn-sm btn-outline-primary" href="https://www.youtube.com/user/JuliaLanguage">Julia Channel on YouTube</a>
-        <a class="btn btn-sm btn-outline-primary" href="https://www.youtube.com/playlist?list=PLP8iPy9hna6StY9tIJIUN3F_co9A0zh0H">JuliaCon 2019 videos</a>
+        <a class="btn btn-sm btn-outline-primary" href="https://www.youtube.com/user/JuliaLanguage">YouTube 上的 Julia 频道</a>
+        <a class="btn btn-sm btn-outline-primary" href="https://www.youtube.com/playlist?list=PLP8iPy9hna6StY9tIJIUN3F_co9A0zh0H">JuliaCon 2019 视频 (Youtube)</a>
       </div>
     </div>
           <br>
@@ -396,22 +437,32 @@ end
       <div class="row">
         <div class="col-lg-4 col-md-3 ecosystem"><hr/></div>
         <div class="col-lg-4 col-md-6 ecosystem section-heading">
-          <h2 class="lead secondary-heading">Packages</h2>
+          <h2 class="lead secondary-heading">软件包</h2>
         </div>
         <div class="col-lg-4 col-md-3 ecosystem"><hr/></div>
       </div>
 
       <br>
 
-      <p>Julia has been downloaded over 13 million times and the Julia community has registered <a href="https://juliahub.com">over 3,000 Julia packages</a> for community use.
-      These include various mathematical libraries, data manipulation tools, and packages for general purpose computing. In addition to these, you can easily use libraries from <a href="https://github.com/JuliaPy/PyCall.jl">Python</a>, <a href="https://github.com/JuliaInterop/RCall.jl">R</a>, <a href="https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/#Calling-C-and-Fortran-Code-1">C/Fortran</a>, <a href="https://github.com/Keno/Cxx.jl">C++</a>, and <a href="https://github.com/JuliaInterop/JavaCall.jl">Java</a>.
-      If you do not find what you are looking for, ask on <a href="https://discourse.julialang.org">Discourse</a>, or even better, <a href="https://julialang.github.io/Pkg.jl/v1/">contribute one</a>!</p>
+      <p>
+        Julia 已经被下载超过 1300 万次，并且 Julia 社区已经注册了<a href="https://juliahub.com">超过 3000 个 Julia 包</a>供社区使用。
+        这些包涵盖各种数学库、数据处理工具和用于通用计算的包。
+        除此之外，您还可以轻松地使用来自
+          <a href="https://github.com/JuliaPy/PyCall.jl">Python</a>、
+          <a href="https://github.com/JuliaInterop/RCall.jl">R</a>、
+          <a href="https://docs.juliacn.com/latest/manual/calling-c-and-fortran-code/">C/Fortran</a>、
+          <a href="https://github.com/Keno/Cxx.jl">C++</a> 和 
+          <a href="https://github.com/JuliaInterop/JavaCall.jl">Java</a>
+        的库。
+        如果你找不到你想要的东西，在<a href="https://discourse.juliacn.com/">论坛上</a>问问别人，
+        或者更棒一些，自己开发一个<a href="https://julialang.github.io/Pkg.jl/v1/">新包</a>！
+      </p>
 
       <br><br>
 
       <div class="row">
         <div class="col-12" style="text-align: center">
-          <a class="btn btn-sm btn-outline-danger" href="https://juliahub.com">JuliaHub: Ecosystem Pulse</a>
+          <a class="btn btn-sm btn-outline-danger" href="https://juliahub.com">JuliaHub: 软件生态动态</a>
           <a class="btn btn-sm btn-outline-danger" href="https://juliaobserver.com/">Julia Observer</a>
         </div>
       </div>
@@ -429,7 +480,7 @@ end
     <div class="row">
       <div class="col-lg-4 col-md-3 language-features "><hr/></div>
       <div class="col-lg-4 col-md-6 language-features section-heading">
-        <h2 class="lead secondary-heading">Recent Blog Posts</h2>
+        <h2 class="lead secondary-heading">最新的博客文章</h2>
       </div>
       <div class="col-lg-4 col-md-3 language-features"><hr/></div>
     </div>
@@ -447,7 +498,7 @@ end
 
     <div class="row">
       <div class="col-12" style="text-align: center">
-        <a class="btn btn-sm btn-outline-primary" href="/blog/">Visit blog</a>
+        <a class="btn btn-sm btn-outline-primary" href="/blog/">访问博客</a>
       </div>
     </div>
 
@@ -467,7 +518,7 @@ end
     <div class="row">
       <div class="col-lg-4 col-md-3 ecosystem"><hr/></div>
         <div class="col-lg-4 col-md-6 ecosystem section-heading">
-          <h2 class="lead secondary-heading">Talk to us</h2>
+          <h2 class="lead secondary-heading">关注我们</h2>
         </div>
       <div class="col-lg-4 col-md-3 ecosystem"><hr/></div>
     </div>
@@ -478,35 +529,35 @@ end
     <!-- Row Discourse-Github-Videos-Twitter -->
     <div class="row">
       <div class="col-lg-3 col-md-6" style="text-align:center;">
-        <h3>Discourse</h3>
-		<a href="https://discourse.julialang.org/" target="_blank">
-        <img src="/assets/infra/discourse.svg" height="85" width="85" alt="Discourse Logo" /></a>
+        <h3>论坛</h3>
+		    <a href="https://discourse.juliacn.com/" target="_blank">
+          <img src="/assets/infra/discourse.svg" height="85" width="85" alt="Discourse Logo" /></a>
         <h4 class="outer-link">
-          <a class="link extra-link" href="https://discourse.julialang.org/" target="_blank">Discourse (English)</a>
+          <a class="link extra-link" href="https://discourse.juliacn.com/" target="_blank">中文论坛</a>
         </h4>
       </div>
       <div class="col-lg-3 col-md-6" style="text-align:center;">
-        <h3>GitHub</h3>
-		<a href="https://github.com/JuliaLang/julia" target="_blank">
-        <img src="/assets/infra/github.svg" height="85" width="85" alt="GitHub Logo" /></a>
+        <h3>Github</h3>
+        <a href="https://github.com/JuliaCN" target="_blank">
+          <img src="/assets/infra/github.svg" height="85" width="85" alt="GitHub Logo" /></a>
         <h4 class="outer-link">
-          <a class="link extra-link" href="https://github.com/JuliaLang/julia" target="_blank">Source code</a>
+          <a class="link extra-link" href="https://github.com/JuliaCN" target="_blank">JuliaCN 中文开源组织</a>
         </h4>
       </div>
       <div class="col-lg-3 col-md-6" style="text-align:center">
-        <h3>Videos</h3>
-		<a href="https://www.youtube.com/user/JuliaLanguage" target="_blank">
-        <img src="/assets/infra/youtube.svg" height="85" width="85" alt="YouTube Logo" /></a>
+        <h3>QQ 群</h3>
+		    <a href="" target="_blank">
+          <img src="/assets/infra/qq.svg" height="85" width="85" alt="YouTube Logo" /></a>
         <h4 class="outer-link">
-          <a class="link extra-link" href="https://www.youtube.com/user/JuliaLanguage" target="_blank">YouTube</a>
+          <a class="link extra-link" href="" target="_blank">中文社区讨论群：316628299</a>
         </h4>
       </div>
       <div class="col-lg-3 col-md-6" style="text-align:center">
-        <h3>Twitter</h3>
-		<a href="https://twitter.com/search?q=%23julialang" target="_blank">
-        <img src="/assets/infra/twitter.svg" height="85" width="85" alt="Twitter Logo" /></a>
+        <h3>知乎</h3>
+		<a href="https://www.zhihu.com/topic/19678370/hot" target="_blank">
+        <img src="/assets/infra/zhihu.svg" height="85" width="85" alt="Twitter Logo" /></a>
         <h4 class="outer-link">
-          <a class="link extra-link" href="https://twitter.com/search?q=%23julialang" target="_blank">#JuliaLang</a>
+          <a class="link extra-link" href="https://www.zhihu.com/topic/19678370/hot" target="_blank">提问带上 “Julia（编程语言）” 标签</a>
         </h4>
       </div>
     </div>
@@ -524,7 +575,7 @@ end
       <div class="row">
         <div class="col-lg-3 col-md-2 language-features"><hr/></div>
         <div class="col-lg-6 col-md-8 language-features section-heading">
-          <h2 class="lead secondary-heading">Editors and IDEs</h2>
+          <h2 class="lead secondary-heading">编辑器与集成开发环境</h2>
         </div>
         <div class="col-lg-3 col-md-2 language-features"><hr/></div>
       </div>
@@ -608,7 +659,7 @@ end
       <div class="row">
         <div class="col-lg-3 col-md-2 language-features"><hr/></div>
         <div class="col-lg-6 col-md-8 language-features section-heading">
-          <h2 class="lead secondary-heading">Essential Tools</h2>
+          <h2 class="lead secondary-heading">必备工具</h2>
         </div>
         <div class="col-lg-3 col-md-2 language-features"><hr/></div>
       </div>
@@ -617,7 +668,7 @@ end
 
       <div class="row ides">
         <div class="col-lg-3 col-md-6 ide ide-feature">
-          <h3>Debugger</h3>
+          <h3>调试</h3>
 		  	<a href="https://github.com/JuliaDebug/Debugger.jl" target="_blank">
             <img src="/assets/infra/Debug.png" height="85" width="85" alt="Debugger" /></a>
           <h4 class="outer-link">
@@ -625,15 +676,15 @@ end
           </h4>
         </div>
         <div class="col-lg-3 col-md-6 ide ide-feature">
-          <h3>Profiler</h3>
-		  	<a href="https://docs.julialang.org/en/v1/manual/profile/" target="_blank">
+          <h3>性能分析</h3>
+		  	<a href="https://docs.juliacn.com/latest/manual/profile/" target="_blank">
             <img src="/assets/infra/profile.png" height="85" width="85" alt="Profiler Logo" /></a>
           <h4 class="outer-link">
-            <a class="link extra-link" href="https://docs.julialang.org/en/v1/manual/profile/" target="_blank">Profile (Stdlib)</a>
+            <a class="link extra-link" href="https://docs.juliacn.com/latest/manual/profile/" target="_blank">Profile (标准库)</a>
           </h4>
         </div>
         <div class="col-lg-3 col-md-6 ide ide-feature">
-          <h3>Revise</h3>
+          <h3>动态修改</h3>
 		  	<a href="https://github.com/timholy/Revise.jl" target="_blank">
             <img src="/assets/infra/revise.png" height="85" width="85" alt="Revise Logo" /></a>
           <h4 class="outer-link">
