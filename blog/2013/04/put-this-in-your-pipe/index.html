@@ -13,7 +13,7 @@ julia&gt; dir = <span class=hljs-string >&quot;nonexistent&quot;</span>;
 julia&gt; int(readchomp(<span class=hljs-string >`find <span class=hljs-variable >$dir</span> -type f -print0`</span> |&gt; <span class=hljs-string >`xargs -0 grep foo`</span> |&gt; <span class=hljs-string >`wc -l`</span>))
 find: <span class=hljs-string >`nonexistent&#x27;: No such file or directory
 ERROR: failed processes:
-  Process(`</span>find nonexistent -<span class=hljs-keyword >type</span> f -print0<span class=hljs-string >`, ProcessExited(1)) [1]
+  Process(`</span>find nonexistent -type f -print0<span class=hljs-string >`, ProcessExited(1)) [1]
   Process(`</span>xargs -<span class=hljs-number >0</span> grep foo<span class=hljs-string >`, ProcessExited(123)) [123]
  in pipeline_error at process.jl:412
  in readall at process.jl:365
@@ -21,7 +21,7 @@ ERROR: failed processes:
 
 julia&gt; dir = &quot;foo&#x27;; echo MALICIOUS ATTACK; echo &#x27;&quot;;
 
-julia&gt; int(readchomp(`</span>find $dir -<span class=hljs-keyword >type</span> f -print0<span class=hljs-string >` |&gt; `</span>xargs -<span class=hljs-number >0</span> grep foo<span class=hljs-string >` |&gt; `</span>wc -l<span class=hljs-string >`))
+julia&gt; int(readchomp(`</span>find $dir -type f -print0<span class=hljs-string >` |&gt; `</span>xargs -<span class=hljs-number >0</span> grep foo<span class=hljs-string >` |&gt; `</span>wc -l<span class=hljs-string >`))
 find: `</span>foo\&#x27;; echo MALICIOUS ATTACK; echo \&#x27;&#x27;: No such file or directory
 ERROR: failed processes:
   Process(<span class=hljs-string >`find &quot;foo&#x27;; echo MALICIOUS ATTACK; echo &#x27;&quot; -type f -print0`</span>, ProcessExited(<span class=hljs-number >1</span>)) [<span class=hljs-number >1</span>]
@@ -219,7 +219,7 @@ julia&gt; <span class=hljs-string >`cat <span class=hljs-variable >$dir</span>/<
       <ul>
         <li><a href="/project">关于我们</a>
         <li><a href="/about/help">寻求帮助</a>
-        <li><a href="/community/#julia_github_groups">特定领域的 Github 组织</a>
+        <li><a href="https://julialang.org/community/organizations/">特定领域的 Github 组织</a>
         <li><a href="/blog/2019/02/julia-entities/">管理者</a>
         <li><a href="/research/#publications">出版物</a>
         <li><a href="/research/#sponsors">赞助者</a>
