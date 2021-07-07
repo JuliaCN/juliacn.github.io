@@ -4,27 +4,27 @@
 <span class=hljs-keyword >while</span> !done(iterable, state)
     (element, state) = next(iterable, state)
     <span class=hljs-comment ># body</span>
-<span class=hljs-keyword >end</span></code></pre> <p>A simple example is a range iterator which yields every nth element up to some number of elements:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >struct</span> EveryNth
+<span class=hljs-keyword >end</span></code></pre> <p>A simple example is a range iterator which yields every nth element up to some number of elements:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >struct</span> EveryNth
            n::<span class=hljs-built_in >Int</span>
            start::<span class=hljs-built_in >Int</span>
            length::<span class=hljs-built_in >Int</span>
        <span class=hljs-keyword >end</span>
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > Base.start(iter::EveryNth) = (iter.start, <span class=hljs-number >0</span>)
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > Base.start(iter::EveryNth) = (iter.start, <span class=hljs-number >0</span>)
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >function</span> Base.next(iter::EveryNth, state)
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >function</span> Base.next(iter::EveryNth, state)
            element, count = state
            <span class=hljs-keyword >return</span> (element, (element + iter.n, count + <span class=hljs-number >1</span>))
        <span class=hljs-keyword >end</span>
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >function</span> Base.done(iter::EveryNth, state)
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >function</span> Base.done(iter::EveryNth, state)
            _, count = state
            <span class=hljs-keyword >return</span> count &gt;= iter.length
        <span class=hljs-keyword >end</span>
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > Base.length(iter::EveryNth) = iter.length
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > Base.length(iter::EveryNth) = iter.length
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > Base.eltype(iter::EveryNth) = <span class=hljs-built_in >Int</span></span></code></pre> <p>Then we can iterate:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >for</span> element <span class=hljs-keyword >in</span> EveryNth(<span class=hljs-number >2</span>, <span class=hljs-number >0</span>, <span class=hljs-number >10</span>)
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > Base.eltype(iter::EveryNth) = <span class=hljs-built_in >Int</span></span></code></pre> <p>Then we can iterate:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >for</span> element <span class=hljs-keyword >in</span> EveryNth(<span class=hljs-number >2</span>, <span class=hljs-number >0</span>, <span class=hljs-number >10</span>)
            println(element)
        <span class=hljs-keyword >end</span>
 </span>0
@@ -36,7 +36,7 @@
 12
 14
 16
-18</code></pre> <p>Which is equivalent to:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >let</span> iterable = EveryNth(<span class=hljs-number >2</span>, <span class=hljs-number >0</span>, <span class=hljs-number >10</span>), state = start(iterable)
+18</code></pre> <p>Which is equivalent to:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >let</span> iterable = EveryNth(<span class=hljs-number >2</span>, <span class=hljs-number >0</span>, <span class=hljs-number >10</span>), state = start(iterable)
            <span class=hljs-keyword >while</span> !done(iterable, state)
                (element, state) = next(iterable, state)
                println(element)
@@ -56,13 +56,13 @@
     (element, state) = iter_result
     <span class=hljs-comment ># body</span>
     iter_result = iterate(iterable, state)
-<span class=hljs-keyword >end</span></code></pre> <p>The <code>iterate</code> function has two methods. The first is called once, to begin iteration &#40;like the old <code>start</code>&#41; and <em>also</em> perform the first iteration step. The second is called repeatedly to iterate, like <code>next</code> in Julia 0.6.</p> <p>The <code>EveryNth</code> example now looks like this:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >struct</span> EveryNth
+<span class=hljs-keyword >end</span></code></pre> <p>The <code>iterate</code> function has two methods. The first is called once, to begin iteration &#40;like the old <code>start</code>&#41; and <em>also</em> perform the first iteration step. The second is called repeatedly to iterate, like <code>next</code> in Julia 0.6.</p> <p>The <code>EveryNth</code> example now looks like this:</p> <pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >struct</span> EveryNth
            n::<span class=hljs-built_in >Int</span>
            start::<span class=hljs-built_in >Int</span>
            length::<span class=hljs-built_in >Int</span>
        <span class=hljs-keyword >end</span>
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > <span class=hljs-keyword >function</span> Base.iterate(iter::EveryNth, state=(iter.start, <span class=hljs-number >0</span>))
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >function</span> Base.iterate(iter::EveryNth, state=(iter.start, <span class=hljs-number >0</span>))
            element, count = state
 </span>
            if count &gt;= iter.length
@@ -72,9 +72,9 @@
            return (element, (element + iter.n, count + 1))
        end
 
-<span class=hljs-meta >julia&gt;</span><span class=julia > Base.length(iter::EveryNth) = iter.length
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > Base.length(iter::EveryNth) = iter.length
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=julia > Base.eltype(iter::EveryNth) = <span class=hljs-built_in >Int</span></span></code></pre> <p>In our <code>iterate</code> function we define a default value for <code>state</code> which is used when <code>iterate</code> is called with one argument. <sup id="fnref:defaults"><a href="#fndef:defaults" class=fnref >[1]</a></sup></p> <p>This is already less code than the old interface required, but we can reduce it further using another new <a href="https://github.com/JuliaLang/julia/pull/23337">feature</a> of Julia 0.7.</p> <pre><code class="julia hljs"><span class=hljs-keyword >function</span> Base.iterate(it::EveryNth, (el, i)=(it.start, <span class=hljs-number >0</span>))
+<span class=hljs-meta >julia&gt;</span><span class=language-julia > Base.eltype(iter::EveryNth) = <span class=hljs-built_in >Int</span></span></code></pre> <p>In our <code>iterate</code> function we define a default value for <code>state</code> which is used when <code>iterate</code> is called with one argument. <sup id="fnref:defaults"><a href="#fndef:defaults" class=fnref >[1]</a></sup></p> <p>This is already less code than the old interface required, but we can reduce it further using another new <a href="https://github.com/JuliaLang/julia/pull/23337">feature</a> of Julia 0.7.</p> <pre><code class="julia hljs"><span class=hljs-keyword >function</span> Base.iterate(it::EveryNth, (el, i)=(it.start, <span class=hljs-number >0</span>))
 	<span class=hljs-keyword >return</span> i &gt;= it.length ? <span class=hljs-literal >nothing</span> : (el, (el + it.n, i + <span class=hljs-number >1</span>))
 <span class=hljs-keyword >end</span></code></pre> <p>I personally prefer verbosity when it increases readability, but some people prefer shorter code, and that&#39;s easier than ever to achieve.</p> <h3 id=a_note_on_compatibility ><a href="#a_note_on_compatibility" class=header-anchor >A Note on Compatibility</a></h3> <p>To assist with transitioning between versions, Julia 0.7 includes fallback definitions of <code>iterate</code> which call <code>start</code>, <code>next</code>, and <code>done</code>. If you want code to work on both 0.6 and 0.7, I recommend keeping your iterators defined in those terms, as there isn&#39;t a good way to use the <code>iterate</code> interface on Julia 0.6. Julia 1.0 will remove those fallback definitions and all usage of the old iteration interface.</p> <h2 id=common_strategies ><a href="#common_strategies" class=header-anchor >Common Strategies</a></h2> <p>The above example was constructed to be as straightforward as possible, but not all iteration is that easy to express. Luckily, the new interface was designed to assist with situations which were previously difficult or inefficient, and in some cases &#40;like the <code>EveryNth</code> example&#41; reduces the amount of code necessary. While <a href="https://github.com/JuliaCollections/IterTools.jl/pull/35">updating</a> <a href="https://github.com/JuliaCollections/IterTools.jl">IterTools.jl</a>, I came across a few patterns which repeatedly proved useful.</p> <h3 id=wrapping_another_iterable ><a href="#wrapping_another_iterable" class=header-anchor >Wrapping Another Iterable</a></h3> <p>In many cases, the iterable we want to create is a transformation applied to a caller-supplied iterable. Many of the useful patterns apply specifically to this situation.</p> <h4 id=early_return ><a href="#early_return" class=header-anchor >Early Return</a></h4> <p>When wrapping an iterable, we usually want to terminate when the wrapped iterable terminates, i.e., return <code>nothing</code> when the wrapped call to <code>iterate</code> returns <code>nothing</code>. If the call to <code>iterate</code> doesn&#39;t return <code>nothing</code>, we want to apply some operations before returning. This pattern was common and simple enough to justify a macro which in IterTools I&#39;ve called <code>@ifsomething</code> </p> <pre><code class="julia hljs"><span class=hljs-keyword >macro</span> ifsomething(ex)
     <span class=hljs-keyword >quote</span>
