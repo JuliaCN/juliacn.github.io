@@ -170,7 +170,7 @@ baz     qux     <span class=hljs-number >2</span></code></pre>
  <span class=hljs-string >&quot;a.tsv&quot;</span>
  <span class=hljs-string >&quot;b.tsv&quot;</span></code></pre>
 <p>A tab character is somewhat harder to pass in the shell, requiring command interpolation and some tricky quoting:</p>
-<pre><code class="bash hljs">bash-3.2$ join -t<span class=hljs-string >&quot;<span class=hljs-subst >$(printf &#x27;\t&#x27;)</span>&quot;</span> tmp/a.tsv tmp/b.tsv
+<pre><code class="bash hljs">bash-3.2$ <span class=hljs-built_in >join</span> -t<span class=hljs-string >&quot;<span class=hljs-subst >$(printf &#x27;\t&#x27;)</span>&quot;</span> tmp/a.tsv tmp/b.tsv
 foo	    bar	    1
 baz	    qux	    2</code></pre>
 <p>While interpolating values with spaces and other strange characters is great for non-brittle construction of commands, there was a reason why the shell split values on spaces in the first place: to allow interpolation of multiple arguments. Most modern shells have first-class array types, but older shells used space-separation to simulate arrays. Thus, if you interpolate a value like &quot;foo bar&quot; into a command in the shell, it&#39;s treated as two separate words by default. In languages with first-class array types, however, there&#39;s a much better option: consistently interpolate single values as single arguments and interpolate arrays as multiple values. This is precisely what Julia&#39;s backtick interpolation does:</p>
