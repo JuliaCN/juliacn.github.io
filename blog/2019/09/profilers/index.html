@@ -68,22 +68,22 @@ $ perf record --call-graph dwarf ./a.out
 <p>There&#39;s also a bunch of other options for <code>--call-graph</code>, but all of them spewed vast amounts of &#40;mis&#41;information, so I&#39;ve opted not to try to fit that in here.</p>
 <h2 id=profiling_julialang_code ><a href="#profiling_julialang_code" class=header-anchor >Profiling JuliaLang code</a></h2>
 <p>Now let&#39;s see how JuliaLang &#40;v1.3&#41; does:</p>
-<pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-meta >@noinline</span> <span class=hljs-keyword >function</span> fib(n)
+<pre><code class="julia-repl hljs"><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > <span class=hljs-meta >@noinline</span> <span class=hljs-keyword >function</span> fib(n)
          <span class=hljs-keyword >return</span> n &gt; <span class=hljs-number >1</span> ? fib_r(n - <span class=hljs-number >1</span>) + fib_r(n - <span class=hljs-number >2</span>) : <span class=hljs-number >1</span>
        <span class=hljs-keyword >end</span>
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-meta >@noinline</span> fib_r(n) = fib(n)
+<span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > <span class=hljs-meta >@noinline</span> fib_r(n) = fib(n)
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-meta >@time</span> fib(<span class=hljs-number >40</span>)
+<span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > <span class=hljs-meta >@time</span> fib(<span class=hljs-number >40</span>)
 </span>  0.738735 seconds (3.16 k allocations: 176.626 KiB)
 165580141
 
-<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-keyword >using</span> Profile
+<span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > <span class=hljs-keyword >using</span> Profile
 </span>
-<span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-meta >@profile</span> fib(<span class=hljs-number >40</span>)
+<span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > <span class=hljs-meta >@profile</span> fib(<span class=hljs-number >40</span>)
 </span>165580141
 
-<span class=hljs-meta >julia&gt;</span><span class=language-julia > Profile.print(format=:flat, sortedby=:count)
+<span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > Profile.print(format=:flat, sortedby=:count)
 </span> Count File      Line Function
     12 int.jl      52 -
     14 int.jl      53 +
@@ -91,11 +91,11 @@ $ perf record --call-graph dwarf ./a.out
   5717 REPL[2]      1 fib_r
   6028 REPL[1]      2 fib
 
-<span class=hljs-meta >julia&gt;</span><span class=language-julia > count(==(<span class=hljs-number >0</span>), Profile.fetch())
+<span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > count(==(<span class=hljs-number >0</span>), Profile.fetch())
 </span>585</code></pre>
 <p>So that&#39;s pretty bad—we appear to have about 212 samples, going by the counts on the <code>eval</code> function at the top of the stack. And we&#39;re told that about 2000&#37; of the time was in <code>fib</code>. Clearly not true. What happened here? We computed that <code>fib</code> &#40;and <code>fib_r</code>&#41; each appeared an average of 10-20 times in every backtrace, so we over-represent them in our flat-format output. OK, so first thing to do is to fix that: each frame should only be counted once towards each output line.</p>
 <p>But there&#39;s also the recursive option, which doesn&#39;t suffer from this particular issue. So how does it fare:</p>
-<pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > Profile.print(format=:tree)
+<pre><code class="julia-repl hljs"><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > Profile.print(format=:tree)
 </span>260 REPL[1]:2; fib(::Int64)
 112 REPL[1]:1; fib_r(::Int64)
 212 task.jl:333; REPL.var&quot;##26#27&quot;
@@ -205,7 +205,7 @@ $ perf record --call-graph dwarf ./a.out
 <p>However, none of these option are helpful for our tree above. We need more tools in our toolbox&#33;</p>
 <p>Let&#39;s now examine how we can try to consolidate the recursive frames somehow. One option is the flat reports we looked at earlier.</p>
 <p>Here&#39;s that same flat report above with the counts corrected &#40;in Julia v1.4-dev&#41;, and some extra information also now compiled for it:</p>
-<pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > Profile.print(format=:flat, sortedby=:counts)
+<pre><code class="julia-repl hljs"><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > Profile.print(format=:flat, sortedby=:counts)
 </span> Count  Overhead File      Line Function
    228         2 ./boot.jl  330 eval
      2         2 ./int.jl    52 -
@@ -253,7 +253,7 @@ Showing nodes accounting <span class=hljs-keyword >for</span> 632, 100% of 632 t
 
 </ul>
 <p>So this will no longer be a literal interpretation of the stack, but will show a particular linearization where each recursive call was re-written as a loop. This has a few secondary implications. It means that we may now see counts that sum to greater than their parent. For example, 100&#37; &#40;236/236&#41; of the time inside the parent <code>fib</code> was spent inside the child <code>fib_r</code>, and additionally, 4&#37; &#40;9/236&#41; were recorded as being part of a direct call to <code>fib</code> from <code>fib</code> &#40;an artifact caused by unreliable stack recording&#41;. Additionally, if you recall the definition of <code>fib</code> above, <code>fib</code> has two distinct calls to <code>fib_r</code>. Since the goal was to rearrange recursive calls, and not recursive lines, we expect to see those two calls reflected exactly in the profile shape too. However, there&#39;s no distinction made between <em>which</em> call each was from &#40;unless you also pass <code>collapse&#61;false</code><sup id="fnref:2"><a href="#fndef:2" class=fnref >[2]</a></sup>&#41;.</p>
-<pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > Profile.print(format=:tree, recur=:flat)
+<pre><code class="julia-repl hljs"><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > Profile.print(format=:tree, recur=:flat)
 </span>94  ./REPL[1]:1; fib_r(::Int64)
 260 ./REPL[2]:2; fib(::Int64)
 275 ./task.jl:333; (::REPL.var&quot;##26#27&quot;{REPL.REPLBackend})()
@@ -300,9 +300,9 @@ Total snapshots: 629</code></pre>
     return y
 end</code></pre>
 <p>Post-note: There was also an off-by-one lookup error in Profile.jl too that will soon be resolved. This is almost never an issue, but we can sometimes notice it as bogus information showing some frame that should never have been reached. For example, we can profile a call to the expensive <code>cpuid</code> instruction, and see that there&#39;s a bogus frame that makes it appear we used some code that happened to be located outside the target function was somehow getting used.</p>
-<pre><code class="julia-repl hljs"><span class=hljs-meta >julia&gt;</span><span class=language-julia > testf() = <span class=hljs-keyword >for</span> i = <span class=hljs-number >1</span>:<span class=hljs-number >10</span>^<span class=hljs-number >7</span>; <span class=hljs-keyword >ccall</span>(:jl_cpuid, <span class=hljs-built_in >Cvoid</span>, (<span class=hljs-built_in >Ref</span>{<span class=hljs-built_in >NTuple</span>{<span class=hljs-number >4</span>,<span class=hljs-built_in >Int32</span>}}, <span class=hljs-built_in >Int32</span>), (<span class=hljs-number >0</span>,<span class=hljs-number >0</span>,<span class=hljs-number >0</span>,<span class=hljs-number >0</span>), <span class=hljs-number >0</span>); <span class=hljs-keyword >end</span>
-</span><span class=hljs-meta >julia&gt;</span><span class=language-julia > <span class=hljs-meta >@profile</span> testf()
-</span><span class=hljs-meta >julia&gt;</span><span class=language-julia > Profile.print(C=<span class=hljs-literal >true</span>)
+<pre><code class="julia-repl hljs"><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > testf() = <span class=hljs-keyword >for</span> i = <span class=hljs-number >1</span>:<span class=hljs-number >10</span>^<span class=hljs-number >7</span>; <span class=hljs-keyword >ccall</span>(:jl_cpuid, <span class=hljs-built_in >Cvoid</span>, (<span class=hljs-built_in >Ref</span>{<span class=hljs-built_in >NTuple</span>{<span class=hljs-number >4</span>,<span class=hljs-built_in >Int32</span>}}, <span class=hljs-built_in >Int32</span>), (<span class=hljs-number >0</span>,<span class=hljs-number >0</span>,<span class=hljs-number >0</span>,<span class=hljs-number >0</span>), <span class=hljs-number >0</span>); <span class=hljs-keyword >end</span>
+</span><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > <span class=hljs-meta >@profile</span> testf()
+</span><span class="hljs-meta prompt_">julia&gt;</span><span class=language-julia > Profile.print(C=<span class=hljs-literal >true</span>)
 </span>201 ./REPL[2]:1; testf()
  199 ./REPL[1]:1; cpuid
   3   ./processor_x86.cpp:8; jl_cpuid
