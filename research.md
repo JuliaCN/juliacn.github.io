@@ -38,6 +38,27 @@ We thank our sponsors for making Julia possible:
 * And all of our [individual sponsors on GitHub](https://github.com/sponsors/JuliaLang). 
 @@
 
+## JuliaCN Sponsors
+
+JuliaCN thank the sponsors of JuliaCN meetups and document translation events:
+
+~~~
+<div style="margin-bottom: 20px;">
+<div style="display:inline-block; text-align:center; margin-right:20px;">
+    <a href="https://swarma.org/" class="nounderline"><img src="/assets/images/jizhi.png" style="max-height:50px"/></a>
+</div>
+<div style="display:inline-block; text-align:center; margin-right:20px;">
+    <a href="https://www.bytedance.com/" class="nounderline"><img src="/assets/images/bytedance.webp" style="max-height:30px"/></a>
+</div>
+<div style="display:inline-block; text-align:center; margin-right:20px;">
+    <a href="https://www.tongyuan.cc/" class="nounderline"><img src="/assets/images/tongyuan.png" style="max-height:50px"/></a>
+</div>
+<div style="display:inline-block; text-align:center">
+    <a href="https://caiyunapp.com/" class="nounderline"><img src="/assets/images/caiyun.webp" style="max-height:50px"/><big> 彩云科技</big></a>
+</div>
+</div>
+~~~
+
 ## Publications
 
 Here's a list of publications about the Julia language, its standard
