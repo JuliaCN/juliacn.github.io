@@ -1,24 +1,11 @@
 # README
 
-这里是 [cn.julialang.org](https://cn.julialang.org) 的源码，提供对 Julia 英文官方网站 ([julialang.org](https://julialang.org)) 的中文翻译版。
+这里是 [cn.julialang.org](https://cn.julialang.org) 的源码。本站是一个单页静态网站，只收录面向国内用户的资源（镜像、中文文档、社区渠道）；Julia 的官方信息请以 [julialang.org](https://julialang.org) 为准。
 
-## 如何贡献翻译？
+## 如何修改？
 
-Fork 本 repo，然后直接在github上编辑，发Pull Request（注意发PR的时候要merge到dev分支，而不是master分支）。
+直接编辑 `index.html`，向 `dev` 分支发 Pull Request 即可。合并到 `dev` 后，GitHub Actions 会自动发布到 `master` 分支。
 
-或者，也可以本地预览确认修改之后，再发PR。下载最新版的Julia，切换到该repo所在的目录，打开Julia REPL，安装Franklin.jl并serve对应的静态文件:
+本地预览：用浏览器直接打开 `index.html`，或在仓库目录运行 `python3 -m http.server` 后访问 <http://localhost:8000>。
 
-```julia
-julia> using Pkg; Pkg.add("Franklin")
-
-julia> using Franklin
-
-julia> serve()
-→ Initial full pass...
-→ evaluating code [...] (learning/code-examples.md)
-→ Starting the server...
-✓ LiveServer listening on https://localhost:8000/ ...
-  (use CTRL+C to shut down)
-```
-
-然后用编辑器修改相应的文件，网页会自动刷新预览，确认无误之后再发PR即可。
+请不要在页面中写入具体的 Julia 版本号，以免过时。
