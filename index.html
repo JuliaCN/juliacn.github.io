@@ -26,11 +26,18 @@
     color: var(--fg);
     font: 16px/1.7 -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   }
-  main { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
-  header { text-align: center; margin-bottom: 40px; }
+  main { max-width: 760px; margin: 0 auto; padding: 8px 16px 64px; }
+  header {
+    text-align: center;
+    color: #fff;
+    padding: 40px 16px 36px;
+    background: #1a1a33 url("assets/backsplash.svg") repeat-x;
+    background-size: auto 100%;
+  }
   header img { width: 160px; height: auto; }
   h1 { font-size: 1.8rem; margin: 12px 0 4px; }
-  header p { color: var(--muted); margin: 0; }
+  header p { color: rgba(255, 255, 255, 0.85); margin: 0; }
+  header a { color: #fff; text-decoration: underline; }
   h2 { font-size: 1.25rem; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
   a { color: var(--link); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -52,12 +59,12 @@
 </style>
 </head>
 <body>
+<header>
+  <img src="assets/logo-dark.svg" alt="Julia" width="160" height="100">
+  <h1>Julia 中文社区</h1>
+  <p>Julia 语言的官方信息请访问 <a href="https://julialang.org">julialang.org</a>，本页只收录面向国内用户的资源。</p>
+</header>
 <main>
-  <header>
-    <img src="assets/logo.svg" alt="Julia">
-    <h1>Julia 中文社区</h1>
-    <p>Julia 语言的官方信息请访问 <a href="https://julialang.org">julialang.org</a>，本页只收录面向国内用户的资源。</p>
-  </header>
 
   <h2>安装 Julia</h2>
   <p>官方推荐使用 <a href="https://github.com/JuliaLang/juliaup">juliaup</a> 安装和管理 Julia 版本。设置 <code>JULIAUP_SERVER</code> 后，Julia 将从国内镜像下载：</p>
