@@ -6,7 +6,7 @@
 
 直接编辑 `index.html`，向 `dev` 分支发 Pull Request 即可。
 
-本地预览：用浏览器直接打开 `index.html`，或在仓库目录运行 `python3 -m http.server` 后访问 <http://localhost:8000>。
+本地预览：用浏览器直接打开 `index.html` 即可。
 
 请不要在页面中写入具体的 Julia 版本号，以免过时。
 
