@@ -1,8 +1,0 @@
-.jekyll-metadata
-/_site
-/.ipynb_checkpoints
-.*~
-.*.sw?
-.DS_Store
-
-Gemfile.lock
