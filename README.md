@@ -4,7 +4,7 @@
 
 ## 如何修改？
 
-直接编辑 `index.html`，向 `dev` 分支发 Pull Request 即可。合并到 `dev` 后，GitHub Actions 会自动发布到 `master` 分支。
+直接编辑 `index.html`，向 `dev` 分支发 Pull Request 即可。合并到 `dev` 后，GitHub Actions 会自动发布到 `gh-pages` 分支。
 
 本地预览：用浏览器直接打开 `index.html`，或在仓库目录运行 `python3 -m http.server` 后访问 <http://localhost:8000>。
 
