@@ -64,20 +64,31 @@
   <p><strong>macOS / Linux</strong></p>
 <pre><code>export JULIAUP_SERVER=https://mirrors.tuna.tsinghua.edu.cn/julia-releases/
 curl -fsSL https://install.julialang.org | sh</code></pre>
-  <p><strong>Windows</strong>（PowerShell）</p>
-<pre><code>[Environment]::SetEnvironmentVariable("JULIAUP_SERVER", "https://mirrors.tuna.tsinghua.edu.cn/julia-releases/", "User")
+  <p><strong>Windows</strong>（PowerShell，第一行对当前窗口生效，第二行永久保存）</p>
+<pre><code>$env:JULIAUP_SERVER = "https://mirrors.tuna.tsinghua.edu.cn/julia-releases/"
+[Environment]::SetEnvironmentVariable("JULIAUP_SERVER", $env:JULIAUP_SERVER, "User")
 winget install --name Julia --id 9NJNWW8PVKMN -e -s msstore</code></pre>
-  <p class="note">建议把 <code>JULIAUP_SERVER</code> 写入 shell 配置文件（如 <code>~/.bashrc</code>、<code>~/.zshrc</code>），以便之后用 <code>juliaup update</code> 升级时同样使用镜像。手动下载安装包请见 <a href="https://julialang.org/downloads/">julialang.org/downloads</a>。</p>
 
   <h2>包管理器镜像</h2>
   <p>设置 <code>JULIA_PKG_SERVER</code> 环境变量即可让 <code>Pkg</code> 从国内镜像下载注册表和包：</p>
-<pre><code>export JULIA_PKG_SERVER=https://mirrors.tuna.tsinghua.edu.cn/julia</code></pre>
-  <p>可用的镜像站（均同时提供 Julia 安装包 <code>/julia-releases/</code> 与包服务器 <code>/julia</code>）：</p>
+  <p><strong>macOS / Linux</strong></p>
+<pre><code>export JULIA_PKG_SERVER=https://mirror.nju.edu.cn/julia</code></pre>
+  <p><strong>Windows</strong>（PowerShell）</p>
+<pre><code>$env:JULIA_PKG_SERVER = "https://mirror.nju.edu.cn/julia"
+[Environment]::SetEnvironmentVariable("JULIA_PKG_SERVER", $env:JULIA_PKG_SERVER, "User")</code></pre>
+  <p class="note">在 macOS / Linux 上，请把上面的 <code>export</code> 两行（<code>JULIAUP_SERVER</code> 和 <code>JULIA_PKG_SERVER</code>）写入 shell 配置文件（如 <code>~/.bashrc</code>、<code>~/.zshrc</code>），否则新开的终端不会使用镜像。也可以在 <code>~/.julia/config/startup.jl</code> 中写入 <code>ENV["JULIA_PKG_SERVER"] = "https://mirror.nju.edu.cn/julia"</code>。</p>
+
+  <p>包服务器镜像（<code>JULIA_PKG_SERVER</code>）：</p>
   <ul>
-    <li><a href="https://mirrors.tuna.tsinghua.edu.cn/help/julia-releases/">清华大学 TUNA</a>：<code>https://mirrors.tuna.tsinghua.edu.cn/julia</code></li>
-    <li><a href="https://mirrors.ustc.edu.cn/help/julia.html">中国科学技术大学 USTC</a>：<code>https://mirrors.ustc.edu.cn/julia</code></li>
-    <li><a href="https://mirrors.sjtug.sjtu.edu.cn/">上海交通大学 SJTUG</a>：<code>https://mirrors.sjtug.sjtu.edu.cn/julia</code></li>
-    <li><a href="https://mirrors.bfsu.edu.cn/help/julia-releases/">北京外国语大学 BFSU</a>：<code>https://mirrors.bfsu.edu.cn/julia</code></li>
+    <li><a href="https://mirror.nju.edu.cn/">南京大学 NJU</a>：<code>https://mirror.nju.edu.cn/julia</code></li>
+    <li><a href="https://mirrors.pku.edu.cn/">北京大学 PKU</a>：<code>https://mirrors.pku.edu.cn/julia</code></li>
+  </ul>
+  <p>Julia 安装包镜像（<code>JULIAUP_SERVER</code>）：</p>
+  <ul>
+    <li><a href="https://mirrors.tuna.tsinghua.edu.cn/help/julia-releases/">清华大学 TUNA</a>：<code>https://mirrors.tuna.tsinghua.edu.cn/julia-releases/</code></li>
+    <li><a href="https://mirrors.bfsu.edu.cn/help/julia-releases/">北京外国语大学 BFSU</a>：<code>https://mirrors.bfsu.edu.cn/julia-releases/</code></li>
+    <li><a href="https://mirrors.sjtug.sjtu.edu.cn/docs/julia">上海交通大学 SJTUG</a>：<code>https://mirrors.sjtug.sjtu.edu.cn/julia-releases/</code></li>
+    <li><a href="https://mirror.nju.edu.cn/">南京大学 NJU</a>：<code>https://mirror.nju.edu.cn/julia-releases/</code></li>
   </ul>
   <p class="note">镜像相关问题欢迎在<a href="https://discourse.juliacn.com/">中文论坛</a>提问。</p>
 
